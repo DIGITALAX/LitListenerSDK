@@ -8,8 +8,9 @@
   "types": "dist/src/index.d.ts",
   "scripts": {
     "test": "jest --runInBand",
+    "hardhat-test": "npx hardhat test",
     "build": "rm -rf dist && microbundle --tsconfig tsconfig.json tsc --declaration",
-    "postinstall": "typechain --target ethers-v6 --out-dir typechain-types/contracts './src/abis/*.json'",
+    "postinstall": "typechain --target ethers-v5 --out-dir typechain-types/contracts './src/abis/*.json'",
     "build-publish": "npm run build && npm publish"
   },
   "repository": {
@@ -28,25 +29,28 @@
   "dependencies": {
     "@lit-protocol/lit-node-client": "^2.2.24",
     "@mdip/ipfs-core": "^0.0.3",
-    "@typechain/ethers-v6": "^0.4.0",
+    "@typechain/ethers-v5": "^11.0.0",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "bs58": "^5.0.0",
     "dotenv": "^16.3.1",
-    "ethers": "^6.6.0",
+    "ethers": "^5.7.2",
     "express": "^4.18.2",
     "ipfs-only-hash": "^4.0.0",
     "siwe": "^2.1.4",
     "typechain": "^8.2.0"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@openzeppelin/contracts": "^4.9.2",
     "@types/bs58": "^4.0.1",
     "@types/chai": "^4.3.5",
     "@types/jest": "^29.5.2",
     "hardhat": "^2.15.0",
     "jest": "^29.5.0",
-    "ts-jest": "^29.1.0"
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1"
   }
 }
