@@ -19,8 +19,10 @@ import {
   ContractCondition,
   IConditionalLogic,
   IExecutionConstraints,
+  ILogEntry,
   LitChainIds,
   LitUnsignedTransaction,
+  LogCategory,
   RunStatus,
   UnsignedTransactionData,
   WebhookCondition,
@@ -97,10 +99,7 @@ export class Circuit extends EventEmitter {
    * The array of log messages.
    * @private
    */
-  private logs: {
-    category: "error" | "response" | "condition";
-    message: string;
-  }[] = new Array(this.logSize);
+  private logs: ILogEntry[] = new Array(this.logSize);
   /**
    * The current index of the log array.
    * @private
@@ -182,14 +181,14 @@ export class Circuit extends EventEmitter {
     this.monitor = new ConditionMonitor();
     this.conditionalLogic = { type: "EVERY" };
     this.monitor.on("conditionMatched", (condition) => {
-      this.log("condition", `Condition ${condition.id} matched`);
+      this.log(LogCategory.CONDITION, `Condition ${condition.id} matched`);
     });
     this.monitor.on("conditionNotMatched", (condition) => {
-      this.log("condition", `Condition ${condition.id} not matched`);
+      this.log(LogCategory.CONDITION, `Condition ${condition.id} not matched`);
     });
     this.monitor.on("conditionError", (error, condition) => {
       this.log(
-        "error",
+        LogCategory.ERROR,
         `Error in condition monitoring with condition ${condition.id}: ${error}`,
       );
     });
@@ -587,13 +586,25 @@ export class Circuit extends EventEmitter {
   };
 
   /**
-   * Returns the logs of the circuit.
+   * Returns the logs of the circuit. 1000 logs are recorded on a rolling basis.
+   * @param category - Optional. Returns logs of a specific type i.e. error, response, condition. If no category is passed then all logs are returned.
    * @returns The logs of the circuit.
    */
-  getLogs = () => {
+  getLogs = (category?: LogCategory): ILogEntry[] => {
+    if (!category) {
+      return [
+        ...this.logs.slice(this.logIndex),
+        ...this.logs.slice(0, this.logIndex),
+      ];
+    }
+
     return [
-      ...this.logs.slice(this.logIndex),
-      ...this.logs.slice(0, this.logIndex),
+      ...this.logs
+        .slice(this.logIndex)
+        .filter((log) => log.category === category),
+      ...this.logs
+        .slice(0, this.logIndex)
+        .filter((log) => log.category === category),
     ];
   };
 
@@ -701,12 +712,12 @@ export class Circuit extends EventEmitter {
         },
       });
       this.log(
-        "response",
+        LogCategory.RESPONSE,
         `Circuit executed successfully. Lit Action Response: ${response}`,
       );
       this.successfulCompletionCount++;
     } catch (err: any) {
-      this.log("error", `Lit Action failed: ${err.message}`);
+      this.log(LogCategory.ERROR, `Lit Action failed: ${err.message}`);
       throw new Error(`Error running Lit Action: ${err}`);
     }
   };
@@ -828,10 +839,7 @@ export class Circuit extends EventEmitter {
    * @param category - The type of message to log.
    * @param message - The message to log.
    */
-  private log = (
-    category: "error" | "response" | "condition",
-    message: string,
-  ) => {
+  private log = (category: LogCategory, message: string) => {
     this.logs[this.logIndex] = { category, message };
     this.logIndex = (this.logIndex + 1) % this.logSize;
     this.emit("log", message);

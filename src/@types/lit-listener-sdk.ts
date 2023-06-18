@@ -455,7 +455,6 @@ export class WebhookCondition implements IWebhookCondition {
 
 export type Condition = ContractCondition | WebhookCondition;
 
-
 /**
  * @interface IExecutionConstraints
  * @description Represents the execution constraints for running the circuit.
@@ -469,4 +468,15 @@ export interface IExecutionConstraints {
   startDate?: Date;
   endDate?: Date;
   maxSuccessfulCompletions?: number;
+}
+
+export enum LogCategory {
+  ERROR,
+  RESPONSE,
+  CONDITION,
+}
+
+export interface ILogEntry {
+  category: LogCategory;
+  message: string;
 }
