@@ -1,30 +1,12 @@
-The LitListenerSDK enables developers with an easy interface to automate responses from webhooks, subscribed on-chain events and intervals through triggered callback functions and the use of PKPs.
+The LitListenerSDK is an open source typescript SDK, compatible with node and browser, that enables developers with an easy interface to automate responses from webhooks, subscribed on-chain events and intervals through triggered callback functions and the use of [Lit Protocol](https://litprotocol.com) PKPs.
 
 Check out our [gitbook documentation](https://docs.irrevocable.xyz) for in depth implementation details.
 
-// something about pkps
-// something about lit actions 
-// features of the sdk for event listening (node + browser)
-
-**TESTING:**
-To compile and run tests locally:
-
-IMPORTANT NOTE: Test Matic is required in order for a number of tests to pass. Copy the .env.sample file into a .env file, and add a MATIC private key with some native tokens. You will also need an RPC url for both MATIC You can find the Mumbai faucet at https://mumbaifaucet.com/
-
-
-```
-npm install
-npx hardhat compile
-npm run test
-```
-
----
-
-To install the SDK in an existing project, open your terminal and type the following two lines:
+To install the SDK run:
 
 ```
 npm i ethers
 npm i lit-listener-sdk
 ```
 
----
+Check out a no code implementation of the SDK [here](https://listener.irrevocable.xyz)
