@@ -279,11 +279,10 @@ export type Action = CustomAction | ContractAction | FetchAction;
  * @interface IConditionalLogic
  * @description Represents the logic for a conditional operation.
  * @property type - The type of the conditional logic. It can be "THRESHOLD", "TARGET", or "EVERY".
- * @property value - Used when the type is "THRESHOLD". It's the threshold value for the condition.
- * @property targetCondition - Used when the type is "TARGET". It's the specific condition that must be met.
+ * @property value - Used when the type is "THRESHOLD". It's the threshold number of conditions that must have passed in order for the Lit Action to run.
+ * @property targetCondition - Used when the type is "TARGET". It's the specific condition that must be met in order for the Lit Action to run.
  * @property interval - Optional. It's the frequency of condition checks. If omitted, the condition is checked continuously.
  */
-
 export interface IThresholdConditionalLogic {
   type: "THRESHOLD";
   value: number;
@@ -455,3 +454,19 @@ export class WebhookCondition implements IWebhookCondition {
 }
 
 export type Condition = ContractCondition | WebhookCondition;
+
+
+/**
+ * @interface IExecutionConstraints
+ * @description Represents the execution constraints for running the circuit.
+ * @property maxExecutions - Optional. The maximum amount of times that the circuit will run before stopping, inclusive of conditions and conditional logic failures.
+ * @property startDate - Optional. The circuit will not run before this date.
+ * @property endDate - Optional. The circuit will stop running once this date has passed.
+ * @property maxSuccessfulCompletions - Optional. The maximum amount of times that the Lit Action code will be executed successfully before the circuit stops running.
+ */
+export interface IExecutionConstraints {
+  maxExecutions?: number;
+  startDate?: Date;
+  endDate?: Date;
+  maxSuccessfulCompletions?: number;
+}

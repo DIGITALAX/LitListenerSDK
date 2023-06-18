@@ -18,6 +18,7 @@ import {
   ContractAction,
   ContractCondition,
   IConditionalLogic,
+  IExecutionConstraints,
   LitChainIds,
   LitUnsignedTransaction,
   RunStatus,
@@ -222,15 +223,10 @@ export class Circuit extends EventEmitter {
   };
 
   /**
-   * Sets the execution constraints for the circuit.
+   * Sets the execution constraints for running the circuit.
    * @param options The options object for execution constraints.
    */
-  executionConstraints = (options: {
-    maxExecutions?: number;
-    startDate?: Date;
-    endDate?: Date;
-    maxSuccessfulCompletions?: number;
-  }): void => {
+  executionConstraints = (options: IExecutionConstraints): void => {
     this.maxExecutions = options.maxExecutions;
     this.startDate = options.startDate;
     this.endDate = options.endDate;
@@ -747,12 +743,25 @@ export class Circuit extends EventEmitter {
    * @returns The run status.
    */
   private checkExecutionLimitations = (): RunStatus => {
+    if (
+      this.maxExecutions === undefined &&
+      this.startDate === undefined &&
+      this.endDate === undefined &&
+      this.maxSuccessfulCompletions === undefined
+    ) {
+      return RunStatus.CONTINUE_RUN;
+    }
+
     const withinExecutionLimit = this.maxExecutions
       ? this.executedCount < this.maxExecutions
       : true;
     const withinTimeRange =
       this.startDate && this.endDate
         ? new Date() >= this.startDate && new Date() <= this.endDate
+        : this.startDate && !this.endDate
+        ? new Date() >= this.startDate
+        : this.endDate && !this.startDate
+        ? new Date() <= this.endDate
         : true;
     const withinSuccessfulCompletions = this.maxSuccessfulCompletions
       ? this.successfulCompletionCount < this.maxSuccessfulCompletions
