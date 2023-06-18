@@ -65,7 +65,7 @@ export enum CHAIN_NAME {
 
 /**
  * @enum RunStatus
- * @description Represents the status of the strategy run.
+ * @description Represents the status of the circuit run.
  */
 export enum RunStatus {
   EXIT_RUN,

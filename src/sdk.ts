@@ -25,7 +25,7 @@ import {
 } from "./@types/lit-listener-sdk";
 import { ConditionMonitor } from "./Conditions/Conditions";
 
-export class Strategy extends EventEmitter {
+export class Circuit extends EventEmitter {
   /**
    * The URL of the Ethereum provider.
    * @private
@@ -137,12 +137,12 @@ export class Strategy extends EventEmitter {
    */
   private authSig: LitAuthSig;
   /**
-   * Flag indicating if the action helper function has been added.
+   * Flag indicating if the action helper function has been set.
    * @private
    */
-  private hasAddedActionHelperFunction = false;
+  private hasSetActionHelperFunction = false;
   /**
-   * Flag indicating whether to continue running the strategy.
+   * Flag indicating whether to continue running the circuit.
    * @private
    */
   private continueRun: boolean = true;
@@ -158,7 +158,7 @@ export class Strategy extends EventEmitter {
   private jsParameters: Object = {};
 
   /**
-   * Creates an instance of Strategy.
+   * Creates an instance of Circuit.
    * @param providerURL The URL of the Ethereum provider.
    * @param signer The Ethereum signer for transactions.
    * @param pkpContractAddress The address of the PKPNFT contract.
@@ -199,10 +199,10 @@ export class Strategy extends EventEmitter {
   }
 
   /**
-   * Adds the specified conditions to the strategy.
+   * Sets the specified conditions to the circuit.
    * @param conditions The array of webhook conditions.
    */
-  addConditions = (conditions: WebhookCondition[]): void => {
+  setConditions = (conditions: WebhookCondition[]): void => {
     conditions.forEach((condition) => {
       condition.id = this.conditions.length.toString();
       if (condition instanceof ContractCondition && !condition.providerURL) {
@@ -221,7 +221,7 @@ export class Strategy extends EventEmitter {
   };
 
   /**
-   * Sets the execution constraints for the strategy.
+   * Sets the execution constraints for the circuit.
    * @param options The options object for execution constraints.
    */
   executionConstraints = (options: {
@@ -237,14 +237,14 @@ export class Strategy extends EventEmitter {
   };
 
   /**
-   * Adds the specified actions to the strategy.
+   * Sets the specified actions to the circuit.
    * @param actions The array of actions to be executed.
    * @returns The generated code for the actions.
    */
-  addActions = (actions: Action[]): string => {
+  setActions = (actions: Action[]): string => {
     this.actions = this.actions.concat(actions);
     this.actions.sort((a, b) => a.priority - b.priority);
-    if (!this.hasAddedActionHelperFunction) {
+    if (!this.hasSetActionHelperFunction) {
       this.code += `
       const concatenatedResponse = {};
 
@@ -296,7 +296,7 @@ export class Strategy extends EventEmitter {
         }, signCondition[0].type === '&&');
       }
         `;
-      this.hasAddedActionHelperFunction = true;
+      this.hasSetActionHelperFunction = true;
     }
 
     this.actions.forEach((action) => {
@@ -444,13 +444,13 @@ export class Strategy extends EventEmitter {
   };
 
   /**
-   * Runs the strategy with the specified parameters.
+   * Starts the circuit with the specified parameters.
    * @param pkpPublicKey The public key of the PKP contract.
    * @param ipfsCID The IPFS CID of the Lit Action code.
    * @param authSig The authentication signature for executing Lit Actions.
-   * @throws {Error} If an error occurs while running the strategy.
+   * @throws {Error} If an error occurs while running the circuit.
    */
-  run = async ({
+  start = async ({
     pkpPublicKey,
     ipfsCID,
     authSig,
@@ -539,20 +539,20 @@ export class Strategy extends EventEmitter {
       } else {
         if (this.conditions.length < 1) {
           throw new Error(
-            `Conditions have not been set. Run addConditions() first.`,
+            `Conditions have not been set. Run setConditions() first.`,
           );
         } else if (this.actions.length < 1) {
-          throw new Error(`Actions have not been set. Run addActions() first.`);
+          throw new Error(`Actions have not been set. Run setActions() first.`);
         }
       }
     } catch (err: any) {
-      throw new Error(`Error running strategy: ${err}`);
+      throw new Error(`Error running circuit: ${err}`);
     }
   };
 
   /**
-   * Returns the logs of the strategy.
-   * @returns The logs of the strategy.
+   * Returns the logs of the circuit.
+   * @returns The logs of the circuit.
    */
   getLogs = () => {
     return [
@@ -663,7 +663,7 @@ export class Strategy extends EventEmitter {
         },
       });
       this.log(
-        `Strategy executed successfully. Lit Action Response: ${response}`,
+        `Circuit executed successfully. Lit Action Response: ${response}`,
       );
       this.successfulCompletionCount++;
     } catch (err: any) {

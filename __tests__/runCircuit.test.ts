@@ -1,4 +1,4 @@
-// import { Strategy } from "../src";
+// import { Circuit } from "../src";
 // import { ethers, Wallet } from "ethers";
 // import { expect } from "chai";
 // import {
