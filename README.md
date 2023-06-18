@@ -1,6 +1,6 @@
 The LitListenerSDK enables developers with an easy interface to automate responses from webhooks, subscribed on-chain events and intervals through triggered callback functions and the use of PKPs.
 
-Check out our [gitbook documentation](https://) for in depth implementation details.
+Check out our [gitbook documentation](https://docs.irrevocable.xyz) for in depth implementation details.
 
 // something about pkps
 // something about lit actions 
