@@ -28,6 +28,7 @@ import {
   WebhookCondition,
 } from "./@types/lit-listener-sdk";
 import { ConditionMonitor } from "./conditions";
+import { Fragment } from "ethers/lib/utils";
 
 export class Circuit extends EventEmitter {
   /**
@@ -401,7 +402,9 @@ export class Circuit extends EventEmitter {
         `Invalid chain name. Valid chains: ${Object.keys(LitChainIds)}`,
       );
     }
-    const contractInterface = new ethers.Interface(data.abi);
+    const contractInterface = new ethers.utils.Interface(
+      data.abi as string | readonly (string | Fragment)[],
+    );
     return {
       to: data.contractAddress,
       nonce: data.nonce ? data.nonce : 0,
@@ -471,7 +474,7 @@ export class Circuit extends EventEmitter {
       return {
         tokenId: pkpTokenId,
         publicKey: publicKey,
-        address: ethers.computeAddress(publicKey),
+        address: ethers.utils.computeAddress(publicKey),
       };
     } catch (err) {
       throw new Error(`Error in mintGrantBurn: ${err}`);
@@ -668,7 +671,9 @@ export class Circuit extends EventEmitter {
         `Invalid chain name. Valid chains: ${Object.keys(LitChainIds)}`,
       );
     }
-    const contractInterface = new ethers.Interface(action.abi);
+    const contractInterface = new ethers.utils.Interface(
+      action.abi as string | readonly (string | Fragment)[],
+    );
     return {
       to: action.contractAddress,
       nonce: action.nonce ? action.nonce : 0,
@@ -705,7 +710,7 @@ export class Circuit extends EventEmitter {
           ? this.authSig
           : await this.generateAuthSignature(),
         jsParams: {
-          pkpAddress: ethers.computeAddress(this.pkpPublicKey),
+          pkpAddress: ethers.utils.computeAddress(this.pkpPublicKey),
           publicKey: this.pkpPublicKey,
           sigName: this.authSig
             ? this.authSig

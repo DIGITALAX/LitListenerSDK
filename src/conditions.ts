@@ -1,5 +1,5 @@
 import axios from "axios";
-import ethers from "ethers";
+import ethers, { Event } from "ethers";
 import { EventEmitter } from "events";
 import {
   ContractCondition,
@@ -80,13 +80,17 @@ export class ConditionMonitor extends EventEmitter {
       const contract = new ethers.Contract(
         contractAddress,
         abi,
-        new ethers.JsonRpcProvider(providerURL, condition.chainId),
+        new ethers.providers.JsonRpcProvider(providerURL, condition.chainId),
       );
 
-      const processEvent = async (event: any) => {
-        const emittedValue = event.returnValues;
+      const processEvent = async (eventData: Event) => {
+        const { args } = eventData;
 
-        await this.checkAgainstExpected(condition, emittedValue);
+        const emittedValues = condition.eventArgName.map(
+          (argName) => args[argName],
+        );
+
+        await this.checkAgainstExpected(condition, emittedValues);
       };
 
       const subscribeToEvent = () => {

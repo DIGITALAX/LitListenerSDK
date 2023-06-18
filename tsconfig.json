@@ -11,6 +11,7 @@
     "incremental": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "test", "lib", "**/*spec.ts"]
+  "include": ["src/**/*", "./__tests__"],
+  "exclude": ["node_modules", "test", "lib", "**/*spec.ts"],
+  "files": ["./hardhat.config.ts"]
 }

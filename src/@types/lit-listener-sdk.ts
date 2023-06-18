@@ -1,5 +1,5 @@
-import { AccessListish, BigNumberish, BytesLike } from "ethers";
-import { InterfaceAbi } from "ethers";
+import { BigNumberish, BytesLike, ethers } from "ethers";
+import { AccessListish } from "ethers/lib/utils";
 
 /**
  * @constant LitChainIds
@@ -136,7 +136,7 @@ export type UnsignedTransactionData = {
   from: `0x${string}`;
   functionName: string;
   args: any[];
-  abi: InterfaceAbi;
+  abi: ethers.ContractInterface;
 };
 
 /**
@@ -210,7 +210,7 @@ export interface ContractAction {
   type: "contract";
   priority: number;
   contractAddress: `0x${string}`;
-  abi: InterfaceAbi;
+  abi: ethers.ContractInterface;
   functionName: string;
   chainId: CHAIN_NAME;
   nonce?: number;
@@ -310,8 +310,9 @@ export type IConditionalLogic =
  * @description Defines the shape of a contract condition object.
  * @property contractAddress - The address of the contract to monitor.
  * @property abi - The ABI (Application Binary Interface) of the contract.
- * @property eventName - The name of the contract event to monitor.
  * @property chainId - The Lit supported blockchain network chainId.
+ * @property eventName - The name of the contract event to monitor.
+ * @property eventArgName - The name of the event arg/s that the expectedValue will be matched against.
  * @property expectedValue - The value that will be matched against the emitted value.
  * @property onMatched - A callback function that will be invoked when the emitted value matches the expected value.
  * @property onUnMatched - A callback function that will be invoked when the emitted value does not match the expected value.
@@ -319,9 +320,10 @@ export type IConditionalLogic =
  */
 export interface IContractCondition {
   contractAddress: `0x${string}`;
-  abi: InterfaceAbi;
+  abi: ethers.ContractInterface;
   chainId: CHAIN_NAME;
   eventName: string;
+  eventArgName: string[];
   expectedValue: number | string | number[] | string[] | bigint | bigint[];
   onMatched: () => Promise<void>;
   onUnMatched: () => Promise<void>;
@@ -333,6 +335,12 @@ export interface IContractCondition {
  * @description Implements the IContractCondition interface to provide typing for contract conditions.
  */
 export class ContractCondition implements IContractCondition {
+  /**
+   * @param id - A unique identifier for this condition.
+   * @param providerURL - The URL of the Ethereum provider.
+   * @param sdkOnMatched - A callback function to execute when the emitted value matches the expected value in the SDK.
+   * @param sdkOnUnMatched - A callback function to execute when the emitted value does not match the expected value in the SDK.
+   * */
   id?: string;
   providerURL?: string;
   sdkOnMatched?: () => Promise<void>;
@@ -341,23 +349,20 @@ export class ContractCondition implements IContractCondition {
   /**
    * @constructor
    * @description Constructs an instance of ContractCondition.
-   * @param id - A unique identifier for this condition.
    * @param contractAddress - The address of the contract to monitor.
    * @param abi - The ABI of the contract.
    * @param eventName - The name of the event to monitor.
+   * @param eventArgName - 
    * @param expectedValue - The value that will be matched against the emitted value.
    * @param onMatched - A callback function to execute when the emitted value matches the expected value.
    * @param onUnMatched - A callback function to execute when the emitted value does not match the expected value.
    * @param onError - A callback function to execute when an error occurs during monitoring.
-   * @param providerURL - The URL of the Ethereum provider.
-   * @param sdkOnMatched - A callback function to execute when the emitted value matches the expected value in the SDK.
-   * @param sdkOnUnMatched - A callback function to execute when the emitted value does not match the expected value in the SDK.
    */
   constructor(
-    id: string | undefined,
     public contractAddress: `0x${string}`,
-    public abi: InterfaceAbi,
+    public abi: ethers.ContractInterface,
     public eventName: string,
+    public eventArgName: string[],
     public chainId: CHAIN_NAME,
     public expectedValue:
       | number
@@ -369,15 +374,7 @@ export class ContractCondition implements IContractCondition {
     public onMatched: () => Promise<void> = async () => {},
     public onUnMatched: () => Promise<void> = async () => {},
     public onError: (error: Error) => void = () => {},
-    providerURL: string | undefined,
-    sdkOnMatched: () => Promise<void> = async () => {},
-    sdkOnUnMatched: () => Promise<void> = async () => {},
-  ) {
-    this.id = id;
-    this.providerURL = providerURL;
-    this.sdkOnMatched = sdkOnMatched;
-    this.sdkOnUnMatched = sdkOnUnMatched;
-  }
+  ) {}
 }
 
 /**
@@ -408,6 +405,11 @@ export interface IWebhookCondition {
  * @description Implements the IWebhookCondition interface to provide typing for webhook conditions.
  */
 export class WebhookCondition implements IWebhookCondition {
+  /**
+   * @param id - A unique identifier for this condition.
+   * @param sdkOnMatched - A callback function to execute when the emitted value matches the expected value in the SDK.
+   * @param sdkOnUnMatched - A callback function to execute when the emitted value does not match the expected value in the SDK.
+   * */
   id?: string;
   sdkOnMatched?: () => Promise<void>;
   sdkOnUnMatched?: () => Promise<void>;
@@ -415,7 +417,6 @@ export class WebhookCondition implements IWebhookCondition {
   /**
    * @constructor
    * @description Constructs an instance of WebhookCondition.
-   * @param id - A unique identifier for this condition.
    * @param baseUrl - The base URL of the webhook endpoint.
    * @param endpoint - The specific endpoint for the webhook.
    * @param responsePath - The path to access the expected value in the response body.
@@ -424,12 +425,8 @@ export class WebhookCondition implements IWebhookCondition {
    * @param onMatched - A callback function to execute when the emitted value matches the expected value.
    * @param onUnMatched - A callback function to execute when the emitted value does not match the expected value.
    * @param onError - A callback function to execute when an error occurs during monitoring.
-   * @param sdkOnMatched - A callback function to execute when the emitted value matches the expected value in the SDK.
-   * @param sdkOnUnMatched - A callback function to execute when the emitted value does not match the expected value in the SDK.
    */
-
   constructor(
-    id: string | undefined,
     public baseUrl: string,
     public endpoint: string,
     public responsePath: string,
@@ -444,13 +441,7 @@ export class WebhookCondition implements IWebhookCondition {
     public onMatched: () => Promise<void> = async () => {},
     public onUnMatched: () => Promise<void> = async () => {},
     public onError: (error: Error) => void = () => {},
-    sdkOnMatched: () => Promise<void> = async () => {},
-    sdkOnUnMatched: () => Promise<void> = async () => {},
-  ) {
-    this.id = id;
-    this.sdkOnMatched = sdkOnMatched;
-    this.sdkOnUnMatched = sdkOnUnMatched;
-  }
+  ) {}
 }
 
 export type Condition = ContractCondition | WebhookCondition;
