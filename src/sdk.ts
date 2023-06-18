@@ -25,7 +25,7 @@ import {
   UnsignedTransactionData,
   WebhookCondition,
 } from "./@types/lit-listener-sdk";
-import { ConditionMonitor } from "./Conditions/Conditions";
+import { ConditionMonitor } from "./conditions";
 
 export class Circuit extends EventEmitter {
   /**
@@ -97,7 +97,10 @@ export class Circuit extends EventEmitter {
    * The array of log messages.
    * @private
    */
-  private logs: string[] = new Array(this.logSize);
+  private logs: {
+    category: "error" | "response" | "condition";
+    message: string;
+  }[] = new Array(this.logSize);
   /**
    * The current index of the log array.
    * @private
@@ -179,13 +182,14 @@ export class Circuit extends EventEmitter {
     this.monitor = new ConditionMonitor();
     this.conditionalLogic = { type: "EVERY" };
     this.monitor.on("conditionMatched", (condition) => {
-      this.log(`Condition ${condition.id} matched`);
+      this.log("condition", `Condition ${condition.id} matched`);
     });
     this.monitor.on("conditionNotMatched", (condition) => {
-      this.log(`Condition ${condition.id} not matched`);
+      this.log("condition", `Condition ${condition.id} not matched`);
     });
     this.monitor.on("conditionError", (error, condition) => {
       this.log(
+        "error",
         `Error in condition monitoring with condition ${condition.id}: ${error}`,
       );
     });
@@ -697,11 +701,12 @@ export class Circuit extends EventEmitter {
         },
       });
       this.log(
+        "response",
         `Circuit executed successfully. Lit Action Response: ${response}`,
       );
       this.successfulCompletionCount++;
     } catch (err: any) {
-      this.log(`Lit Action failed: ${err.message}`);
+      this.log("error", `Lit Action failed: ${err.message}`);
       throw new Error(`Error running Lit Action: ${err}`);
     }
   };
@@ -820,10 +825,14 @@ export class Circuit extends EventEmitter {
 
   /**
    * Logs a message.
+   * @param category - The type of message to log.
    * @param message - The message to log.
    */
-  private log = (message: string) => {
-    this.logs[this.logIndex] = message;
+  private log = (
+    category: "error" | "response" | "condition",
+    message: string,
+  ) => {
+    this.logs[this.logIndex] = { category, message };
     this.logIndex = (this.logIndex + 1) % this.logSize;
     this.emit("log", message);
   };
