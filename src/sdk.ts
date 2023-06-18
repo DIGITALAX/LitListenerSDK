@@ -21,6 +21,7 @@ import {
   LitChainIds,
   LitUnsignedTransaction,
   RunStatus,
+  UnsignedTransactionData,
   WebhookCondition,
 } from "./@types/lit-listener-sdk";
 import { ConditionMonitor } from "./Conditions/Conditions";
@@ -340,7 +341,7 @@ export class Circuit extends EventEmitter {
                         await Lit.Actions.signEcdsa({
                             toSign: '${action.toSign}',
                             publicKey: '${this.pkpPublicKey}',
-                            sigName: '${action.sigName}',
+                            sigName: sigName,
                           });
                           concatenatedResponse.fetch${action.priority} = {value,signed:true};
                     }  else {
@@ -353,17 +354,17 @@ export class Circuit extends EventEmitter {
           break;
         case "contract":
           const generatedUnsignedData =
-            this.generateUnsignedTransactionData(action);
+            this.generateUnsignedTransactionDataPrivate(action);
           this.code += `const contract${action.priority} = async () => {
              try {
                 await LitActions.signEcdsa({
                     toSign: hashTransaction(${generatedUnsignedData}),
                     publicKey: pkpPublicKey,
-                    sigName: '${action.functionName}',
+                    sigName: sigName,
                 });
                 concatenatedResponse.contract${action.priority} = ${generatedUnsignedData};
              } catch (err) {
-                console.log('Error thrown on fetch at priority ${action.priority}: ', err)
+                console.log('Error thrown on contract at priority ${action.priority}: ', err)
              }
           }\n`;
           break;
@@ -382,6 +383,41 @@ export class Circuit extends EventEmitter {
     go();`;
 
     return this.code;
+  };
+
+  /**
+   * Helper function for generating unsigned transaction data.
+   * @param data The transaction data to be passed in.
+   * @returns The unsigned transaction data.
+   * @throws {Error} If an error occurs from an invalid chainId.
+   */
+  generateUnsignedTransactionData = (
+    data: UnsignedTransactionData,
+  ): LitUnsignedTransaction => {
+    const validChain = Object.keys(LitChainIds).includes(
+      data.chainId.toString(),
+    );
+    if (!validChain) {
+      throw new Error(
+        `Invalid chain name. Valid chains: ${Object.keys(LitChainIds)}`,
+      );
+    }
+    const contractInterface = new ethers.Interface(data.abi);
+    return {
+      to: data.contractAddress,
+      nonce: data.nonce ? data.nonce : 0,
+      chainId: LitChainIds[data.chainId],
+      gasLimit: data.gasLimit ? data.gasLimit : "50000",
+      gasPrice: data.gasPrice ? data.gasPrice : undefined,
+      maxFeePerGas: data.maxFeePerGas ? data.maxFeePerGas : undefined,
+      maxPriorityFeePerGas: data.maxPriorityFeePerGas
+        ? data.maxPriorityFeePerGas
+        : undefined,
+      from: data.from ? data.from : "{{pkpPublicKey}}",
+      data: contractInterface.encodeFunctionData(data.functionName, data.args),
+      value: data.value ? data.value : 0,
+      type: 2,
+    };
   };
 
   /**
@@ -414,7 +450,7 @@ export class Circuit extends EventEmitter {
   };
 
   /**
-   * Mints, grants, and burns a PKP token for the specified IPFS CID of the LitAction Code.
+   * Mints, grants, and burns a PKP token for the specified IPFS CID of the Lit Action Code.
    * @param cidIPFS The IPFS CID of the Lit Action code.
    * @returns An object containing the token ID, public key, and address.
    * @throws {Error} If an error occurs while minting the PKP.
@@ -565,7 +601,7 @@ export class Circuit extends EventEmitter {
 
   /**
    * Mints the next PKP token.
-   * @param ipfsCID - The IPFS CID of the LitAction code.
+   * @param ipfsCID - The IPFS CID of the Lit Action code.
    * @returns The transaction for minting the PKP token.
    * @throws {Error} If an error occurs while calling the contract functions to mint the PKP.
    */
@@ -608,10 +644,12 @@ export class Circuit extends EventEmitter {
    * @returns The unsigned transaction data.
    * @throws {Error} If an error occurs from an invalid chainId.
    */
-  private generateUnsignedTransactionData = (
+  private generateUnsignedTransactionDataPrivate = (
     action: ContractAction,
   ): LitUnsignedTransaction => {
-    const validChain = Object.keys(LitChainIds).includes(action.chainId);
+    const validChain = Object.keys(LitChainIds).includes(
+      action.chainId.toString(),
+    );
     if (!validChain) {
       throw new Error(
         `Invalid chain name. Valid chains: ${Object.keys(LitChainIds)}`,
@@ -735,16 +773,17 @@ export class Circuit extends EventEmitter {
    */
   private checkConditionalLogicAndRun = (): RunStatus => {
     if (this.conditionalLogic) {
-      const { type, value, targetCondition } = this.conditionalLogic;
-
       const executionStatus = this.checkExecutionLimitations();
       if (executionStatus === RunStatus.EXIT_RUN) {
         return RunStatus.EXIT_RUN;
       }
 
-      switch (type) {
+      switch (this.conditionalLogic.type) {
         case "THRESHOLD":
-          if (value && this.satisfiedConditions.size >= value) {
+          if (
+            this.conditionalLogic.value &&
+            this.satisfiedConditions.size >= this.conditionalLogic.value
+          ) {
             return RunStatus.ACTION_RUN;
           } else {
             return RunStatus.CONTINUE_RUN;
@@ -752,8 +791,8 @@ export class Circuit extends EventEmitter {
 
         case "TARGET":
           if (
-            targetCondition &&
-            this.satisfiedConditions.has(targetCondition)
+            this.conditionalLogic.targetCondition &&
+            this.satisfiedConditions.has(this.conditionalLogic.targetCondition)
           ) {
             return RunStatus.ACTION_RUN;
           } else {

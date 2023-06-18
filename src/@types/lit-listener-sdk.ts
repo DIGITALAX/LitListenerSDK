@@ -1,5 +1,5 @@
 import { AccessListish, BigNumberish, BytesLike } from "ethers";
-import { Interface, InterfaceAbi } from "ethers";
+import { InterfaceAbi } from "ethers";
 
 /**
  * @constant LitChainIds
@@ -112,8 +112,39 @@ export interface LitActionsSDK {
  * @interface UnsignedTransaction
  * @description Represents an unsigned transaction.
  */
+export type UnsignedTransactionData = {
+  contractAddress?: `0x${string}`;
+  nonce?: number;
+
+  gasLimit?: BigNumberish;
+  gasPrice?: BigNumberish;
+
+  data?: BytesLike;
+  value?: BigNumberish;
+  chainId?: CHAIN_NAME;
+
+  // Typed-Transaction features
+  type?: number | null;
+
+  // EIP-2930; Type 1 & EIP-1559; Type 2
+  accessList?: AccessListish;
+
+  // EIP-1559; Type 2
+  maxPriorityFeePerGas?: BigNumberish;
+  maxFeePerGas?: BigNumberish;
+
+  from: `0x${string}`;
+  functionName: string;
+  args: any[];
+  abi: InterfaceAbi;
+};
+
+/**
+ * @interface UnsignedTransaction
+ * @description Represents an unsigned transaction.
+ */
 export type UnsignedTransaction = {
-  to?: string;
+  to?: `0x${string}`;
   nonce?: number;
 
   gasLimit?: BigNumberish;
@@ -138,7 +169,9 @@ export type UnsignedTransaction = {
  * @interface LitUnsignedTransaction
  * @description Represents a Lit-specific unsigned transaction.
  */
-export type LitUnsignedTransaction = UnsignedTransaction & { from: string };
+export type LitUnsignedTransaction = UnsignedTransaction & {
+  from: `0x${string}` | "{{pkpPublicKey}}";
+};
 
 /**
  * @interface CustomAction
@@ -146,6 +179,7 @@ export type LitUnsignedTransaction = UnsignedTransaction & { from: string };
  * @property type - The type of the action, always "custom" for this interface.
  * @property priority - A numerical value representing the priority of the action. The lower the value, the higher the priority.
  * @property code - A function representing the custom action to be performed. This function is defined by the user.
+ * @property args - Any args used within the contract to be passed to the Lit Action.
  */
 export interface CustomAction {
   type: "custom";
@@ -162,6 +196,14 @@ export interface CustomAction {
  * @property contractAddress - The Ethereum address of the smart contract with which to interact.
  * @property abi - The ABI (Application Binary Interface) of the smart contract, which describes its functions and events.
  * @property functionName - The name of the smart contract function to call.
+ * @property chainId - The compatible blockchain network chainId.
+ * @property nonce - The transaction nonce.
+ * @property gasLimit - The transaction gas limit.
+ * @property gasPrice - The transaction gas price.
+ * @property value - Any value to be passed with the transaction.
+ * @property from - The address from which the transaction as called. This will usually be the PKP address.
+ * @property maxPriorityFeePerGas - The max priority fee per gas for the transaction.
+ * @property maxFeePerGas - The max fee per gas for the transaction.
  * @property args - An array of arguments to pass to the function call.
  */
 export interface ContractAction {
@@ -170,12 +212,12 @@ export interface ContractAction {
   contractAddress: `0x${string}`;
   abi: InterfaceAbi;
   functionName: string;
-  chainId: string;
+  chainId: CHAIN_NAME;
   nonce?: number;
   gasLimit?: BigNumberish;
   gasPrice?: BigNumberish;
   value?: BigNumberish;
-  from?: string;
+  from?: `0x${string}`;
   maxPriorityFeePerGas?: BigNumberish;
   maxFeePerGas?: BigNumberish;
   args?: any[];
@@ -211,10 +253,6 @@ export interface FetchAction {
    */
   toSign: string;
   /**
-   * The signature name.
-   */
-  sigName: string;
-  /**
    * The condition under which to sign the data.
    */
   signCondition?: {
@@ -246,12 +284,27 @@ export type Action = CustomAction | ContractAction | FetchAction;
  * @property interval - Optional. It's the frequency of condition checks. If omitted, the condition is checked continuously.
  */
 
-export interface IConditionalLogic {
-  type: "THRESHOLD" | "TARGET" | "EVERY";
-  value?: number;
-  targetCondition?: string;
+export interface IThresholdConditionalLogic {
+  type: "THRESHOLD";
+  value: number;
   interval?: number;
 }
+
+export interface ITargetConditionalLogic {
+  type: "TARGET";
+  targetCondition: string;
+  interval?: number;
+}
+
+export interface IEveryConditionalLogic {
+  type: "EVERY";
+  interval?: number;
+}
+
+export type IConditionalLogic =
+  | IThresholdConditionalLogic
+  | ITargetConditionalLogic
+  | IEveryConditionalLogic;
 
 /**
  * @interface IContractCondition
@@ -259,6 +312,7 @@ export interface IConditionalLogic {
  * @property contractAddress - The address of the contract to monitor.
  * @property abi - The ABI (Application Binary Interface) of the contract.
  * @property eventName - The name of the contract event to monitor.
+ * @property chainId - The Lit supported blockchain network chainId.
  * @property expectedValue - The value that will be matched against the emitted value.
  * @property onMatched - A callback function that will be invoked when the emitted value matches the expected value.
  * @property onUnMatched - A callback function that will be invoked when the emitted value does not match the expected value.
@@ -266,8 +320,8 @@ export interface IConditionalLogic {
  */
 export interface IContractCondition {
   contractAddress: `0x${string}`;
-  abi: Interface | InterfaceAbi;
-  chainId: string;
+  abi: InterfaceAbi;
+  chainId: CHAIN_NAME;
   eventName: string;
   expectedValue: number | string | number[] | string[] | bigint | bigint[];
   onMatched: () => Promise<void>;
@@ -303,9 +357,9 @@ export class ContractCondition implements IContractCondition {
   constructor(
     id: string | undefined,
     public contractAddress: `0x${string}`,
-    public abi: Interface | InterfaceAbi,
+    public abi: InterfaceAbi,
     public eventName: string,
-    public chainId: string,
+    public chainId: CHAIN_NAME,
     public expectedValue:
       | number
       | string
