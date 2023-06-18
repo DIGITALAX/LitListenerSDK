@@ -1,4 +1,4 @@
-The ListenerSDK enables developers with an easy interface to automate responses from webhooks, subscribed on-chain events and intervals through triggered callback functions and the use of PKPs.
+The LitListenerSDK enables developers with an easy interface to automate responses from webhooks, subscribed on-chain events and intervals through triggered callback functions and the use of PKPs.
 
 Check out our [gitbook documentation](https://) for in depth implementation details.
 

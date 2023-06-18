@@ -694,7 +694,7 @@ export class Strategy extends EventEmitter {
    */
   private generateAuthSignature = async (
     chainId = 1,
-    uri = "listenersdk",
+    uri = "LitListenerSDK",
     version = "1",
   ): Promise<LitAuthSig> => {
     try {
