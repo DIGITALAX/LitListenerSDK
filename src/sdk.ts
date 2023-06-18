@@ -482,7 +482,7 @@ export class Circuit extends EventEmitter {
    * Starts the circuit with the specified parameters.
    * @param pkpPublicKey The public key of the PKP contract.
    * @param ipfsCID The IPFS CID of the Lit Action code.
-   * @param authSig The authentication signature for executing Lit Actions.
+   * @param authSig Optional. The authentication signature for executing Lit Actions.
    * @throws {Error} If an error occurs while running the circuit.
    */
   start = async ({
@@ -492,13 +492,15 @@ export class Circuit extends EventEmitter {
   }: {
     pkpPublicKey: string;
     ipfsCID: string;
-    authSig: LitAuthSig;
+    authSig?: LitAuthSig;
   }): Promise<void> => {
     try {
       if (this.conditions.length > 0 && this.actions.length > 0) {
         pkpPublicKey = this.pkpPublicKey;
         ipfsCID = this.ipfsCID;
-        authSig = this.authSig;
+        if (authSig) {
+          authSig = this.authSig;
+        }
 
         while (this.continueRun) {
           const monitors: NodeJS.Timeout[] = [];
