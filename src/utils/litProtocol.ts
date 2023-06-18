@@ -12,11 +12,11 @@ export type LitAuthSig = {
 export const generateAuthSig = async (
   signer: ethers.Signer,
   chainId = 1,
-  uri = "listenersdk",
+  uri = "LitListenerSDK",
   version = "1"
 ): Promise<LitAuthSig> => {
   const siweMessage = new SiweMessage({
-    domain: "listenersdk",
+    domain: "LitListenerSDK",
     address: await signer.getAddress(),
     statement: "Key for LitListenerSDK",
     uri,
