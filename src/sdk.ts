@@ -207,7 +207,7 @@ export class Circuit extends EventEmitter {
    */
   setConditions = (conditions: Condition[]): void => {
     conditions.forEach((condition) => {
-      condition.id = this.conditions.length.toString();
+      condition.id = (this.conditions.length + 1).toString();
       if (condition instanceof ContractCondition && !condition.providerURL) {
         condition.providerURL = this.providerURL;
       }

@@ -3,6 +3,7 @@ import { ethers } from "hardhat";
 import { Circuit } from "./../src/sdk";
 import {
   CHAIN_NAME,
+  Condition,
   ContractCondition,
   WebhookCondition,
 } from "./../src/@types/lit-listener-sdk";
@@ -31,19 +32,18 @@ describe("Set the Conditions of the Circuit", () => {
     const ownerBalance = await deployedListenerToken.balanceOf(owner.address);
     const totalSupply = await deployedListenerToken.totalSupply();
     expect(totalSupply.eq(ownerBalance)).to.be.true;
-
   });
 
   describe("setConditions", () => {
     it("should add ContractCondition to conditions array correctly", () => {
-      // Prepare condition
+      // Prepare contract condition
       const contractCondition = new ContractCondition(
-        "0x1234567890",
+        deployedListenerToken.address as `0x${string}`,
         ListenerERC20ABI,
         CHAIN_NAME.mumbai,
         "Transfer",
         ["from", "value"],
-        [owner.address, 50000],
+        [owner.address, 5000],
         async () => {
           console.log("matched");
         },
@@ -55,38 +55,111 @@ describe("Set the Conditions of the Circuit", () => {
       newCircuit.setConditions([contractCondition]);
 
       // Check if condition was added
-      expect(newCircuit["conditions"].length).to.equal(1);
-      expect(newCircuit["conditions"][0]).to.be.instanceOf(ContractCondition);
+      const newCircuitConditions: Condition[] = newCircuit["conditions"];
+      expect(newCircuitConditions.length).to.equal(1);
+      expect(newCircuitConditions[0]).to.be.instanceOf(ContractCondition);
+      expect(
+        (newCircuitConditions[0] as ContractCondition).contractAddress,
+      ).to.equal(deployedListenerToken.address);
+      expect(
+        (newCircuitConditions[0] as ContractCondition).contractAddress,
+      ).to.equal(deployedListenerToken.address);
+      expect((newCircuitConditions[0] as ContractCondition).chainId).to.equal(
+        CHAIN_NAME.mumbai,
+      );
+      expect((newCircuitConditions[0] as ContractCondition).id).to.equal("1");
+      expect(
+        (newCircuitConditions[0] as ContractCondition).eventArgName,
+      ).to.deep.equal(["from", "value"]);
+      expect(
+        (newCircuitConditions[0] as ContractCondition).expectedValue,
+      ).to.deep.equal([owner.address, 5000]);
+      expect(
+        (newCircuitConditions[0] as ContractCondition).onMatched.toString(),
+      ).to.equal(
+        (async () => {
+          console.log("matched");
+        }).toString(),
+      );
+      expect(
+        (newCircuitConditions[0] as ContractCondition).onUnMatched.toString(),
+      ).to.equal(
+        (async () => {
+          console.log("unmatched");
+        }).toString(),
+      );
+      expect(
+        (newCircuitConditions[0] as ContractCondition).onError.toString(),
+      ).to.equal(((err) => console.error(err.message)).toString());
     });
 
     it("should add WebhookCondition to conditions array correctly", () => {
-      // Prepare condition
+      // Prepare webhook condition
       const webhookCondition = new WebhookCondition(
         "http://api.example.com",
         "/endpoint",
         "this.response.path",
         "returnedValue",
         undefined,
-        async () => {},
-        async () => {},
-        () => {},
+        async () => {
+          console.log("matched");
+        },
+        async () => {
+          console.log("unmatched");
+        },
+        (err) => console.error(err.message),
       );
       newCircuit.setConditions([webhookCondition]);
 
+      const newCircuitConditions: Condition[] = newCircuit["conditions"];
+
       // Check if condition was added
-      expect(newCircuit["conditions"].length).to.equal(1);
-      expect(newCircuit["conditions"][0]).to.be.instanceOf(WebhookCondition);
+      expect(newCircuitConditions.length).to.equal(1);
+      expect(newCircuitConditions[0]).to.be.instanceOf(WebhookCondition);
+      expect((newCircuitConditions[0] as WebhookCondition).baseUrl).to.equal(
+        "http://api.example.com",
+      );
+      expect((newCircuitConditions[0] as WebhookCondition).endpoint).to.equal(
+        "/endpoint",
+      );
+      expect(
+        (newCircuitConditions[0] as WebhookCondition).responsePath,
+      ).to.equal("this.response.path");
+      expect((newCircuitConditions[0] as WebhookCondition).id).to.equal("1");
+      expect(
+        (newCircuitConditions[0] as WebhookCondition).expectedValue,
+      ).to.equal("returnedValue");
+      expect((newCircuitConditions[0] as WebhookCondition).apiKey).to.equal(
+        undefined,
+      );
+      expect(
+        (newCircuitConditions[0] as WebhookCondition).onMatched.toString(),
+      ).to.equal(
+        (async () => {
+          console.log("matched");
+        }).toString(),
+      );
+      expect(
+        (newCircuitConditions[0] as WebhookCondition).onUnMatched.toString(),
+      ).to.equal(
+        (async () => {
+          console.log("unmatched");
+        }).toString(),
+      );
+      expect(
+        (newCircuitConditions[0] as WebhookCondition).onError.toString(),
+      ).to.equal(((err) => console.error(err.message)).toString());
     });
 
     it("should add multiple conditions to conditions array correctly", () => {
-      // Prepare conditions
+      // Prepare multiple conditions
       const contractCondition = new ContractCondition(
-        "0x1234567890",
+        deployedListenerToken.address as `0x${string}`,
         ListenerERC20ABI,
         CHAIN_NAME.mumbai,
         "Transfer",
         ["from", "value"],
-        [owner.address, 50000],
+        [owner.address, 5000],
         async () => {
           console.log("matched");
         },
@@ -101,16 +174,95 @@ describe("Set the Conditions of the Circuit", () => {
         "this.response.path",
         "returnedValue",
         undefined,
-        async () => {},
-        async () => {},
-        () => {},
+        async () => {
+          console.log("matched");
+        },
+        async () => {
+          console.log("unmatched");
+        },
+        (err) => console.error(err.message),
       );
       newCircuit.setConditions([contractCondition, webhookCondition]);
 
       // Check if conditions were added
       expect(newCircuit["conditions"].length).to.equal(2);
       expect(newCircuit["conditions"][0]).to.be.instanceOf(ContractCondition);
+      expect(
+        (newCircuit["conditions"][0] as ContractCondition).contractAddress,
+      ).to.equal(deployedListenerToken.address);
+      expect(
+        (newCircuit["conditions"][0] as ContractCondition).contractAddress,
+      ).to.equal(deployedListenerToken.address);
+      expect(
+        (newCircuit["conditions"][0] as ContractCondition).chainId,
+      ).to.equal(CHAIN_NAME.mumbai);
+      expect((newCircuit["conditions"][0] as ContractCondition).id).to.equal(
+        "1",
+      );
+      expect(
+        (newCircuit["conditions"][0] as ContractCondition).eventArgName,
+      ).to.deep.equal(["from", "value"]);
+      expect(
+        (newCircuit["conditions"][0] as ContractCondition).expectedValue,
+      ).to.deep.equal([owner.address, 5000]);
+      expect(
+        (newCircuit["conditions"][0] as ContractCondition).onMatched.toString(),
+      ).to.equal(
+        (async () => {
+          console.log("matched");
+        }).toString(),
+      );
+      expect(
+        (
+          newCircuit["conditions"][0] as ContractCondition
+        ).onUnMatched.toString(),
+      ).to.equal(
+        (async () => {
+          console.log("unmatched");
+        }).toString(),
+      );
+      expect(
+        (newCircuit["conditions"][0] as ContractCondition).onError.toString(),
+      ).to.equal(((err) => console.error(err.message)).toString());
+
       expect(newCircuit["conditions"][1]).to.be.instanceOf(WebhookCondition);
+      expect(
+        (newCircuit["conditions"][1] as WebhookCondition).baseUrl,
+      ).to.equal("http://api.example.com");
+      expect(
+        (newCircuit["conditions"][1] as WebhookCondition).endpoint,
+      ).to.equal("/endpoint");
+      expect(
+        (newCircuit["conditions"][1] as WebhookCondition).responsePath,
+      ).to.equal("this.response.path");
+      expect((newCircuit["conditions"][1] as WebhookCondition).id).to.equal(
+        "2",
+      );
+      expect(
+        (newCircuit["conditions"][1] as WebhookCondition).expectedValue,
+      ).to.equal("returnedValue");
+      expect((newCircuit["conditions"][1] as WebhookCondition).apiKey).to.equal(
+        undefined,
+      );
+      expect(
+        (newCircuit["conditions"][1] as WebhookCondition).onMatched.toString(),
+      ).to.equal(
+        (async () => {
+          console.log("matched");
+        }).toString(),
+      );
+      expect(
+        (
+          newCircuit["conditions"][1] as WebhookCondition
+        ).onUnMatched.toString(),
+      ).to.equal(
+        (async () => {
+          console.log("unmatched");
+        }).toString(),
+      );
+      expect(
+        (newCircuit["conditions"][1] as WebhookCondition).onError.toString(),
+      ).to.equal(((err) => console.error(err.message)).toString());
     });
   });
 });
