@@ -37,30 +37,30 @@ export const LitChainIds: { [key: string]: number } = {
  * @description Represents the names of various blockchain networks.
  */
 export enum CHAIN_NAME {
-  "ethereum",
-  "polygon",
-  "fantom",
-  "xdai",
-  "bsc",
-  "arbitrum",
-  "avalanche",
-  "fuji",
-  "harmony",
-  "kovan",
-  "mumbai",
-  "goerli",
-  "ropsten",
-  "rinkeby",
-  "cronos",
-  "optimism",
-  "celo",
-  "aurora",
-  "eluvio",
-  "alfajores",
-  "xdc",
-  "evmos",
-  "evmosTestnet",
-  "hardhat",
+  ETHEREUM = "ethereum",
+  POLYGON = "polygon",
+  FANTOM = "fantom",
+  XDAI = "xdai",
+  BSC = "bsc",
+  ARBITRUM = "arbitrum",
+  AVALANCHE = "avalanche",
+  FUJI = "fuji",
+  HARMONY = "harmony",
+  KOVAN = "kovan",
+  MUMBAI = "mumbai",
+  GOERLI = "goerli",
+  ROPSTEN = "ropsten",
+  RINKEBY = "rinkeby",
+  CRONOS = "cronos",
+  OPTIMISM = "optimism",
+  CELO = "celo",
+  AURORA = "aurora",
+  ELUVIO = "eluvio",
+  ALFAJORES = "alfajores",
+  XDC = "xdc",
+  EVMOS = "evmos",
+  EVMOSTESTNET = "evmosTestnet",
+  HARDHAT = "hardhat",
 }
 
 /**
@@ -68,9 +68,9 @@ export enum CHAIN_NAME {
  * @description Represents the status of the circuit run.
  */
 export enum RunStatus {
-  EXIT_RUN,
-  ACTION_RUN,
-  CONTINUE_RUN,
+  EXIT_RUN = 0,
+  ACTION_RUN = 1,
+  CONTINUE_RUN = 2,
 }
 
 /**
@@ -178,13 +178,13 @@ export type LitUnsignedTransaction = UnsignedTransaction & {
  * @description Represents an action that's custom-defined by the user.
  * @property type - The type of the action, always "custom" for this interface.
  * @property priority - A numerical value representing the priority of the action. The lower the value, the higher the priority.
- * @property code - A function representing the custom action to be performed. This function is defined by the user.
+ * @property code - A function string representing the custom action to be performed. This function is defined by the user.
  * @property args - Any args used within the contract to be passed to the Lit Action.
  */
 export interface CustomAction {
   type: "custom";
   priority: number;
-  code: () => Promise<void>;
+  code: string;
   args?: Object;
 }
 
@@ -479,9 +479,9 @@ export interface IExecutionConstraints {
 }
 
 export enum LogCategory {
-  ERROR,
-  RESPONSE,
-  CONDITION,
+  ERROR = 0,
+  RESPONSE = 1,
+  CONDITION = 2,
 }
 
 export interface ILogEntry {

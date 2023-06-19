@@ -12,25 +12,30 @@ export type LitAuthSig = {
 export const generateAuthSig = async (
   signer: ethers.Signer,
   chainId = 1,
-  uri = "LitListenerSDK",
-  version = "1"
+  uri = "https://localhost/login",
+  version = "1",
 ): Promise<LitAuthSig> => {
-  const siweMessage = new SiweMessage({
-    domain: "LitListenerSDK",
-    address: await signer.getAddress(),
-    statement: "Key for LitListenerSDK",
-    uri,
-    version,
-    chainId,
-  });
-  const messageToSign = siweMessage.prepareMessage();
-  const sig = await signer.signMessage(messageToSign);
-  return {
-    sig,
-    derivedVia: "web3.eth.personal.sign",
-    signedMessage: messageToSign,
-    address: await signer.getAddress(),
-  };
+  try {
+    const address = await signer.getAddress();
+    const siweMessage = new SiweMessage({
+      domain: "localhost",
+      address: await signer.getAddress(),
+      statement: "This is an Auth Sig for LitListenerSDK",
+      uri: uri,
+      version: version,
+      chainId: chainId,
+    });
+    const signedMessage = siweMessage.prepareMessage();
+    const sig = await signer.signMessage(signedMessage);
+    return {
+      sig,
+      derivedVia: "web3.eth.personal.sign",
+      signedMessage,
+      address,
+    };
+  } catch (err) {
+    throw new Error(`Error generating signed message ${err}`);
+  }
 };
 
 export const getBytesFromMultihash = (multihash: string): string => {

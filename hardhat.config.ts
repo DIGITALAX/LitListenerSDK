@@ -1,4 +1,5 @@
 require("dotenv").config({ path: ".env" });
+require("@nomicfoundation/hardhat-toolbox");
 import "@nomiclabs/hardhat-ethers";
 
 /** @type import('hardhat/config').HardhatUserConfig */

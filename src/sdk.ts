@@ -8,7 +8,7 @@ import {
   getBytesFromMultihash,
 } from "./utils/litProtocol";
 import { PKP_CONTRACT_ADDRESS_MUMBAI } from "./constants";
-import * as pkpNftContract from "./abis/PKPNFT.json";
+import pkpNftContract from "./abis/PKPNFT.json";
 import { PKPNFT } from "./../typechain-types/contracts/PKPNFT";
 import {
   Action,
@@ -122,7 +122,7 @@ export class Circuit extends EventEmitter {
    * The code for the Lit Action.
    * @private
    */
-  private code: string;
+  private code: string = "";
   /**
    * The IPFS CID of the Lit Action code.
    * @private
@@ -144,10 +144,20 @@ export class Circuit extends EventEmitter {
    */
   private hasSetActionHelperFunction = false;
   /**
+   * Flag indicating if the go function has been set.
+   * @private
+   */
+  private hasGoFunction = false;
+  /**
    * Flag indicating whether to continue running the circuit.
    * @private
    */
   private continueRun: boolean = true;
+  /**
+   * Flag indicating whether to continue running the circuit.
+   * @private
+   */
+  private actionFunctions: Set<string>;
   /**
    * The EventEmitter instance for handling events.
    * @private
@@ -187,9 +197,12 @@ export class Circuit extends EventEmitter {
     this.monitor.on("conditionError", (error, condition) => {
       this.log(
         LogCategory.ERROR,
-        `Error in condition monitoring with condition ${condition.id}: ${error}`,
+        `Error in condition monitoring with condition ${condition.id}: ${
+          typeof error === "object" ? JSON.stringify(error) : error
+        }`,
       );
     });
+    this.actionFunctions = new Set<string>();
     this.providerURL = providerURL;
     this.pkpContract = new ethers.Contract(
       pkpContractAddress,
@@ -303,17 +316,22 @@ export class Circuit extends EventEmitter {
       }
       switch (action.type) {
         case "custom":
-          let customCode = `const custom${action.priority} = async () => {
-            await ${action.code()}
-          }\n`;
-          customCode = customCode.replace(
-            /Lit.Actions.setResponse\s*\(\s*({\s*response\s*(:\s*(?:JSON.stringify\([^;]+?\)|[^;}]+?))\s*})\s*\);?/g,
-            `concatenatedResponse.custom${action.priority} = $2;`,
-          );
-          this.code += customCode;
+          if (!this.actionFunctions.has(`custom${action.priority}`)) {
+            let customCode = `const custom${action.priority} = ${action.code}\n`;
+            customCode = customCode.replace(
+              /Lit\.Actions\.setResponse\s*\(\s*{\s*response\s*:\s*(.*)\s*}\s*\)/g,
+              (_, responseValue) => {
+                return `concatenatedResponse.custom${action.priority} = ${responseValue}`;
+              },
+            );
+            this.actionFunctions.add(`custom${action.priority}`);
+            this.code += customCode;
+          }
           break;
         case "fetch":
-          this.code += `const fetch${action.priority} = async () => {
+          if (!this.actionFunctions.has(`fetch${action.priority}`)) {
+            this.actionFunctions.add(`fetch${action.priority}`);
+            this.code += `const fetch${action.priority} = async () => {
                 try {
                     const headers = ${action.apiKey}
                       ? { Authorization: 'Bearer ${action.apiKey}' }
@@ -348,37 +366,47 @@ export class Circuit extends EventEmitter {
                     console.log('Error thrown on fetch at priority ${action.priority}: ', err);
                   }
                 }\n`;
+          }
           break;
         case "contract":
-          const generatedUnsignedData =
-            this.generateUnsignedTransactionDataPrivate(action);
-          this.code += `const contract${action.priority} = async () => {
-             try {
-                await LitActions.signEcdsa({
-                    toSign: hashTransaction(${generatedUnsignedData}),
-                    publicKey: pkpPublicKey,
-                    sigName: sigName,
-                });
-                concatenatedResponse.contract${action.priority} = ${generatedUnsignedData};
-             } catch (err) {
-                console.log('Error thrown on contract at priority ${action.priority}: ', err)
-             }
-          }\n`;
+          if (!this.actionFunctions.has(`contract${action.priority}`)) {
+            this.actionFunctions.add(`contract${action.priority}`);
+            const generatedUnsignedData =
+              this.generateUnsignedTransactionDataPrivate(action);
+            this.code += `const contract${action.priority} = async () => {
+               try {
+                  await LitActions.signEcdsa({
+                      toSign: hashTransaction(${generatedUnsignedData}),
+                      publicKey: pkpPublicKey,
+                      sigName: sigName,
+                  });
+                  concatenatedResponse.contract${action.priority} = ${generatedUnsignedData};
+               } catch (err) {
+                  console.log('Error thrown on contract at priority ${action.priority}: ', err)
+               }
+            }\n`;
+          }
+
           break;
       }
     });
 
     let functionCallsCode: string = ``;
-    for (const action of this.actions) {
-      functionCallsCode += `await ${action.type}${action.priority}();\n`;
-    }
-    this.code += `const go = async () => {
-        ${functionCallsCode}
-        Lit.Actions.setResponse({ response: JSON.stringify(concatenatedResponse) });
-    }
-    
-    go();`;
+    this.actionFunctions.forEach((funcName) => {
+      functionCallsCode += `await ${funcName}();\n`;
+    });
 
+    // Remove the old 'go' function if it exists.
+    this.code = this.code.replace(
+      /const go = async \(\) => {[\s\S]*go\(\);/m,
+      "",
+    );
+    this.code += `const go = async () => {
+    ${functionCallsCode}
+    Lit.Actions.setResponse({ response: JSON.stringify(concatenatedResponse) });
+  }
+
+  go();`;
     return this.code;
   };
 
@@ -421,7 +449,7 @@ export class Circuit extends EventEmitter {
 
   /**
    * Calculates the IPFS hash of the specified code.
-   * @param code The code to be hashed.
+   * @param code The code to retrieve the hash of.
    * @returns The IPFS hash of the code.
    * @throws {Error} If an error occurs while retrieving code IPFS hash.
    */
@@ -429,7 +457,7 @@ export class Circuit extends EventEmitter {
     try {
       return await Hash.of(code);
     } catch (err) {
-      throw new Error(`Error hashing Lit Action code: ${err}`);
+      throw new Error(`Error hashing Lit Action code: ${err.message}`);
     }
   };
 
@@ -459,7 +487,7 @@ export class Circuit extends EventEmitter {
         address: ethers.utils.computeAddress(publicKey),
       };
     } catch (err) {
-      throw new Error(`Error in mintGrantBurn: ${err}`);
+      throw new Error(`Error in mintGrantBurn: ${err.message}`);
     }
   };
 
@@ -476,15 +504,17 @@ export class Circuit extends EventEmitter {
     authSig,
   }: {
     pkpPublicKey: string;
-    ipfsCID: string;
+    ipfsCID?: string;
     authSig?: LitAuthSig;
   }): Promise<void> => {
     try {
       if (this.conditions.length > 0 && this.actions.length > 0) {
-        pkpPublicKey = this.pkpPublicKey;
-        ipfsCID = this.ipfsCID;
+        this.pkpPublicKey = pkpPublicKey;
+        if (ipfsCID) {
+          this.ipfsCID = ipfsCID;
+        }
         if (authSig) {
-          authSig = this.authSig;
+          this.authSig = authSig;
         }
 
         while (this.continueRun) {
@@ -526,25 +556,28 @@ export class Circuit extends EventEmitter {
             };
 
             const conditionPromise = this.monitor.createCondition(condition);
-            const timeoutPromise = new Promise<void>((resolve) =>
-              setTimeout(resolve, this.conditionalLogic.interval),
-            );
-            conditionPromises.push(
-              Promise.race([conditionPromise, timeoutPromise]).then(() => {
-                return Promise.resolve();
-              }),
-            );
+
             if (this.conditionalLogic?.interval) {
+              const timeoutPromise = new Promise<void>((resolve) =>
+                setTimeout(resolve, this.conditionalLogic.interval),
+              );
+              conditionPromises.push(
+                Promise.race([conditionPromise, timeoutPromise]).then(() => {
+                  return Promise.resolve();
+                }),
+              );
               const monitor = setTimeout(async () => {
                 await conditionPromise;
               }, this.conditionalLogic.interval);
               monitors.push(monitor);
+            } else {
+              conditionPromises.push(conditionPromise);
             }
           }
 
           await Promise.all(conditionPromises);
 
-          const executionRes = this.checkExecutionLimitations();
+          const executionRes = this.checkConditionalLogicAndRun();
           if (executionRes === RunStatus.EXIT_RUN) {
             this.emitter.emit("stop");
             break;
@@ -568,7 +601,7 @@ export class Circuit extends EventEmitter {
         }
       }
     } catch (err: any) {
-      throw new Error(`Error running circuit: ${err}`);
+      throw new Error(`Error running circuit: ${err.message}`);
     }
   };
 
@@ -595,6 +628,26 @@ export class Circuit extends EventEmitter {
     ];
   };
 
+  /**
+   * Generates an authentication signature for the Lit Action.
+   * @param chainId - The chain ID (default: 1).
+   * @param uri - The URI (default: "eventlistenersdk").
+   * @param version - The version (default: "1").
+   * @returns The authentication signature.
+   * @throws {Error} If an error occurs while generating the authentication signature.
+   */
+  generateAuthSignature = async (
+    chainId = 1,
+    uri = "https://localhost/login",
+    version = "1",
+  ): Promise<LitAuthSig> => {
+    try {
+      return generateAuthSig(this.signer, chainId, uri, version);
+    } catch (err: any) {
+      throw new Error(`Error generating Auth Signature: ${err.message}`);
+    }
+  };
+
   // Private methods
 
   /**
@@ -618,7 +671,7 @@ export class Circuit extends EventEmitter {
         },
       );
     } catch (err) {
-      throw new Error(`Error in mintGrantBurnPKP: ${err}`);
+      throw new Error(`Error in mintGrantBurnPKP: ${err.message}`);
     }
   };
 
@@ -632,7 +685,7 @@ export class Circuit extends EventEmitter {
     try {
       return await this.pkpContract.getPubkey(tokenId);
     } catch (err) {
-      throw new Error(`Error getting pkp public key: ${err}`);
+      throw new Error(`Error getting pkp public key: ${err.message}`);
     }
   }
 
@@ -646,7 +699,7 @@ export class Circuit extends EventEmitter {
     action: ContractAction,
   ): LitUnsignedTransaction => {
     const validChain = Object.keys(LitChainIds).includes(
-      action.chainId.toString(),
+      action.chainId.toString().toLowerCase(),
     );
     if (!validChain) {
       throw new Error(
@@ -684,10 +737,10 @@ export class Circuit extends EventEmitter {
   private runLitAction = async (): Promise<void> => {
     try {
       await this.connectLit();
-
+      console.log(this.code);
       const response = await this.litClient.executeJs({
-        ipfsId: this.ipfsCID,
-        code: this.code,
+        ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
+        code: this.ipfsCID ? undefined : this.code,
         authSig: this.authSig
           ? this.authSig
           : await this.generateAuthSignature(),
@@ -700,14 +753,18 @@ export class Circuit extends EventEmitter {
           ...this.jsParameters,
         },
       });
+      console.log({ response });
       this.log(
         LogCategory.RESPONSE,
-        `Circuit executed successfully. Lit Action Response: ${response}`,
+        `Circuit executed successfully. Lit Action Response: ${
+          typeof response === "object" ? JSON.stringify(response) : response
+        }
+          `,
       );
       this.successfulCompletionCount++;
     } catch (err: any) {
       this.log(LogCategory.ERROR, `Lit Action failed: ${err.message}`);
-      throw new Error(`Error running Lit Action: ${err}`);
+      throw new Error(`Error running Lit Action: ${err.message}`);
     }
   };
 
@@ -719,27 +776,7 @@ export class Circuit extends EventEmitter {
     try {
       await this.litClient.connect();
     } catch (err) {
-      throw new Error(`Error connecting with LitJsSDK: ${err}`);
-    }
-  };
-
-  /**
-   * Generates an authentication signature for the Lit Action.
-   * @param chainId - The chain ID (default: 1).
-   * @param uri - The URI (default: "eventlistenersdk").
-   * @param version - The version (default: "1").
-   * @returns The authentication signature.
-   * @throws {Error} If an error occurs while generating the authentication signature.
-   */
-  private generateAuthSignature = async (
-    chainId = 1,
-    uri = "LitListenerSDK",
-    version = "1",
-  ): Promise<LitAuthSig> => {
-    try {
-      return generateAuthSig(this.signer, chainId, uri, version);
-    } catch (err: any) {
-      throw new Error(`Error generating Auth Signature: ${err}`);
+      throw new Error(`Error connecting with LitJsSDK: ${err.message}`);
     }
   };
 
@@ -787,12 +824,6 @@ export class Circuit extends EventEmitter {
    */
   private checkConditionalLogicAndRun = (): RunStatus => {
     if (this.conditionalLogic) {
-      ``;
-      const executionStatus = this.checkExecutionLimitations();
-      if (executionStatus === RunStatus.EXIT_RUN) {
-        return RunStatus.EXIT_RUN;
-      }
-
       switch (this.conditionalLogic.type) {
         case "THRESHOLD":
           if (
@@ -821,6 +852,8 @@ export class Circuit extends EventEmitter {
             return RunStatus.CONTINUE_RUN;
           }
       }
+    } else {
+      return RunStatus.CONTINUE_RUN;
     }
   };
 
@@ -830,6 +863,10 @@ export class Circuit extends EventEmitter {
    * @param message - The message to log.
    */
   private log = (category: LogCategory, message: string) => {
+    if (typeof message === "object") {
+      message = JSON.stringify(message);
+    }
+
     this.logs[this.logIndex] = { category, message };
     this.logIndex = (this.logIndex + 1) % this.logSize;
     this.emit("log", message);
