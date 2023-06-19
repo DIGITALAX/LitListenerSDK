@@ -9,9 +9,13 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "typeRoots": ["src/@types", "node_modules/@types"],
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node"
   },
-  "include": ["src/**/*", "./__tests__"],
-  "exclude": ["node_modules", "test", "lib", "**/*spec.ts"],
+  "include": ["src/**/*", "test"],
+  "exclude": ["node_modules", "lib", "**/*spec.ts"],
   "files": ["./hardhat.config.ts"]
 }

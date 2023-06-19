@@ -4,7 +4,7 @@ import { EventEmitter } from "events";
 import {
   ContractCondition,
   WebhookCondition,
-} from "src/@types/lit-listener-sdk";
+} from "./@types/lit-listener-sdk";
 
 /**
  * @class ConditionMonitor
@@ -77,6 +77,7 @@ export class ConditionMonitor extends EventEmitter {
   private startMonitoringContract = async (condition: ContractCondition) => {
     try {
       const { contractAddress, abi, eventName, providerURL } = condition;
+      
       const contract = new ethers.Contract(
         contractAddress,
         abi,
@@ -85,6 +86,11 @@ export class ConditionMonitor extends EventEmitter {
 
       const processEvent = async (eventData: Event) => {
         const { args } = eventData;
+
+        if (!args) {
+          this.emit("conditionError");
+          throw new Error(`Error in Retrieving contract args.`);
+        }
 
         const emittedValues = condition.eventArgName.map(
           (argName) => args[argName],
