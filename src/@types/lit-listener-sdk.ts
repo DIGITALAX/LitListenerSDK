@@ -265,7 +265,8 @@ export interface FetchAction {
       | string[]
       | number[]
       | bigint[]
-      | undefined;
+      | undefined
+      | (string | number | bigint)[];
   }[];
 }
 
@@ -324,7 +325,14 @@ export interface IContractCondition {
   chainId: CHAIN_NAME;
   eventName: string;
   eventArgName: string[];
-  expectedValue: number | string | number[] | string[] | bigint | bigint[];
+  expectedValue:
+    | number
+    | string
+    | number[]
+    | string[]
+    | bigint
+    | bigint[]
+    | (string | number | bigint)[];
   onMatched: () => Promise<void>;
   onUnMatched: () => Promise<void>;
   onError: (error: Error) => void;
@@ -352,7 +360,7 @@ export class ContractCondition implements IContractCondition {
    * @param contractAddress - The address of the contract to monitor.
    * @param abi - The ABI of the contract.
    * @param eventName - The name of the event to monitor.
-   * @param eventArgName - 
+   * @param eventArgName -
    * @param expectedValue - The value that will be matched against the emitted value.
    * @param onMatched - A callback function to execute when the emitted value matches the expected value.
    * @param onUnMatched - A callback function to execute when the emitted value does not match the expected value.
@@ -361,16 +369,17 @@ export class ContractCondition implements IContractCondition {
   constructor(
     public contractAddress: `0x${string}`,
     public abi: ethers.ContractInterface,
+    public chainId: CHAIN_NAME,
     public eventName: string,
     public eventArgName: string[],
-    public chainId: CHAIN_NAME,
     public expectedValue:
       | number
       | string
       | number[]
       | string[]
       | bigint
-      | bigint[],
+      | bigint[]
+      | (string | number | bigint)[],
     public onMatched: () => Promise<void> = async () => {},
     public onUnMatched: () => Promise<void> = async () => {},
     public onError: (error: Error) => void = () => {},
@@ -393,7 +402,14 @@ export interface IWebhookCondition {
   baseUrl: string;
   endpoint: string;
   responsePath: string;
-  expectedValue: number | string | number[] | string[] | bigint | bigint[];
+  expectedValue:
+    | number
+    | string
+    | number[]
+    | string[]
+    | bigint
+    | bigint[]
+    | (string | number | bigint)[];
   apiKey?: string;
   onMatched: () => Promise<void>;
   onUnMatched: () => Promise<void>;
@@ -436,7 +452,8 @@ export class WebhookCondition implements IWebhookCondition {
       | number[]
       | string[]
       | bigint
-      | bigint[],
+      | bigint[]
+      | (string | number | bigint)[],
     public apiKey?: string,
     public onMatched: () => Promise<void> = async () => {},
     public onUnMatched: () => Promise<void> = async () => {},

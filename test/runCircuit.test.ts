@@ -5,7 +5,7 @@ describe("Instantiate and Run the LitListenerSDK inclusive of all methods", () =
 
     })
     
-    describe("it should instantiate a new circuit", () => {
+    describe("it should instantiate a new circuit with correct constructor params", () => {
 
     })
     
@@ -25,11 +25,7 @@ describe("Instantiate and Run the LitListenerSDK inclusive of all methods", () =
     
     })
     
-    describe("it should correctly upload the Lit Action code to ipfs", () => {
-    
-    })
-    
-    describe("it should correctly generate the Lit Action code to ipfs CID", () => {
+    describe("it should correctly generate the Lit Action code ipfs CID", () => {
     
     })
     
@@ -51,6 +47,18 @@ describe("Instantiate and Run the LitListenerSDK inclusive of all methods", () =
     })
 
     describe("it should correctly monitor the conditions on the interval", () => {
+        
+    })
+
+    describe("it should correctly invoke the condition error, match and unmatch callbacks", () => {
+        
+    })
+
+    describe("it should correctly check the expected value against multiple event args", () => {
+        
+    })
+
+    describe("it should correctly check the expected value for all types (number, string, array etc.)", () => {
         
     })
 })

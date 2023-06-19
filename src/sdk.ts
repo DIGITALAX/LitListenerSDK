@@ -1,16 +1,14 @@
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
 import { EventEmitter } from "events";
 import { ethers } from "ethers";
-import { IPFSData, uploadToIPFS } from "src/utils/ipfs";
 import Hash from "ipfs-only-hash";
 import {
   LitAuthSig,
   generateAuthSig,
   getBytesFromMultihash,
-} from "src/utils/litProtocol";
-import { CID } from "@mdip/ipfs-core/src/block-storage";
-import { PKP_CONTRACT_ADDRESS_MUMBAI } from "src/constants";
-import pkpABI from "../src/abis/PKPNFT.json";
+} from "./utils/litProtocol";
+import { PKP_CONTRACT_ADDRESS_MUMBAI } from "./constants";
+import * as pkpNftContract from "./abis/PKPNFT.json";
 import { PKPNFT } from "./../typechain-types/contracts/PKPNFT";
 import {
   Action,
@@ -25,7 +23,6 @@ import {
   LogCategory,
   RunStatus,
   UnsignedTransactionData,
-  WebhookCondition,
 } from "./@types/lit-listener-sdk";
 import { ConditionMonitor } from "./conditions";
 import { Fragment } from "ethers/lib/utils";
@@ -196,7 +193,7 @@ export class Circuit extends EventEmitter {
     this.providerURL = providerURL;
     this.pkpContract = new ethers.Contract(
       pkpContractAddress,
-      pkpABI,
+      pkpNftContract,
       this.signer,
     ) as any;
     this.emitter.on("stop", () => {
@@ -208,7 +205,7 @@ export class Circuit extends EventEmitter {
    * Sets the specified conditions to the circuit.
    * @param conditions The array of webhook conditions.
    */
-  setConditions = (conditions: WebhookCondition[]): void => {
+  setConditions = (conditions: Condition[]): void => {
     conditions.forEach((condition) => {
       condition.id = this.conditions.length.toString();
       if (condition instanceof ContractCondition && !condition.providerURL) {
@@ -395,7 +392,7 @@ export class Circuit extends EventEmitter {
     data: UnsignedTransactionData,
   ): LitUnsignedTransaction => {
     const validChain = Object.keys(LitChainIds).includes(
-      data.chainId.toString(),
+      data?.chainId?.toString()!,
     );
     if (!validChain) {
       throw new Error(
@@ -408,7 +405,7 @@ export class Circuit extends EventEmitter {
     return {
       to: data.contractAddress,
       nonce: data.nonce ? data.nonce : 0,
-      chainId: LitChainIds[data.chainId],
+      chainId: LitChainIds[data?.chainId!],
       gasLimit: data.gasLimit ? data.gasLimit : "50000",
       gasPrice: data.gasPrice ? data.gasPrice : undefined,
       maxFeePerGas: data.maxFeePerGas ? data.maxFeePerGas : undefined,
@@ -420,21 +417,6 @@ export class Circuit extends EventEmitter {
       value: data.value ? data.value : 0,
       type: 2,
     };
-  };
-
-  /**
-   * Uploads the specified code to IPFS.
-   * @param code The code to be uploaded.
-   * @returns The CID of the uploaded IPFS data.
-   * @throws {Error} If an error occurs while uploading to IPFS.
-   */
-  uploadToIPFS = async (code: string): Promise<CID> => {
-    try {
-      const res: IPFSData = await uploadToIPFS(code);
-      return res.cid;
-    } catch (err) {
-      throw new Error(`Error uploading to IPFS: ${err}`);
-    }
   };
 
   /**
@@ -552,7 +534,7 @@ export class Circuit extends EventEmitter {
                 return Promise.resolve();
               }),
             );
-            if (this.conditionalLogic.interval) {
+            if (this.conditionalLogic?.interval) {
               const monitor = setTimeout(async () => {
                 await conditionPromise;
               }, this.conditionalLogic.interval);
@@ -568,9 +550,9 @@ export class Circuit extends EventEmitter {
             break;
           }
 
-          if (this.conditionalLogic.interval) {
+          if (this.conditionalLogic?.interval) {
             await new Promise((resolve) =>
-              setTimeout(resolve, this.conditionalLogic.interval),
+              setTimeout(resolve, this.conditionalLogic?.interval),
             );
           }
 
@@ -805,6 +787,7 @@ export class Circuit extends EventEmitter {
    */
   private checkConditionalLogicAndRun = (): RunStatus => {
     if (this.conditionalLogic) {
+      ``;
       const executionStatus = this.checkExecutionLimitations();
       if (executionStatus === RunStatus.EXIT_RUN) {
         return RunStatus.EXIT_RUN;
