@@ -1,10 +1,7 @@
 import axios from "axios";
 import ethers, { Event } from "ethers";
 import { EventEmitter } from "events";
-import {
-  ContractCondition,
-  WebhookCondition,
-} from "./@types/lit-listener-sdk";
+import { ContractCondition, WebhookCondition } from "./@types/lit-listener-sdk";
 
 /**
  * @class ConditionMonitor
@@ -60,11 +57,11 @@ export class ConditionMonitor extends EventEmitter {
       } catch (error) {
         condition.onError(error);
         this.emit("conditionError", error, condition);
-        throw new Error(`Error in Webhook Action: ${error}`);
+        throw new Error(`Error in Webhook Action: ${error.message}`);
       }
     };
 
-    webhookListener();
+   return webhookListener();
   };
 
   /**
@@ -77,7 +74,7 @@ export class ConditionMonitor extends EventEmitter {
   private startMonitoringContract = async (condition: ContractCondition) => {
     try {
       const { contractAddress, abi, eventName, providerURL } = condition;
-      
+
       const contract = new ethers.Contract(
         contractAddress,
         abi,
@@ -103,11 +100,11 @@ export class ConditionMonitor extends EventEmitter {
         contract.on(eventName, processEvent);
       };
 
-      subscribeToEvent();
+     return subscribeToEvent();
     } catch (error: any) {
       condition.onError(error);
       this.emit("conditionError", error, condition);
-      throw new Error(`Error in Contract Action: ${error}`);
+      throw new Error(`Error in Contract Action: ${error.message}`);
     }
   };
 
@@ -143,7 +140,7 @@ export class ConditionMonitor extends EventEmitter {
         this.emit("conditionNotMatched", condition);
       }
     } catch (error: any) {
-      throw new Error(`Error in Checking Against Expected Values: ${error}`);
+      throw new Error(`Error in Checking Against Expected Values: ${error.message}`);
     }
   };
 }
