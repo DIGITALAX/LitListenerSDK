@@ -274,8 +274,8 @@ export type Action = CustomAction | ContractAction | FetchAction;
  * @description Represents the logic for a conditional operation.
  * @property type - The type of the conditional logic. It can be "THRESHOLD", "TARGET", or "EVERY".
  * @property value - Used when the type is "THRESHOLD". It's the threshold number of conditions that must have passed in order for the Lit Action to run.
- * @property targetCondition - Used when the type is "TARGET". It's the specific condition that must be met in order for the Lit Action to run.
- * @property interval - Optional. It's the frequency of condition checks. If omitted, the condition is checked continuously.
+ * @property targetCondition - Used when the type is "TARGET". It's the specific Condition Id (In order of Conditions Added to Array) that must be met in order for the Lit Action to run.
+ * @property interval - Optional. It's the frequency of condition checks. If omitted, the condition is checked continuously. Resolves in milliseconds.
  */
 export interface IThresholdConditionalLogic {
   type: "THRESHOLD";
@@ -376,8 +376,7 @@ export class ContractCondition implements IContractCondition {
     public onMatched: () => Promise<void> = async () => {},
     public onUnMatched: () => Promise<void> = async () => {},
     public onError: (error: Error) => void = () => {},
-  ) {
-  }
+  ) {}
 }
 
 /**
@@ -460,10 +459,12 @@ export type Condition = ContractCondition | WebhookCondition;
 /**
  * @interface IExecutionConstraints
  * @description Represents the execution constraints for running the circuit.
- * @property conditionMonitorExecutions - Optional. The maximum amount of times that the circuit will run before stopping, inclusive of conditions and conditional logic failures.
+ * @property conditionMonitorExecutions - Optional. The maximum amount of times that the circuit will run before 
+    stopping, inclusive of conditions on matched, on unmatched and conditional logic failures.
  * @property startDate - Optional. The circuit will not run before this date.
  * @property endDate - Optional. The circuit will stop running once this date has passed.
- * @property maxLitActionCompletions - Optional. The maximum amount of times that the Lit Action code will be executed before the circuit stops running.
+ * @property maxLitActionCompletions - Optional. The maximum amount of times that the Lit Action code will be 
+    executed before the circuit stops running. This is a full run of the circuit.
  */
 export interface IExecutionConstraints {
   conditionMonitorExecutions?: number;

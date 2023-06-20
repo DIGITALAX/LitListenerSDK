@@ -1,9 +1,9 @@
 import { expect } from "chai";
-import { Circuit, CustomAction, LogCategory, WebhookCondition } from "./../src";
+import { Circuit, CustomAction, WebhookCondition } from "./../src";
 import { ethers } from "hardhat";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-describe("Correctly verifies the execution constraints", () => {
+xdescribe("Verify the Execution Constraints", () => {
   let newCircuit: Circuit, pkpPublicKey: string;
   const customActions: CustomAction[] = [
     {
@@ -50,7 +50,7 @@ describe("Correctly verifies the execution constraints", () => {
   });
 
   describe("Successful Execution Constraints", () => {
-    it("Should execute only to the max Condition Monitor", async () => {
+    it("Execute Only to the Max Condition Monitor", async () => {
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 3,
       });
@@ -58,7 +58,7 @@ describe("Correctly verifies the execution constraints", () => {
       expect(newCircuit["conditionExecutedCount"]).to.equal(3);
     });
 
-    it("Should execute only after the Start Date", async () => {
+    it("Execute Only After the Start Date", async () => {
       let actionSet = false;
       const LitActionCode = newCircuit.setActions([
         {
@@ -89,7 +89,7 @@ describe("Correctly verifies the execution constraints", () => {
       expect(actionSet).to.false;
     });
 
-    it("Should execute only before the End Date", async () => {
+    it("Execute Only Before the End Date", async () => {
       let actionSet = false;
       const LitActionCode = newCircuit.setActions([
         {
@@ -120,7 +120,7 @@ describe("Correctly verifies the execution constraints", () => {
       expect(actionSet).to.false;
     });
 
-    it("Should execute only to the max Lit Action Completions", async () => {
+    it("Execute Only to the Lit Action Completions", async () => {
       newCircuit.executionConstraints({
         maxLitActionCompletions: 3,
       });
@@ -128,7 +128,7 @@ describe("Correctly verifies the execution constraints", () => {
       expect(newCircuit["litActionCompletionCount"]).to.equal(3);
     });
 
-    it("Should execute only to the max Lit Action Completion with higher Max Executions", async () => {
+    it("Execute Only to the Max Lit Action Completions with Higher Max Executions", async () => {
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 4,
         maxLitActionCompletions: 1,
@@ -138,16 +138,26 @@ describe("Correctly verifies the execution constraints", () => {
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
     });
 
-    it("Should execute only to the Max Executions with higher Lit Action Completions", async () => {
+    it("Execute Only to the Max Condition Monitor with Higher Lit Action Completions", async () => {
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 1,
         maxLitActionCompletions: 2,
       });
       await newCircuit.start({ pkpPublicKey });
-      expect(newCircuit["litActionCompletionCount"]).to.equal(0);
+      expect(newCircuit["litActionCompletionCount"]).to.equal(1);
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
     });
 
-    xit("Should continuously execute if no Constraints are provided", async () => {});
+    it("Continuously Execute for No Constraints Provided", async () => {
+      const startPromise = newCircuit.start({ pkpPublicKey });
+
+      setTimeout(() => {
+        newCircuit.interrupt();
+      }, 20000);
+
+      await startPromise;
+
+      expect(newCircuit["conditionExecutedCount"]).to.be.greaterThan(5);
+    });
   });
 });

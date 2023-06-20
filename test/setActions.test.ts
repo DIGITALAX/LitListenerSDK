@@ -32,38 +32,38 @@ xdescribe("Set the Actions of the Circuit", () => {
     175177,
   );
 
-  before(async () => {
-    // Create a test instance of the circuit
-    newCircuit = new Circuit(
-      process.env.MUMBAI_PROVIDER_URL,
-      new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
-    );
+  describe("Set Custom Actions", () => {
+    before(async () => {
+      // Create a test instance of the circuit
+      newCircuit = new Circuit(
+        process.env.MUMBAI_PROVIDER_URL,
+        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+      );
 
-    newCircuit.setConditions([
-      new WebhookCondition(
-        "https://api.weather.gov",
-        "/gridpoints/LWX/97,71/forecast",
-        "geometry.type",
-        "Polygon",
-        undefined,
-        async () => {
-          console.log("matched");
-        },
-        async () => {
-          console.log("unmatched");
-        },
-        (err) => console.error(err.message),
-      ),
-    ]);
+      newCircuit.setConditions([
+        new WebhookCondition(
+          "https://api.weather.gov",
+          "/gridpoints/LWX/97,71/forecast",
+          "geometry.type",
+          "Polygon",
+          undefined,
+          async () => {
+            console.log("matched");
+          },
+          async () => {
+            console.log("unmatched");
+          },
+          (err) => console.error(err.message),
+        ),
+      ]);
 
-    newCircuit.executionConstraints({
-      conditionMonitorExecutions: 1,
+      newCircuit.executionConstraints({
+        conditionMonitorExecutions: 1,
+      });
     });
-  });
 
-  describe("Set custom actions correctly", () => {
     // Define the custom actions
-    it("It should define the actions correctly", () => {
+    it("Define the Actions Correctly", () => {
       const customActions: CustomAction[] = [
         {
           type: "custom",
@@ -92,7 +92,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       );
     });
 
-    it("Return the correct response object", async () => {
+    it("Return the Response Object", async () => {
       ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
       const pkpContract = new ethers.Contract(
@@ -122,8 +122,37 @@ xdescribe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Set fetch actions correctly", () => {
-    it("It should define the actions correctly", () => {
+  describe("Set Fetch Actions", () => {
+    before(async () => {
+      // Create a test instance of the circuit
+      newCircuit = new Circuit(
+        process.env.MUMBAI_PROVIDER_URL,
+        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+      );
+
+      newCircuit.setConditions([
+        new WebhookCondition(
+          "https://api.weather.gov",
+          "/gridpoints/LWX/97,71/forecast",
+          "geometry.type",
+          "Polygon",
+          undefined,
+          async () => {
+            console.log("matched");
+          },
+          async () => {
+            console.log("unmatched");
+          },
+          (err) => console.error(err.message),
+        ),
+      ]);
+
+      newCircuit.executionConstraints({
+        conditionMonitorExecutions: 1,
+      });
+    });
+
+    it("Define the Actions Correctly", () => {
       // Define the fetch actions
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [
@@ -181,7 +210,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       );
       expect(LitActionCode.replace(/\s/g, "")).to.include(
         `await Lit.Actions.signEcdsa({
-          toSign: hashTransaction(generatedUnsignedData),
+          toSign,
           publicKey,
           sigName: "sig1",
       });`.replace(/\s/g, ""),
@@ -212,7 +241,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       );
     });
 
-    it("It should not sign on incorrect condition met", async () => {
+    it("Won't Sign on Incorrect Condition Met", async () => {
       const noSignCircuit = new Circuit(
         process.env.MUMBAI_PROVIDER_URL,
         new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
@@ -257,9 +286,9 @@ xdescribe("Set the Actions of the Circuit", () => {
       });
 
       // Set the actions on the circuit
-      LitActionCode = noSignCircuit.setActions(fetchActions);
+      const LitActionCode = noSignCircuit.setActions(fetchActions);
 
-      ipfsCID = await noSignCircuit.getIPFSHash(LitActionCode);
+      const ipfsCID = await noSignCircuit.getIPFSHash(LitActionCode);
       const pkpTokenData = await noSignCircuit.mintGrantBurnPKP(ipfsCID);
       const pkpContract = new ethers.Contract(
         PKP_CONTRACT_ADDRESS,
@@ -288,7 +317,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       });
     });
 
-    it("Should return the correct response object", async () => {
+    it("Return the Response Object", async () => {
       ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
       const pkpContract = new ethers.Contract(
@@ -319,9 +348,36 @@ xdescribe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Should set contract actions correctly", () => {
+  describe("Set Contract Actions", () => {
     let generateUnsignedTransactionData: LitUnsignedTransaction;
     before(async () => {
+      // Create a test instance of the circuit
+      newCircuit = new Circuit(
+        process.env.MUMBAI_PROVIDER_URL,
+        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+      );
+
+      newCircuit.setConditions([
+        new WebhookCondition(
+          "https://api.weather.gov",
+          "/gridpoints/LWX/97,71/forecast",
+          "geometry.type",
+          "Polygon",
+          undefined,
+          async () => {
+            console.log("matched");
+          },
+          async () => {
+            console.log("unmatched");
+          },
+          (err) => console.error(err.message),
+        ),
+      ]);
+
+      newCircuit.executionConstraints({
+        conditionMonitorExecutions: 1,
+      });
+
       [from, to] = await ethers.getSigners();
 
       const ListenerToken = await ethers.getContractFactory("ListenerERC20");
@@ -344,7 +400,7 @@ xdescribe("Set the Actions of the Circuit", () => {
         });
     });
 
-    it("It should define the actions correctly", async () => {
+    it("Define the Actions Correctly", async () => {
       // Define the contract actions
       const contractActions: ContractAction[] = [
         {
@@ -382,7 +438,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       );
     });
 
-    it("Should return the correct response object", async () => {
+    it("Return the Response Object", async () => {
       ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
 
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
@@ -420,7 +476,7 @@ xdescribe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Sets the combined actions correctly", () => {
+  describe("Sets the Combined Actions", () => {
     let generateUnsignedTransactionData: LitUnsignedTransaction;
     before(async () => {
       [from, to] = await ethers.getSigners();
@@ -443,9 +499,36 @@ xdescribe("Set the Actions of the Circuit", () => {
           args: [from.address, to.address, 5000],
           abi: ListenerERC20ABI,
         });
+
+      // Create a test instance of the circuit
+      newCircuit = new Circuit(
+        process.env.MUMBAI_PROVIDER_URL,
+        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+      );
+
+      newCircuit.setConditions([
+        new WebhookCondition(
+          "https://api.weather.gov",
+          "/gridpoints/LWX/97,71/forecast",
+          "geometry.type",
+          "Polygon",
+          undefined,
+          async () => {
+            console.log("matched");
+          },
+          async () => {
+            console.log("unmatched");
+          },
+          (err) => console.error(err.message),
+        ),
+      ]);
+
+      newCircuit.executionConstraints({
+        conditionMonitorExecutions: 1,
+      });
     });
 
-    it("Should set combined actions correctly", () => {
+    it("Set Combined Actions Correctly", () => {
       const buffer = Buffer.from("polygon");
       const combinedActions: Action[] = [
         {
@@ -507,7 +590,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       );
     });
 
-    it("Should set actions order correctly", () => {
+    it("Set Actions Order Correctly", () => {
       expect(LitActionCode.indexOf("custom1")).to.be.greaterThan(
         LitActionCode.indexOf("custom0"),
       );
@@ -519,7 +602,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       );
     });
 
-    it("Should revert if there is actions of the same priority number", async () => {
+    it("Revert on Actions of the Same Priority Number", async () => {
       const noSignCircuit = new Circuit(
         process.env.MUMBAI_PROVIDER_URL,
         new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
@@ -589,7 +672,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       }).to.throw("Action with priority 0 already exists.");
     });
 
-    it("Should return the correct response object", async () => {
+    it("Return the Response Object", async () => {
       ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
 
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
