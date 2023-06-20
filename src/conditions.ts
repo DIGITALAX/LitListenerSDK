@@ -61,7 +61,7 @@ export class ConditionMonitor extends EventEmitter {
       }
     };
 
-   return webhookListener();
+    return webhookListener();
   };
 
   /**
@@ -75,6 +75,11 @@ export class ConditionMonitor extends EventEmitter {
     try {
       const { contractAddress, abi, eventName, providerURL } = condition;
 
+      if (!providerURL) {
+        this.emit("conditionError", "Error: No Provider URL.", condition);
+        throw new Error(`Error: No Provider URL.`);
+      }
+
       const contract = new ethers.Contract(
         contractAddress,
         abi,
@@ -85,7 +90,7 @@ export class ConditionMonitor extends EventEmitter {
         const { args } = eventData;
 
         if (!args) {
-          this.emit("conditionError");
+          this.emit("conditionError", "Error in Retrieving contract args.");
           throw new Error(`Error in Retrieving contract args.`);
         }
 
@@ -100,7 +105,7 @@ export class ConditionMonitor extends EventEmitter {
         contract.on(eventName, processEvent);
       };
 
-     return subscribeToEvent();
+      return subscribeToEvent();
     } catch (error: any) {
       condition.onError(error);
       this.emit("conditionError", error, condition);
@@ -140,7 +145,9 @@ export class ConditionMonitor extends EventEmitter {
         this.emit("conditionNotMatched", condition);
       }
     } catch (error: any) {
-      throw new Error(`Error in Checking Against Expected Values: ${error.message}`);
+      throw new Error(
+        `Error in Checking Against Expected Values: ${error.message}`,
+      );
     }
   };
 }
