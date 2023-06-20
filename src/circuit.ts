@@ -13,7 +13,6 @@ import { PKPNFT } from "../typechain-types/contracts/PKPNFT";
 import {
   Action,
   Condition,
-  ContractAction,
   ContractCondition,
   IConditionalLogic,
   IExecutionConstraints,
@@ -62,17 +61,17 @@ export class Circuit extends EventEmitter {
    * The count of executed actions.
    * @private
    */
-  private executedCount: number = 0;
+  private conditionExecutedCount: number = 0;
   /**
    * The count of successfully completed actions.
    * @private
    */
-  private successfulCompletionCount: number = 0;
+  private litActionCompletionCount: number = 0;
   /**
    * The maximum number of executions allowed.
    * @private
    */
-  private maxExecutions?: number;
+  private conditionMonitorExecutions?: number;
   /**
    * The start date for executing actions.
    * @private
@@ -87,7 +86,7 @@ export class Circuit extends EventEmitter {
    * The maximum number of successful completions allowed.
    * @private
    */
-  private maxSuccessfulCompletions?: number;
+  private maxLitActionCompletions?: number;
   /**
    * The size of the log array.
    * @private
@@ -243,10 +242,10 @@ export class Circuit extends EventEmitter {
    * @param options The options object for execution constraints.
    */
   executionConstraints = (options: IExecutionConstraints): void => {
-    this.maxExecutions = options.maxExecutions;
+    this.conditionMonitorExecutions = options.conditionMonitorExecutions;
     this.startDate = options.startDate;
     this.endDate = options.endDate;
-    this.maxSuccessfulCompletions = options.maxSuccessfulCompletions;
+    this.maxLitActionCompletions = options.maxLitActionCompletions;
   };
 
   /**
@@ -579,16 +578,23 @@ export class Circuit extends EventEmitter {
           for (const condition of this.conditions) {
             condition.sdkOnMatched = async () => {
               this.satisfiedConditions.add(condition.id!);
-              this.executedCount++;
               const res = this.checkConditionalLogicAndRun();
-              if (res === RunStatus.ACTION_RUN) {
+              this.conditionExecutedCount++;
+              const executionResBefore = this.checkExecutionLimitations();
+              if (
+                res === RunStatus.ACTION_RUN &&
+                executionResBefore === RunStatus.CONTINUE_RUN
+              ) {
                 await this.runLitAction();
-                const executionRes = this.checkExecutionLimitations();
-                if (executionRes === RunStatus.EXIT_RUN) {
+                const executionResAfter = this.checkExecutionLimitations();
+                if (executionResAfter === RunStatus.EXIT_RUN) {
                   this.emitter.emit("stop");
                   return;
                 }
-              } else if (res === RunStatus.EXIT_RUN) {
+              } else if (
+                res === RunStatus.EXIT_RUN ||
+                executionResBefore === RunStatus.EXIT_RUN
+              ) {
                 this.emitter.emit("stop");
                 return;
               }
@@ -596,16 +602,23 @@ export class Circuit extends EventEmitter {
 
             condition.sdkOnUnMatched = async () => {
               this.satisfiedConditions.delete(condition.id!);
-              this.executedCount++;
               const res = this.checkConditionalLogicAndRun();
-              if (res === RunStatus.ACTION_RUN) {
+              this.conditionExecutedCount++;
+              const executionResBefore = this.checkExecutionLimitations();
+              if (
+                res === RunStatus.ACTION_RUN &&
+                executionResBefore === RunStatus.CONTINUE_RUN
+              ) {
                 await this.runLitAction();
-                const executionRes = this.checkExecutionLimitations();
-                if (executionRes === RunStatus.EXIT_RUN) {
+                const executionResAfter = this.checkExecutionLimitations();
+                if (executionResAfter === RunStatus.EXIT_RUN) {
                   this.emitter.emit("stop");
                   return;
                 }
-              } else if (res === RunStatus.EXIT_RUN) {
+              } else if (
+                res === RunStatus.EXIT_RUN ||
+                executionResBefore === RunStatus.EXIT_RUN
+              ) {
                 this.emitter.emit("stop");
                 return;
               }
@@ -719,7 +732,7 @@ export class Circuit extends EventEmitter {
       throw new Error("No provider attached to ethers signer");
     }
     try {
-      const feeData = await this.signer.provider.getFeeData();
+      // const feeData = await this.signer.provider.getFeeData();
       const tx = await this.pkpContract.mintGrantAndBurnNext(
         2,
         getBytesFromMultihash(ipfsCID),
@@ -767,13 +780,12 @@ export class Circuit extends EventEmitter {
           ...this.jsParameters,
         },
       });
-      console.log({ response });
       this.log(
         LogCategory.RESPONSE,
         "Circuit executed successfully. Lit Action Response.",
         typeof response === "object" ? JSON.stringify(response) : response,
       );
-      this.successfulCompletionCount++;
+      this.litActionCompletionCount++;
     } catch (err: any) {
       this.log(LogCategory.ERROR, `Lit Action failed.`, err.message);
       throw new Error(`Error running Lit Action: ${err.message}`);
@@ -798,16 +810,16 @@ export class Circuit extends EventEmitter {
    */
   private checkExecutionLimitations = (): RunStatus => {
     if (
-      this.maxExecutions === undefined &&
+      this.conditionMonitorExecutions === undefined &&
       this.startDate === undefined &&
       this.endDate === undefined &&
-      this.maxSuccessfulCompletions === undefined
+      this.maxLitActionCompletions === undefined
     ) {
       return RunStatus.CONTINUE_RUN;
     }
 
-    const withinExecutionLimit = this.maxExecutions
-      ? this.executedCount < this.maxExecutions
+    const withinExecutionLimit = this.conditionMonitorExecutions
+      ? this.conditionExecutedCount < this.conditionMonitorExecutions
       : true;
     const withinTimeRange =
       this.startDate && this.endDate
@@ -817,8 +829,8 @@ export class Circuit extends EventEmitter {
         : this.endDate && !this.startDate
         ? new Date() <= this.endDate
         : true;
-    const withinSuccessfulCompletions = this.maxSuccessfulCompletions
-      ? this.successfulCompletionCount < this.maxSuccessfulCompletions
+    const withinSuccessfulCompletions = this.maxLitActionCompletions
+      ? this.litActionCompletionCount < this.maxLitActionCompletions
       : true;
     const executionConstraintsMet =
       withinExecutionLimit && withinTimeRange && withinSuccessfulCompletions;
