@@ -1,12 +1,13 @@
 import {
-  PKP_CONTRACT_ADDRESS_MUMBAI,
-  PKP_PERMISSIONS_CONTRACT_ADDRESS_MUMBAI,
+  CHRONICLE_PROVIDER,
+  PKP_CONTRACT_ADDRESS,
+  PKP_PERMISSIONS_CONTRACT_ADDRESS,
 } from "./../src/constants/index";
 import pkpABI from "./../src/abis/PKPNFT.json";
 import pkpPermissionsABI from "./../src/abis/PKPPermissions.json";
 import { PKPNFT } from "./../typechain-types/contracts/PKPNFT";
 import { PKPPermissions } from "./../typechain-types/contracts/PKPPermissions";
-import { Circuit } from "./../src/sdk";
+import { Circuit } from "../src/circuit";
 import { getBytesFromMultihash } from "./../src/utils/litProtocol";
 import {
   LogCategory,
@@ -15,8 +16,9 @@ import {
 import { ethers } from "hardhat";
 import { expect } from "chai";
 
-const provider = new ethers.providers.JsonRpcProvider(
-  process.env.MUMBAI_PROVIDER_URL,
+const chronicleProvider = new ethers.providers.JsonRpcProvider(
+  CHRONICLE_PROVIDER,
+  175177,
 );
 
 describe("Mint Grant Burn Tests", () => {
@@ -30,7 +32,7 @@ describe("Mint Grant Burn Tests", () => {
   before(() => {
     newCircuit = new Circuit(
       process.env.MUMBAI_PROVIDER_URL,
-      new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, provider),
+      new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
     );
     newCircuit.setConditions([
       new WebhookCondition(
@@ -75,9 +77,9 @@ describe("Mint Grant Burn Tests", () => {
   it("Mints a PKP with a token ID and public key and grants the Lit Action", async () => {
     const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
     const pkpContract = new ethers.Contract(
-      PKP_CONTRACT_ADDRESS_MUMBAI,
+      PKP_CONTRACT_ADDRESS,
       pkpABI,
-      provider,
+      chronicleProvider,
     ) as PKPNFT;
     pkpTokenId = pkpTokenData.tokenId;
     pkpNftPublicKey = await pkpContract.getPubkey(pkpTokenId);
@@ -86,9 +88,9 @@ describe("Mint Grant Burn Tests", () => {
 
   it("The PKP is correctly granted permission to run the ipfsCID", async () => {
     const pkpPermissionsContract = new ethers.Contract(
-      PKP_PERMISSIONS_CONTRACT_ADDRESS_MUMBAI,
+      PKP_PERMISSIONS_CONTRACT_ADDRESS,
       pkpPermissionsABI,
-      provider,
+      chronicleProvider,
     ) as PKPPermissions;
     const [permittedAction] = await pkpPermissionsContract.getPermittedActions(
       ethers.BigNumber.from(pkpTokenId),
@@ -98,9 +100,9 @@ describe("Mint Grant Burn Tests", () => {
 
   it("The tokenID has no owner", async () => {
     const pkpContract = new ethers.Contract(
-      PKP_CONTRACT_ADDRESS_MUMBAI,
+      PKP_CONTRACT_ADDRESS,
       pkpABI,
-      provider,
+      chronicleProvider,
     ) as PKPNFT;
     await expect(pkpContract.ownerOf(pkpTokenId)).to.be.rejected;
   });
@@ -108,7 +110,7 @@ describe("Mint Grant Burn Tests", () => {
   it("PKP should not allow execution of other code", async () => {
     const rejectCircuit = new Circuit(
       process.env.MUMBAI_PROVIDER_URL,
-      new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, provider),
+      new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
     );
     rejectCircuit.setConditions([
       new WebhookCondition(
@@ -176,8 +178,12 @@ describe("Mint Grant Burn Tests", () => {
       authSig,
     });
     const responseLog = newCircuit.getLogs(LogCategory.RESPONSE);
+    expect(responseLog[0].category).to.equal(1);
     expect(responseLog[0].message.trim()).to.equal(
-      `Circuit executed successfully. Lit Action Response: {"signatures":{},"response":{"custom0":"Transaction Signed Successfully."},"logs":""}`.trim(),
+      `Circuit executed successfully. Lit Action Response.`.trim(),
+    );
+    expect(responseLog[0].responseObject.trim()).to.equal(
+      `{"signatures":{},"response":{"custom0":"Transaction Signed Successfully."},"logs":""}`.trim(),
     );
   });
 });

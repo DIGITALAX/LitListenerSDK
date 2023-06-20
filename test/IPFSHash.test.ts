@@ -1,4 +1,4 @@
-import { Circuit } from "./../src/sdk";
+import { Circuit } from "../src/circuit";
 import { expect } from "chai";
 
 xdescribe("Confirm IPFS Hash", () => {
@@ -12,4 +12,6 @@ xdescribe("Confirm IPFS Hash", () => {
     expect(ipfsCID).to.equal(sameIpfsCID);
     expect(ipfsCID).to.not.be.false;
   });
+
+  it("Executes the IPFS code to the Lit Action", async () => {});
 });

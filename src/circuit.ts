@@ -7,9 +7,9 @@ import {
   generateAuthSig,
   getBytesFromMultihash,
 } from "./utils/litProtocol";
-import { PKP_CONTRACT_ADDRESS_MUMBAI } from "./constants";
-import pkpNftContract from "./abis/PKPNFT.json";
-import { PKPNFT } from "./../typechain-types/contracts/PKPNFT";
+import { PKP_CONTRACT_ADDRESS } from "./constants";
+import pkpNftAbi from "./abis/PKPNFT.json";
+import { PKPNFT } from "../typechain-types/contracts/PKPNFT";
 import {
   Action,
   Condition,
@@ -144,11 +144,6 @@ export class Circuit extends EventEmitter {
    */
   private hasSetActionHelperFunction = false;
   /**
-   * Flag indicating if the go function has been set.
-   * @private
-   */
-  private hasGoFunction = false;
-  /**
    * Flag indicating whether to continue running the circuit.
    * @private
    */
@@ -178,35 +173,42 @@ export class Circuit extends EventEmitter {
   constructor(
     providerURL?: string,
     signer?: ethers.Signer,
-    pkpContractAddress = PKP_CONTRACT_ADDRESS_MUMBAI,
+    pkpContractAddress = PKP_CONTRACT_ADDRESS,
   ) {
     super();
     this.signer = signer ? signer : ethers.Wallet.createRandom();
     this.litClient = new LitJsSdk.LitNodeClient({
       litNetwork: "serrano",
-      debug: false,
+      debug: true,
     });
     this.monitor = new ConditionMonitor();
     this.conditionalLogic = { type: "EVERY" };
-    this.monitor.on("conditionMatched", (condition) => {
-      this.log(LogCategory.CONDITION, `Condition ${condition.id} matched`);
+    this.monitor.on("conditionMatched", (condition: Condition) => {
+      this.log(
+        LogCategory.CONDITION,
+        `Condition ${condition.id} matched`,
+        JSON.stringify(condition),
+      );
     });
-    this.monitor.on("conditionNotMatched", (condition) => {
-      this.log(LogCategory.CONDITION, `Condition ${condition.id} not matched`);
+    this.monitor.on("conditionNotMatched", (condition: Condition) => {
+      this.log(
+        LogCategory.CONDITION,
+        `Condition ${condition.id} not matched`,
+        JSON.stringify(condition),
+      );
     });
-    this.monitor.on("conditionError", (error, condition) => {
+    this.monitor.on("conditionError", (error, condition: Condition) => {
       this.log(
         LogCategory.ERROR,
-        `Error in condition monitoring with condition ${condition.id}: ${
-          typeof error === "object" ? JSON.stringify(error) : error
-        }`,
+        `Error in condition monitoring with condition ${condition.id}`,
+        typeof error === "object" ? JSON.stringify(error) : error,
       );
     });
     this.actionFunctions = new Set<string>();
     this.providerURL = providerURL;
     this.pkpContract = new ethers.Contract(
       pkpContractAddress,
-      pkpNftContract,
+      pkpNftAbi,
       this.signer,
     ) as any;
     this.emitter.on("stop", () => {
@@ -313,6 +315,11 @@ export class Circuit extends EventEmitter {
     this.actions.forEach((action) => {
       if (action.type === "custom") {
         Object.assign(this.jsParameters, action.args);
+      } else if (action.type === "fetch") {
+        Object.assign(this.jsParameters, {
+          signCondition: action.signCondition,
+          toSign: action.toSign,
+        });
       }
       switch (action.type) {
         case "custom":
@@ -340,6 +347,7 @@ export class Circuit extends EventEmitter {
                       '${action.baseUrl}${action.endpoint}',
                       { headers }
                     );
+      
                     const responseJSON = await response.json();
                     let value = responseJSON;
                     const pathParts = '${action.responsePath}'.split('.');
@@ -351,12 +359,12 @@ export class Circuit extends EventEmitter {
                         break;
                       }
                     }
-                    
-                    if (checkSignCondition(value, ${action.signCondition})) {
+         
+                    if (checkSignCondition(value, signCondition)) {
                         await Lit.Actions.signEcdsa({
-                            toSign: '${action.toSign}',
-                            publicKey: '${this.pkpPublicKey}',
-                            sigName: sigName,
+                            toSign,
+                            publicKey: "0x049e781170a256f67d033e97708ddeb79b55e60a70d6fd973c4dbb0d825d90323471e8b83abffd211d74d07292516a1fcf686533f9891adda60625f9f789dd27f4",
+                            sigName: "sig1",
                           });
                           concatenatedResponse.fetch${action.priority} = {value,signed:true};
                     }  else {
@@ -377,8 +385,8 @@ export class Circuit extends EventEmitter {
                try {
                   await LitActions.signEcdsa({
                       toSign: hashTransaction(${generatedUnsignedData}),
-                      publicKey: pkpPublicKey,
-                      sigName: sigName,
+                      publicKey,
+                      sigName: ${action.functionName},
                   });
                   concatenatedResponse.contract${action.priority} = ${generatedUnsignedData};
                } catch (err) {
@@ -411,10 +419,24 @@ export class Circuit extends EventEmitter {
   };
 
   /**
-   * Helper function for generating unsigned transaction data.
-   * @param data The transaction data to be passed in.
-   * @returns The unsigned transaction data.
-   * @throws {Error} If an error occurs from an invalid chainId.
+   * Helper function that generates the data required to construct an unsigned transaction.
+   *
+   * @param {Object} data - The parameters for the unsigned transaction.
+   * @param {string | number} data.chainId - The network ID to use for the transaction. Valid values are keys from `LitChainIds`.
+   * @param {string | Array} data.abi - The ABI of the smart contract to interact with.
+   * @param {string} data.contractAddress - The address of the smart contract to interact with.
+   * @param {number} [data.nonce] - The nonce to use for the transaction.
+   * @param {string} [data.gasLimit] - The gas limit to use for the transaction.
+   * @param {string} [data.gasPrice] - The gas price to use for the transaction.
+   * @param {string} [data.maxFeePerGas] - The maximum fee per gas to use for the transaction (EIP-1559).
+   * @param {string} [data.maxPriorityFeePerGas] - The maximum priority fee per gas to use for the transaction (EIP-1559).
+   * @param {string} [data.from] - The address from which the transaction is sent.
+   * @param {string} data.functionName - The name of the function to call in the smart contract.
+   * @param {Array} data.args - The arguments to pass to the function call.
+   * @param {number} [data.value] - The value to send with the transaction, in wei.
+   *
+   * @returns {LitUnsignedTransaction} - An object with the data required to construct an unsigned transaction.
+   * @throws {Error} - Throws an error if the provided chain ID is not a valid value.
    */
   generateUnsignedTransactionData = (
     data: UnsignedTransactionData,
@@ -440,7 +462,7 @@ export class Circuit extends EventEmitter {
       maxPriorityFeePerGas: data.maxPriorityFeePerGas
         ? data.maxPriorityFeePerGas
         : undefined,
-      from: data.from ? data.from : "{{pkpPublicKey}}",
+      from: data.from ? data.from : "{{publicKey}}",
       data: contractInterface.encodeFunctionData(data.functionName, data.args),
       value: data.value ? data.value : 0,
       type: 2,
@@ -475,10 +497,9 @@ export class Circuit extends EventEmitter {
     address: string;
   }> => {
     try {
-      const mintGrantBurnTx = await this.mintNextPKP(cidIPFS);
-      const minedMintGrantBurnTx = await mintGrantBurnTx.wait(2);
+      const mintGrantBurnLogs = await this.mintNextPKP(cidIPFS);
       const pkpTokenId = BigInt(
-        minedMintGrantBurnTx.logs[1].topics[3],
+        mintGrantBurnLogs[0].topics[3],
       ).toString();
       const publicKey = await this.getPubKeyByPKPTokenId(pkpTokenId);
       return {
@@ -653,23 +674,25 @@ export class Circuit extends EventEmitter {
   /**
    * Mints the next PKP token.
    * @param ipfsCID - The IPFS CID of the Lit Action code.
-   * @returns The transaction for minting the PKP token.
+   * @returns The transaction logs.
    * @throws {Error} If an error occurs while calling the contract functions to mint the PKP.
    */
-  private mintNextPKP = async (ipfsCID: string) => {
+  private mintNextPKP = async (
+    ipfsCID: string,
+  ): Promise<ethers.providers.Log[]> => {
     if (!this.signer.provider) {
       throw new Error("No provider attached to ethers Yacht-Lit-SDK signer");
     }
     try {
       const feeData = await this.signer.provider.getFeeData();
-      return await this.pkpContract.mintGrantAndBurnNext(
+      const tx = await this.pkpContract.mintGrantAndBurnNext(
         2,
         getBytesFromMultihash(ipfsCID),
-        {
-          value: 1e14,
-          maxFeePerGas: feeData.maxFeePerGas,
-        },
+        { value: "1" },
       );
+      const receipt = await tx.wait();
+      const logs = receipt.logs;
+      return logs;
     } catch (err) {
       throw new Error(`Error in mintGrantBurnPKP: ${err.message}`);
     }
@@ -719,7 +742,7 @@ export class Circuit extends EventEmitter {
       maxPriorityFeePerGas: action.maxPriorityFeePerGas
         ? action.maxPriorityFeePerGas
         : undefined,
-      from: action.from ? action.from : "{{pkpPublicKey}}",
+      from: action.from ? action.from : "{{publicKey}}",
       data: contractInterface.encodeFunctionData(
         action.functionName,
         action.args,
@@ -737,7 +760,6 @@ export class Circuit extends EventEmitter {
   private runLitAction = async (): Promise<void> => {
     try {
       await this.connectLit();
-      console.log(this.code);
       const response = await this.litClient.executeJs({
         ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
         code: this.ipfsCID ? undefined : this.code,
@@ -747,23 +769,18 @@ export class Circuit extends EventEmitter {
         jsParams: {
           pkpAddress: ethers.utils.computeAddress(this.pkpPublicKey),
           publicKey: this.pkpPublicKey,
-          sigName: this.authSig
-            ? this.authSig
-            : await this.generateAuthSignature(),
           ...this.jsParameters,
         },
       });
       console.log({ response });
       this.log(
         LogCategory.RESPONSE,
-        `Circuit executed successfully. Lit Action Response: ${
-          typeof response === "object" ? JSON.stringify(response) : response
-        }
-          `,
+        "Circuit executed successfully. Lit Action Response.",
+        typeof response === "object" ? JSON.stringify(response) : response,
       );
       this.successfulCompletionCount++;
     } catch (err: any) {
-      this.log(LogCategory.ERROR, `Lit Action failed: ${err.message}`);
+      this.log(LogCategory.ERROR, `Lit Action failed.`, err.message);
       throw new Error(`Error running Lit Action: ${err.message}`);
     }
   };
@@ -862,12 +879,16 @@ export class Circuit extends EventEmitter {
    * @param category - The type of message to log.
    * @param message - The message to log.
    */
-  private log = (category: LogCategory, message: string) => {
-    if (typeof message === "object") {
-      message = JSON.stringify(message);
+  private log = (
+    category: LogCategory,
+    message: string,
+    responseObject: string,
+  ) => {
+    if (typeof responseObject === "object") {
+      responseObject = JSON.stringify(responseObject);
     }
 
-    this.logs[this.logIndex] = { category, message };
+    this.logs[this.logIndex] = { category, message, responseObject };
     this.logIndex = (this.logIndex + 1) % this.logSize;
     this.emit("log", message);
   };

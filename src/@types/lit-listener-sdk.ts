@@ -170,7 +170,7 @@ export type UnsignedTransaction = {
  * @description Represents a Lit-specific unsigned transaction.
  */
 export type LitUnsignedTransaction = UnsignedTransaction & {
-  from: `0x${string}` | "{{pkpPublicKey}}";
+  from: `0x${string}` | "{{publicKey}}";
 };
 
 /**
@@ -251,7 +251,7 @@ export interface FetchAction {
   /**
    * The data to sign.
    */
-  toSign: string;
+  toSign: Uint8Array;
   /**
    * The condition under which to sign the data.
    */
@@ -383,7 +383,8 @@ export class ContractCondition implements IContractCondition {
     public onMatched: () => Promise<void> = async () => {},
     public onUnMatched: () => Promise<void> = async () => {},
     public onError: (error: Error) => void = () => {},
-  ) {}
+  ) {
+  }
 }
 
 /**
@@ -487,4 +488,5 @@ export enum LogCategory {
 export interface ILogEntry {
   category: LogCategory;
   message: string;
+  responseObject: string;
 }
