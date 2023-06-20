@@ -57,7 +57,7 @@ xdescribe("Set the Actions of the Circuit", () => {
     ]);
 
     newCircuit.executionConstraints({
-      maxExecutions: 1,
+      conditionMonitorExecutions: 1,
     });
   });
 
@@ -253,7 +253,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       ]);
 
       noSignCircuit.executionConstraints({
-        maxExecutions: 1,
+        conditionMonitorExecutions: 1,
       });
 
       // Set the actions on the circuit
@@ -574,7 +574,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       ]);
 
       noSignCircuit.executionConstraints({
-        maxExecutions: 1,
+        conditionMonitorExecutions: 1,
       });
 
       let error;

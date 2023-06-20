@@ -60,7 +60,7 @@ xdescribe("Mint Grant Burn Tests", () => {
       },
     ]);
     newCircuit.executionConstraints({
-      maxExecutions: 1,
+      conditionMonitorExecutions: 1,
     });
   });
 
@@ -138,7 +138,7 @@ xdescribe("Mint Grant Burn Tests", () => {
       },
     ]);
     rejectCircuit.executionConstraints({
-      maxExecutions: 1,
+      conditionMonitorExecutions: 1,
     });
 
     const otherCustomCode = `async () => {
