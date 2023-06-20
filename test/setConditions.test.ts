@@ -11,7 +11,7 @@ import { Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import ListenerERC20ABI from "./../src/abis/ListenerERC20.json";
 
-xdescribe("Set the Conditions of the Circuit", () => {
+describe("Set the Conditions of the Circuit", () => {
   let newCircuit: Circuit,
     deployedListenerToken: Contract,
     owner: SignerWithAddress;
@@ -29,7 +29,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
   });
 
   describe("Set the Conditions", () => {
-    it("Should add ContractCondition to conditions array correctly", () => {
+    it("Add ContractCondition to Conditions Array", () => {
       // Prepare contract condition
       const contractCondition = new ContractCondition(
         deployedListenerToken.address as `0x${string}`,
@@ -87,7 +87,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
       ).to.equal(((err) => console.error(err.message)).toString());
     });
 
-    it("Add WebhookCondition to conditions array correctly", () => {
+    it("Add WebhookCondition to Conditions Array", () => {
       // Prepare webhook condition
       const webhookCondition = new WebhookCondition(
         "http://api.example.com",
@@ -145,7 +145,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
       ).to.equal(((err) => console.error(err.message)).toString());
     });
 
-    it("should add multiple conditions to conditions array correctly", () => {
+    it("Add Multiple Conditions to Conditions Array", () => {
       // Prepare multiple conditions
       const contractCondition = new ContractCondition(
         deployedListenerToken.address as `0x${string}`,
@@ -259,4 +259,13 @@ xdescribe("Set the Conditions of the Circuit", () => {
       ).to.equal(((err) => console.error(err.message)).toString());
     });
   });
+
+  describe("Check for Different Expected Value Types on Webhook", () => {
+
+  })
+
+  describe("Check for Different Expected Value Types on Contract", () => {
+    
+  })
+
 });
