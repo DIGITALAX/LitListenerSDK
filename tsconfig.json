@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "target": "ES2020",
     "esModuleInterop": true,
     "declaration": true,
     "removeComments": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2016",
     "sourceMap": false,
     "outDir": "./dist",
     "baseUrl": "./",

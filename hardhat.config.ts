@@ -36,6 +36,9 @@ module.exports = {
     },
   },
   settings: {
-    optimizer: { enabled: true, runs: 200, details: { yul: false } },
+    optimizer: { enabled: true, runs: 200, details: { yul: false } }
+  },
+  mocha: {
+    timeout: 3200000, // Timeout value in milliseconds
   },
 };

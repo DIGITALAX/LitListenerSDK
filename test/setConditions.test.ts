@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Circuit } from "./../src/sdk";
+import { Circuit } from "../src/circuit";
 import {
   CHAIN_NAME,
   Condition,
