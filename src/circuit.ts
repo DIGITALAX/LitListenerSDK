@@ -179,7 +179,7 @@ export class Circuit extends EventEmitter {
     this.signer = signer ? signer : ethers.Wallet.createRandom();
     this.litClient = new LitJsSdk.LitNodeClient({
       litNetwork: "serrano",
-      debug: true,
+      debug: false,
     });
     this.monitor = new ConditionMonitor();
     this.conditionalLogic = { type: "EVERY" };
@@ -313,12 +313,34 @@ export class Circuit extends EventEmitter {
     }
 
     this.actions.forEach((action) => {
+      if (this.actions.some((existingAction) => existingAction.priority === action.priority)) {
+        throw new Error(`Action with priority ${action.priority} already exists.`);
+      }
+      let generatedUnsignedData: LitUnsignedTransaction;
       if (action.type === "custom") {
         Object.assign(this.jsParameters, action.args);
       } else if (action.type === "fetch") {
         Object.assign(this.jsParameters, {
           signCondition: action.signCondition,
           toSign: action.toSign,
+        });
+      } else {
+        generatedUnsignedData = this.generateUnsignedTransactionData({
+          contractAddress: action.contractAddress,
+          nonce: action.nonce,
+          gasLimit: action.gasLimit,
+          gasPrice: action.gasPrice,
+          value: action.value,
+          chainId: action.chainId,
+          maxFeePerGas: action.maxFeePerGas,
+          maxPriorityFeePerGas: action.maxPriorityFeePerGas,
+          from: action.from,
+          functionName: action.functionName,
+          args: action.args,
+          abi: action.abi,
+        });
+        Object.assign(this.jsParameters, {
+          generatedUnsignedData,
         });
       }
       switch (action.type) {
@@ -363,7 +385,7 @@ export class Circuit extends EventEmitter {
                     if (checkSignCondition(value, signCondition)) {
                         await Lit.Actions.signEcdsa({
                             toSign,
-                            publicKey: "0x049e781170a256f67d033e97708ddeb79b55e60a70d6fd973c4dbb0d825d90323471e8b83abffd211d74d07292516a1fcf686533f9891adda60625f9f789dd27f4",
+                            publicKey,
                             sigName: "sig1",
                           });
                           concatenatedResponse.fetch${action.priority} = {value,signed:true};
@@ -379,16 +401,14 @@ export class Circuit extends EventEmitter {
         case "contract":
           if (!this.actionFunctions.has(`contract${action.priority}`)) {
             this.actionFunctions.add(`contract${action.priority}`);
-            const generatedUnsignedData =
-              this.generateUnsignedTransactionDataPrivate(action);
             this.code += `const contract${action.priority} = async () => {
                try {
-                  await LitActions.signEcdsa({
-                      toSign: hashTransaction(${generatedUnsignedData}),
+                  await Lit.Actions.signEcdsa({
+                      toSign: hashTransaction(generatedUnsignedData),
                       publicKey,
-                      sigName: ${action.functionName},
+                      sigName: "sig1",
                   });
-                  concatenatedResponse.contract${action.priority} = ${generatedUnsignedData};
+                  concatenatedResponse.contract${action.priority} = generatedUnsignedData;
                } catch (err) {
                   console.log('Error thrown on contract at priority ${action.priority}: ', err)
                }
@@ -463,7 +483,10 @@ export class Circuit extends EventEmitter {
         ? data.maxPriorityFeePerGas
         : undefined,
       from: data.from ? data.from : "{{publicKey}}",
-      data: contractInterface.encodeFunctionData(data.functionName, data.args),
+      data: contractInterface.encodeFunctionData(
+        data.functionName,
+        data.args ? data.args : [],
+      ),
       value: data.value ? data.value : 0,
       type: 2,
     };
@@ -498,9 +521,7 @@ export class Circuit extends EventEmitter {
   }> => {
     try {
       const mintGrantBurnLogs = await this.mintNextPKP(cidIPFS);
-      const pkpTokenId = BigInt(
-        mintGrantBurnLogs[0].topics[3],
-      ).toString();
+      const pkpTokenId = BigInt(mintGrantBurnLogs[0].topics[3]).toString();
       const publicKey = await this.getPubKeyByPKPTokenId(pkpTokenId);
       return {
         tokenId: pkpTokenId,
@@ -681,7 +702,7 @@ export class Circuit extends EventEmitter {
     ipfsCID: string,
   ): Promise<ethers.providers.Log[]> => {
     if (!this.signer.provider) {
-      throw new Error("No provider attached to ethers Yacht-Lit-SDK signer");
+      throw new Error("No provider attached to ethers signer");
     }
     try {
       const feeData = await this.signer.provider.getFeeData();
@@ -711,46 +732,6 @@ export class Circuit extends EventEmitter {
       throw new Error(`Error getting pkp public key: ${err.message}`);
     }
   }
-
-  /**
-   * Generates the unsigned transaction data for a contract action.
-   * @param action - The ContractAction object.
-   * @returns The unsigned transaction data.
-   * @throws {Error} If an error occurs from an invalid chainId.
-   */
-  private generateUnsignedTransactionDataPrivate = (
-    action: ContractAction,
-  ): LitUnsignedTransaction => {
-    const validChain = Object.keys(LitChainIds).includes(
-      action.chainId.toString().toLowerCase(),
-    );
-    if (!validChain) {
-      throw new Error(
-        `Invalid chain name. Valid chains: ${Object.keys(LitChainIds)}`,
-      );
-    }
-    const contractInterface = new ethers.utils.Interface(
-      action.abi as string | readonly (string | Fragment)[],
-    );
-    return {
-      to: action.contractAddress,
-      nonce: action.nonce ? action.nonce : 0,
-      chainId: LitChainIds[action.chainId],
-      gasLimit: action.gasLimit ? action.gasLimit : "50000",
-      gasPrice: action.gasPrice ? action.gasPrice : undefined,
-      maxFeePerGas: action.maxFeePerGas ? action.maxFeePerGas : undefined,
-      maxPriorityFeePerGas: action.maxPriorityFeePerGas
-        ? action.maxPriorityFeePerGas
-        : undefined,
-      from: action.from ? action.from : "{{publicKey}}",
-      data: contractInterface.encodeFunctionData(
-        action.functionName,
-        action.args,
-      ),
-      value: action.value ? action.value : 0,
-      type: 2,
-    };
-  };
 
   /**
    * Runs the Lit Action.

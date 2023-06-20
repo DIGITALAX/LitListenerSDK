@@ -119,15 +119,8 @@ export type UnsignedTransactionData = {
   gasLimit?: BigNumberish;
   gasPrice?: BigNumberish;
 
-  data?: BytesLike;
   value?: BigNumberish;
   chainId?: CHAIN_NAME;
-
-  // Typed-Transaction features
-  type?: number | null;
-
-  // EIP-2930; Type 1 & EIP-1559; Type 2
-  accessList?: AccessListish;
 
   // EIP-1559; Type 2
   maxPriorityFeePerGas?: BigNumberish;

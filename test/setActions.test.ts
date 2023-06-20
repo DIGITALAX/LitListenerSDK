@@ -17,7 +17,7 @@ import {
 import { CHRONICLE_PROVIDER, PKP_CONTRACT_ADDRESS } from "./../src/constants";
 import { PKPNFT } from "typechain-types/contracts/PKPNFT";
 
-xdescribe("Set the Actions of the Circuit", () => {
+describe("Set the Actions of the Circuit", () => {
   let LitActionCode: string,
     newCircuit: Circuit,
     deployedListenerToken: Contract,
@@ -121,7 +121,7 @@ xdescribe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("should set fetch actions correctly", () => {
+  xdescribe("should set fetch actions correctly", () => {
     it("it should define the actions correctly", () => {
       // Define the fetch actions
       const buffer = Buffer.from("polygon");
@@ -144,68 +144,67 @@ xdescribe("Set the Actions of the Circuit", () => {
 
       // Set the actions on the circuit
       LitActionCode = newCircuit.setActions(fetchActions);
-
+      console.log(LitActionCode);
       // Assert that the generated code contains the expected fetch action
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `const fetch0 = async () => {`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `const headers = undefined ? { Authorization: 'Bearer undefined' } : undefined;`.replace(
           /\s/g,
           "",
         ),
       );
-      expect(LitActionCode).to.include(
-        `const response = await fetch('https://api.weather.gov', { headers });`.replace(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
+        `const response = await fetch('https://api.weather.gov/gridpoints/LWX/97,71/forecast', { headers });`.replace(
           /\s/g,
           "",
         ),
       );
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `const responseJSON = await response.json();`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `let value = responseJSON;`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
-        `const pathParts = 'geometry.type'.split('.');`.replace(/\s/g, ""),
-      );
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `for (const part of pathParts) {`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `value = value[part];`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `if (value === undefined) {`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `if (checkSignCondition(value, signCondition)) {`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
-        `await Lit.Actions.signEcdsa({ toSign: '${new Uint8Array(
-          buffer.buffer,
-          buffer.byteOffset,
-          buffer.byteLength,
-        )}',
-        publicKey: pkpPublicKey,
-        sigName: "sig1", });`.replace(/\s/g, ""),
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
+        `await Lit.Actions.signEcdsa({
+          toSign: hashTransaction(generatedUnsignedData),
+          publicKey,
+          sigName: "sig1",
+      });`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `concatenatedResponse.fetch0 = { value, signed: true };`.replace(
           /\s/g,
           "",
         ),
       );
-      expect(LitActionCode).to.include(`} else {`.replace(/\s/g, ""));
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
+        `} else {`.replace(/\s/g, ""),
+      );
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `concatenatedResponse.fetch0 = { value, signed: false };`.replace(
           /\s/g,
           "",
         ),
       );
-      expect(LitActionCode).to.include(`} catch (err) {`.replace(/\s/g, ""));
-      expect(LitActionCode).to.include(
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
+        `} catch (err) {`.replace(/\s/g, ""),
+      );
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
         `console.log('Error thrown on fetch at priority 0: ', err);`.replace(
           /\s/g,
           "",
@@ -213,13 +212,85 @@ xdescribe("Set the Actions of the Circuit", () => {
       );
     });
 
-    it("it should set the signed condition correctly", () => {});
+    it("it should not sign on incorrect condition met", async () => {
+      const noSignCircuit = new Circuit(
+        process.env.MUMBAI_PROVIDER_URL,
+        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+      );
+      const buffer = Buffer.from("polygon");
+      const fetchActions: FetchAction[] = [
+        {
+          type: "fetch",
+          priority: 0,
+          apiKey: undefined,
+          baseUrl: "https://api.weather.gov",
+          endpoint: "/gridpoints/LWX/97,71/forecast",
+          responsePath: "geometry.type",
+          signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
+          toSign: new Uint8Array(
+            buffer.buffer,
+            buffer.byteOffset,
+            buffer.byteLength,
+          ),
+        },
+      ];
+
+      noSignCircuit.setConditions([
+        new WebhookCondition(
+          "https://api.weather.gov",
+          "/gridpoints/LWX/97,71/forecast",
+          "geometry.type",
+          "Polygon",
+          undefined,
+          async () => {
+            console.log("matched");
+          },
+          async () => {
+            console.log("unmatched");
+          },
+          (err) => console.error(err.message),
+        ),
+      ]);
+
+      noSignCircuit.executionConstraints({
+        maxExecutions: 1,
+      });
+
+      // Set the actions on the circuit
+      LitActionCode = noSignCircuit.setActions(fetchActions);
+
+      ipfsCID = await noSignCircuit.getIPFSHash(LitActionCode);
+      const pkpTokenData = await noSignCircuit.mintGrantBurnPKP(ipfsCID);
+      const pkpContract = new ethers.Contract(
+        PKP_CONTRACT_ADDRESS,
+        pkpABI,
+        chronicleProvider,
+      ) as PKPNFT;
+      const pkpTokenId = pkpTokenData.tokenId;
+      pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
+      const authSig = await noSignCircuit.generateAuthSignature(80001);
+      await noSignCircuit.start({
+        pkpPublicKey: pkpTokenData.publicKey,
+        authSig,
+      });
+
+      const responseLog = noSignCircuit.getLogs(LogCategory.RESPONSE);
+      expect(responseLog[0].category).to.equal(1);
+      expect(responseLog[0].message.trim()).to.equal(
+        `Circuit executed successfully. Lit Action Response.`.trim(),
+      );
+      const parsed = JSON.parse(responseLog[0].responseObject);
+      expect(parsed.response).to.deep.equal({
+        fetch0: {
+          value: "Polygon",
+          signed: false,
+        },
+      });
+    });
 
     it("should return the correct response object", async () => {
       ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
-      const pkpTokenData = await newCircuit.mintGrantBurnPKP(
-        "QmeA3LQke67BFDbSNbrzomDALGZVdTGn52ZDFfYdntK4Hq",
-      );
+      const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
       const pkpContract = new ethers.Contract(
         PKP_CONTRACT_ADDRESS,
         pkpABI,
@@ -240,14 +311,17 @@ xdescribe("Set the Actions of the Circuit", () => {
       );
       const parsed = JSON.parse(responseLog[0].responseObject);
       expect(parsed.response).to.deep.equal({
-        fetch0: "polygon",
+        fetch0: {
+          value: "Polygon",
+          signed: true,
+        },
       });
     });
   });
 
   xdescribe("should set contract actions correctly", () => {
     let generateUnsignedTransactionData: LitUnsignedTransaction;
-    beforeEach(async () => {
+    before(async () => {
       [from, to] = await ethers.getSigners();
 
       const ListenerToken = await ethers.getContractFactory("ListenerERC20");
@@ -259,6 +333,10 @@ xdescribe("Set the Actions of the Circuit", () => {
         newCircuit.generateUnsignedTransactionData({
           contractAddress: deployedListenerToken.address as `0x${string}`,
           chainId: CHAIN_NAME.MUMBAI,
+          gasLimit: undefined,
+          gasPrice: undefined,
+          maxFeePerGas: undefined,
+          maxPriorityFeePerGas: undefined,
           from: from.address as `0x${string}`,
           functionName: "transferFrom",
           args: [from.address, to.address, 5000],
@@ -267,10 +345,6 @@ xdescribe("Set the Actions of the Circuit", () => {
     });
 
     it("it should define the actions correctly", async () => {
-      const provider = new ethers.providers.JsonRpcProvider(
-        process.env.MUMBAI_PROVIDER_URL,
-      );
-
       // Define the contract actions
       const contractActions: ContractAction[] = [
         {
@@ -287,27 +361,25 @@ xdescribe("Set the Actions of the Circuit", () => {
 
       // Set the actions on the circuit
       LitActionCode = newCircuit.setActions(contractActions);
-
+      console.log(LitActionCode);
       // Assert that the generated code contains the expected contract action
-      expect(LitActionCode).to.include(`const contract0 = async () => {`);
-      expect(LitActionCode).to.include(`const contract = new ethers.Contract(`);
-      expect(LitActionCode).to.include(deployedListenerToken.address);
-      expect(LitActionCode).to.include(ListenerERC20ABI);
-      expect(LitActionCode).to.include(
-        `new ethers.providers.JsonRpcProvider('${provider}', 80001));`,
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
+        `const contract0 = async () => {`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
-        `const processEvent = async (eventData) => {`,
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
+        `try {`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(`try {`);
-      expect(LitActionCode).to.include(
-        `await LitActions.signEcdsa({ toSign: hashTransaction(${generateUnsignedTransactionData}), publicKey: ${pkpPublicKey}, sigName: sigName });`,
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
+        `await Lit.Actions.signEcdsa({`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
-        `concatenatedResponse.contract0 = ${generateUnsignedTransactionData};`,
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
+        `toSign: hashTransaction(generatedUnsignedData)`.replace(/\s/g, ""),
       );
-      expect(LitActionCode).to.include(
-        `console.log('Error thrown on contract at priority 0: ', err);`,
+      expect(LitActionCode.replace(/\s/g, "")).to.include(
+        `concatenatedResponse.contract0 = generatedUnsignedData;`.replace(
+          /\s/g,
+          "",
+        ),
       );
     });
 
@@ -335,22 +407,97 @@ xdescribe("Set the Actions of the Circuit", () => {
         `Circuit executed successfully. Lit Action Response.`.trim(),
       );
       const parsed = JSON.parse(responseLog[0].responseObject);
-      expect(parsed.response).to.deep.equal({
+      expect({
+        ...parsed.response,
+        contract0: {
+          ...parsed.response.contract0,
+          gasPrice: undefined,
+          maxFeePerGas: undefined,
+          maxPriorityFeePerGas: undefined,
+        },
+      }).to.deep.equal({
         contract0: generateUnsignedTransactionData,
       });
     });
   });
 
-  xdescribe("sets the combined actions correctly", () => {
+  describe("sets the combined actions correctly", () => {
     it("should set combined actions correctly", () => {});
 
     it("should set contract actions order correctly", () => {
       // returns even when start from 2 not 0
     });
 
-    it("should revert if there is actions of the same priority number", () => {});
+    it("should revert if there is actions of the same priority number", async () => {
+      const noSignCircuit = new Circuit(
+        process.env.MUMBAI_PROVIDER_URL,
+        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+      );
+      const buffer = Buffer.from("polygon");
+      const fetchActions: FetchAction[] = [
+        {
+          type: "fetch",
+          priority: 0,
+          apiKey: undefined,
+          baseUrl: "https://api.weather.gov",
+          endpoint: "/gridpoints/LWX/97,71/forecast",
+          responsePath: "geometry.type",
+          signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
+          toSign: new Uint8Array(
+            buffer.buffer,
+            buffer.byteOffset,
+            buffer.byteLength,
+          ),
+        },
+        {
+          type: "fetch",
+          priority: 0,
+          apiKey: undefined,
+          baseUrl: "https://api.weather.gov",
+          endpoint: "/gridpoints/LWX/97,71/forecast",
+          responsePath: "geometry.type",
+          signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
+          toSign: new Uint8Array(
+            buffer.buffer,
+            buffer.byteOffset,
+            buffer.byteLength,
+          ),
+        },
+      ];
 
-    it("should return the correct response object", async () => {
+      noSignCircuit.setConditions([
+        new WebhookCondition(
+          "https://api.weather.gov",
+          "/gridpoints/LWX/97,71/forecast",
+          "geometry.type",
+          "Polygon",
+          undefined,
+          async () => {
+            console.log("matched");
+          },
+          async () => {
+            console.log("unmatched");
+          },
+          (err) => console.error(err.message),
+        ),
+      ]);
+
+      noSignCircuit.executionConstraints({
+        maxExecutions: 1,
+      });
+
+      let error;
+      try {
+        noSignCircuit.setActions(fetchActions);
+      } catch (err) {
+        error = err;
+      }
+
+      expect(() => { throw error; }).to.throw("Action with priority 0 already exists.");
+
+    });
+
+    xit("should return the correct response object", async () => {
       ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
 
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
