@@ -14,7 +14,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import ListenerERC20ABI from "./../src/abis/ListenerERC20.json";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-xdescribe("Correctly throws all errors", () => {
+xdescribe("Throws all Errors of the Circuit", () => {
   const customActions: CustomAction[] = [
     {
       type: "custom",
@@ -28,8 +28,8 @@ xdescribe("Correctly throws all errors", () => {
     },
   ];
 
-  describe("Starts monitoring webhook", () => {
-    it("Should throw an error if an error occurs while retrieving webhook information", async () => {
+  describe("Starts Monitoring Webhook", () => {
+    it("Throw Error While Retrieving Webhook Information", async () => {
       const newCircuit = new Circuit();
 
       newCircuit.setActions(customActions);
@@ -64,7 +64,7 @@ xdescribe("Correctly throws all errors", () => {
       );
     });
 
-    it("Should throw an error if invalid response path", async () => {
+    it("Throw Error on Invalid Response Path", async () => {
       const newCircuit = new Circuit();
 
       newCircuit.setActions(customActions);
@@ -100,7 +100,7 @@ xdescribe("Correctly throws all errors", () => {
     });
   });
 
-  describe("Starts monitoring contract", () => {
+  describe("Starts Monitoring Contract", () => {
     let deployedListenerToken: Contract, owner: SignerWithAddress;
     before(async () => {
       [owner] = await ethers.getSigners();
@@ -111,7 +111,7 @@ xdescribe("Correctly throws all errors", () => {
       await deployedListenerToken.deployed();
     });
 
-    it("Should throw an error if an error occurs while processing contract event", async () => {
+    it("Throw Error While Processing Contract Event", async () => {
       const newCircuit = new Circuit(process.env.MUMBAI_PROVIDER_URL);
       newCircuit.setActions(customActions);
 
@@ -142,7 +142,7 @@ xdescribe("Correctly throws all errors", () => {
       );
     });
 
-    it("Should throw an error if no provider is provided for contract monitor", async () => {
+    it("Throw Error for No Provider", async () => {
       const newCircuit = new Circuit();
       newCircuit.setActions(customActions);
 
@@ -172,8 +172,8 @@ xdescribe("Correctly throws all errors", () => {
     });
   });
 
-  describe("Should throw an error adding actions", () => {
-    it("Throws an error on non unique action priority", () => {
+  describe("Throw Error Adding Actions", () => {
+    it("Throw Error on Non Unique Action Priority", () => {
       const noSignCircuit = new Circuit();
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [
@@ -220,8 +220,8 @@ xdescribe("Correctly throws all errors", () => {
     });
   });
 
-  describe("Should throw an error for invalid chain on auth sig", () => {
-    it("Throws an error for invalid chain", () => {
+  describe("Throw Error for Invalid Chain on Auth Sig", () => {
+    it("Throw error for Invalid Chain", () => {
       const newCircuit = new Circuit();
       let error;
       try {
@@ -248,13 +248,13 @@ xdescribe("Correctly throws all errors", () => {
     });
   });
 
-  describe("Should throw an error when running the circuit", () => {
+  describe("Throw Error when Running Circuit", () => {
     const chronicleProvider = new ethers.providers.JsonRpcProvider(
       CHRONICLE_PROVIDER,
       175177,
     );
 
-    it("Throws an error for no conditions set", async () => {
+    it("Throw Rrror for No Conditions Set", async () => {
       const newCircuit = new Circuit();
 
       newCircuit.setActions(customActions);
@@ -270,7 +270,7 @@ xdescribe("Correctly throws all errors", () => {
       }).to.throw(`Conditions have not been set. Run setConditions() first.`);
     });
 
-    it("Throws an error for no actions set", async () => {
+    it("Throw Error for No Actions Set", async () => {
       const newCircuit = new Circuit();
       newCircuit.setConditions([
         new WebhookCondition(
@@ -324,7 +324,7 @@ xdescribe("Correctly throws all errors", () => {
       ]);
     });
 
-    it("Throws an error for invalid pkp", async () => {
+    it("Throw Error for Invalid PKP", async () => {
       let error;
       newCircuit.setActions(customActions);
       try {
@@ -337,7 +337,7 @@ xdescribe("Correctly throws all errors", () => {
       }).to.throw(`Invalid PKP Public Key.`);
     });
 
-    it("Throws an error for invalid js params to Lit Action", async () => {
+    it("Throw Error for Invalid JS Params to Lit Action", async () => {
       const LitActionCode = newCircuit.setActions([
         {
           type: "custom",
@@ -363,10 +363,12 @@ xdescribe("Correctly throws all errors", () => {
       }
       expect(() => {
         throw error;
-      }).to.throw(`Error running circuit: Error in Webhook Action: Error in Checking Against Expected Values: Error running Lit Action: There was an error getting the signing shares from the nodes`);
+      }).to.throw(
+        `Error running circuit: Error running Lit Action: There was an error getting the signing shares from the nodes`,
+      );
     });
 
-    it("Throws an error for invalid pkp passed to Lit Action", async () => {
+    it("Throw Error for Invalid PKP Passed to Lit Action", async () => {
       const buffer = Buffer.from("Polygon");
       newCircuit.setActions([
         {
@@ -399,7 +401,7 @@ xdescribe("Correctly throws all errors", () => {
       expect(() => {
         throw error;
       }).to.throw(
-        `Error running circuit: Error in Webhook Action: Error in Checking Against Expected Values: Error running Lit Action: invalid public or private key (argument="key", value="[REDACTED]", code=INVALID_ARGUMENT, version=signing-key/5.7.0)`,
+        `Error running circuit: Error running Lit Action: invalid public or private key (argument="key", value="[REDACTED]", code=INVALID_ARGUMENT, version=signing-key/5.7.0)`,
       );
     });
   });

@@ -28,14 +28,8 @@ xdescribe("Set the Conditions of the Circuit", () => {
     newCircuit = new Circuit();
   });
 
-  it("successfully deploys the contract", async () => {
-    const ownerBalance = await deployedListenerToken.balanceOf(owner.address);
-    const totalSupply = await deployedListenerToken.totalSupply();
-    expect(totalSupply.eq(ownerBalance)).to.be.true;
-  });
-
-  describe("setConditions", () => {
-    it("should add ContractCondition to conditions array correctly", () => {
+  describe("Set the Conditions", () => {
+    it("Should add ContractCondition to conditions array correctly", () => {
       // Prepare contract condition
       const contractCondition = new ContractCondition(
         deployedListenerToken.address as `0x${string}`,
@@ -93,7 +87,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
       ).to.equal(((err) => console.error(err.message)).toString());
     });
 
-    it("should add WebhookCondition to conditions array correctly", () => {
+    it("Add WebhookCondition to conditions array correctly", () => {
       // Prepare webhook condition
       const webhookCondition = new WebhookCondition(
         "http://api.example.com",

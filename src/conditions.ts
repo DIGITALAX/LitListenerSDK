@@ -44,10 +44,15 @@ export class ConditionMonitor extends EventEmitter {
           { headers },
         );
         let value = response.data;
-        const pathParts = condition.responsePath.split(".");
+        let pathParts = condition.responsePath.split(".");
+        pathParts = pathParts.flatMap((part) => part.split(/\[(.*?)\]/).filter(Boolean));
 
         for (const part of pathParts) {
-          value = value[part];
+          if (!isNaN(parseInt(part))) {
+            value = value[parseInt(part)];
+          } else {
+            value = value[part];
+          }
           if (value === undefined) {
             throw new Error(`Invalid response path: ${condition.responsePath}`);
           }

@@ -578,50 +578,10 @@ export class Circuit extends EventEmitter {
           for (const condition of this.conditions) {
             condition.sdkOnMatched = async () => {
               this.satisfiedConditions.add(condition.id!);
-              const res = this.checkConditionalLogicAndRun();
-              this.conditionExecutedCount++;
-              const executionResBefore = this.checkExecutionLimitations();
-              if (
-                res === RunStatus.ACTION_RUN &&
-                executionResBefore === RunStatus.CONTINUE_RUN
-              ) {
-                await this.runLitAction();
-                const executionResAfter = this.checkExecutionLimitations();
-                if (executionResAfter === RunStatus.EXIT_RUN) {
-                  this.emitter.emit("stop");
-                  return;
-                }
-              } else if (
-                res === RunStatus.EXIT_RUN ||
-                executionResBefore === RunStatus.EXIT_RUN
-              ) {
-                this.emitter.emit("stop");
-                return;
-              }
             };
 
             condition.sdkOnUnMatched = async () => {
               this.satisfiedConditions.delete(condition.id!);
-              const res = this.checkConditionalLogicAndRun();
-              this.conditionExecutedCount++;
-              const executionResBefore = this.checkExecutionLimitations();
-              if (
-                res === RunStatus.ACTION_RUN &&
-                executionResBefore === RunStatus.CONTINUE_RUN
-              ) {
-                await this.runLitAction();
-                const executionResAfter = this.checkExecutionLimitations();
-                if (executionResAfter === RunStatus.EXIT_RUN) {
-                  this.emitter.emit("stop");
-                  return;
-                }
-              } else if (
-                res === RunStatus.EXIT_RUN ||
-                executionResBefore === RunStatus.EXIT_RUN
-              ) {
-                this.emitter.emit("stop");
-                return;
-              }
             };
 
             const conditionPromise = this.monitor.createCondition(condition);
@@ -644,13 +604,43 @@ export class Circuit extends EventEmitter {
             }
           }
 
+          if (!this.continueRun) break;
+
           await Promise.all(conditionPromises);
 
-          const executionRes = this.checkConditionalLogicAndRun();
-          if (executionRes === RunStatus.EXIT_RUN) {
+          const conditionResBefore = this.checkConditionalLogicAndRun();
+          const executionResBefore = this.checkExecutionLimitations();
+
+          this.conditionExecutedCount++;
+          if (
+            conditionResBefore === RunStatus.ACTION_RUN &&
+            executionResBefore === RunStatus.ACTION_RUN
+          ) {
+            await this.runLitAction();
+            const executionResAfter = this.checkExecutionLimitations();
+            if (executionResAfter === RunStatus.EXIT_RUN) {
+              this.log(
+                LogCategory.CONDITION,
+                `Execution Condition Not Met to Continue Circuit.`,
+                `Run Status ${RunStatus.EXIT_RUN}`,
+              );
+              this.emitter.emit("stop");
+              break;
+            }
+          } else if (
+            conditionResBefore === RunStatus.EXIT_RUN ||
+            executionResBefore === RunStatus.EXIT_RUN
+          ) {
+            this.log(
+              LogCategory.CONDITION,
+              `Execution Condition Not Met to Continue Circuit.`,
+              `Run Status ${RunStatus.EXIT_RUN}`,
+            );
             this.emitter.emit("stop");
             break;
           }
+
+          if (!this.continueRun) break;
 
           if (this.conditionalLogic?.interval) {
             await new Promise((resolve) =>
@@ -659,6 +649,22 @@ export class Circuit extends EventEmitter {
           }
 
           monitors.forEach((monitor) => clearTimeout(monitor));
+
+          // check again in case of CONTINUE_RUN status
+          const conditionResEnd = this.checkConditionalLogicAndRun();
+          const executionResEnd = this.checkExecutionLimitations();
+          if (
+            conditionResEnd === RunStatus.EXIT_RUN ||
+            executionResEnd === RunStatus.EXIT_RUN
+          ) {
+            this.log(
+              LogCategory.CONDITION,
+              `Execution Condition Not Met to Continue Circuit.`,
+              `Run Status ${RunStatus.EXIT_RUN}`,
+            );
+            this.emitter.emit("stop");
+            break;
+          }
         }
       } else {
         if (this.conditions.length < 1) {
@@ -715,6 +721,15 @@ export class Circuit extends EventEmitter {
     } catch (err: any) {
       throw new Error(`Error generating Auth Signature: ${err.message}`);
     }
+  };
+
+  interrupt = () => {
+    this.emitter.emit("stop");
+    this.log(
+      LogCategory.ERROR,
+      "Circuit forcefully interrupted at ",
+      `${Date.now()}`,
+    );
   };
 
   // Private methods
@@ -815,7 +830,7 @@ export class Circuit extends EventEmitter {
       this.endDate === undefined &&
       this.maxLitActionCompletions === undefined
     ) {
-      return RunStatus.CONTINUE_RUN;
+      return RunStatus.ACTION_RUN;
     }
 
     const withinExecutionLimit = this.conditionMonitorExecutions
@@ -838,7 +853,7 @@ export class Circuit extends EventEmitter {
     if (!executionConstraintsMet) {
       return RunStatus.EXIT_RUN;
     } else {
-      return RunStatus.CONTINUE_RUN;
+      return RunStatus.ACTION_RUN;
     }
   };
 

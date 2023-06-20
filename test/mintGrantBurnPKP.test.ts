@@ -21,7 +21,7 @@ const chronicleProvider = new ethers.providers.JsonRpcProvider(
   175177,
 );
 
-xdescribe("Mint Grant Burn Tests", () => {
+xdescribe("Mint Grant Burn PKP", () => {
   let LitActionCode: string,
     ipfsCID: string,
     randomNonce: string,
@@ -74,7 +74,7 @@ xdescribe("Mint Grant Burn Tests", () => {
     expect(ipfsCID).to.not.be.false;
   });
 
-  it("Mints a PKP with a token ID and public key and grants the Lit Action", async () => {
+  it("Mints a PKP with a Token ID and Public Key and Grants the Lit Action", async () => {
     const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
     const pkpContract = new ethers.Contract(
       PKP_CONTRACT_ADDRESS,
@@ -86,7 +86,7 @@ xdescribe("Mint Grant Burn Tests", () => {
     expect(pkpNftPublicKey).to.equal(pkpTokenData.publicKey);
   });
 
-  it("The PKP is correctly granted permission to run the ipfsCID", async () => {
+  it("The PKP is Correctly Granted Permission to Run the ipfsCID", async () => {
     const pkpPermissionsContract = new ethers.Contract(
       PKP_PERMISSIONS_CONTRACT_ADDRESS,
       pkpPermissionsABI,
@@ -98,7 +98,7 @@ xdescribe("Mint Grant Burn Tests", () => {
     expect(getBytesFromMultihash(ipfsCID)).to.equal(permittedAction);
   });
 
-  it("The tokenID has no owner", async () => {
+  it("The tokenID Has No Owner", async () => {
     const pkpContract = new ethers.Contract(
       PKP_CONTRACT_ADDRESS,
       pkpABI,
@@ -107,7 +107,7 @@ xdescribe("Mint Grant Burn Tests", () => {
     await expect(pkpContract.ownerOf(pkpTokenId)).to.be.rejected;
   });
 
-  it("PKP should not allow execution of other code", async () => {
+  it("PKP Should not Allow Execution of Other Code", async () => {
     const rejectCircuit = new Circuit(
       process.env.MUMBAI_PROVIDER_URL,
       new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
@@ -171,7 +171,7 @@ xdescribe("Mint Grant Burn Tests", () => {
     );
   });
 
-  it("PKP should successfully execute the Lit Action that was granted upon mint and burn", async () => {
+  it("PKP should successfully execute the Lit Action that was Granted upon Mint and Burn", async () => {
     const authSig = await newCircuit.generateAuthSignature();
     await newCircuit.start({
       pkpPublicKey: pkpNftPublicKey,

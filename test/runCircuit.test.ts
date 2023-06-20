@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("Instantiate and Run the LitListenerSDK inclusive of all methods", () => {
+xdescribe("Instantiate and Run the LitListenerSDK inclusive of all methods", () => {
   beforeEach(() => {});
 
   it("It should instantiate a new circuit with correct constructor params", () => {});
