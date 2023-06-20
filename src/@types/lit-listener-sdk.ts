@@ -319,17 +319,27 @@ export interface IContractCondition {
   eventName: string;
   eventArgName: string[];
   expectedValue:
-    | number
-    | string
     | number[]
     | string[]
-    | bigint
     | bigint[]
-    | object
     | object[]
     | (string | number | bigint | object)[];
-  onMatched: () => Promise<void>;
-  onUnMatched: () => Promise<void>;
+  onMatched: (
+    emittedValue:
+      | number[]
+      | string[]
+      | bigint[]
+      | object[]
+      | (string | number | bigint | object)[],
+  ) => Promise<void>;
+  onUnMatched: (
+    emittedValue:
+      | number[]
+      | string[]
+      | bigint[]
+      | object[]
+      | (string | number | bigint | object)[],
+  ) => Promise<void>;
   onError: (error: Error) => void;
 }
 
@@ -368,17 +378,27 @@ export class ContractCondition implements IContractCondition {
     public eventName: string,
     public eventArgName: string[],
     public expectedValue:
-      | number
-      | string
       | number[]
       | string[]
-      | bigint
       | bigint[]
-      | object
       | object[]
       | (string | number | bigint | object)[],
-    public onMatched: () => Promise<void> = async () => {},
-    public onUnMatched: () => Promise<void> = async () => {},
+    public onMatched: (
+      emittedValue:
+        | number[]
+        | string[]
+        | bigint[]
+        | object[]
+        | (string | number | bigint | object)[],
+    ) => Promise<void> = async () => {},
+    public onUnMatched: (
+      emittedValue:
+        | number[]
+        | string[]
+        | bigint[]
+        | object[]
+        | (string | number | bigint | object)[],
+    ) => Promise<void> = async () => {},
     public onError: (error: Error) => void = () => {},
   ) {}
 }
@@ -410,8 +430,30 @@ export interface IWebhookCondition {
     | object[]
     | (string | number | bigint | object)[];
   apiKey?: string;
-  onMatched: () => Promise<void>;
-  onUnMatched: () => Promise<void>;
+  onMatched: (
+    emittedValue:
+      | number
+      | string
+      | number[]
+      | string[]
+      | bigint
+      | bigint[]
+      | object
+      | object[]
+      | (string | number | bigint | object)[],
+  ) => Promise<void>;
+  onUnMatched: (
+    emittedValue:
+      | number
+      | string
+      | number[]
+      | string[]
+      | bigint
+      | bigint[]
+      | object
+      | object[]
+      | (string | number | bigint | object)[],
+  ) => Promise<void>;
   onError: (error: Error) => void;
 }
 
@@ -456,8 +498,30 @@ export class WebhookCondition implements IWebhookCondition {
       | object[]
       | (string | number | bigint | object)[],
     public apiKey?: string,
-    public onMatched: () => Promise<void> = async () => {},
-    public onUnMatched: () => Promise<void> = async () => {},
+    public onMatched: (
+      emittedValue:
+        | number
+        | string
+        | number[]
+        | string[]
+        | bigint
+        | bigint[]
+        | object
+        | object[]
+        | (string | number | bigint | object)[],
+    ) => Promise<void> = async () => {},
+    public onUnMatched: (
+      emittedValue:
+        | number
+        | string
+        | number[]
+        | string[]
+        | bigint
+        | bigint[]
+        | object
+        | object[]
+        | (string | number | bigint | object)[],
+    ) => Promise<void> = async () => {},
     public onError: (error: Error) => void = () => {},
   ) {}
 }

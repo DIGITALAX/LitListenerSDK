@@ -304,7 +304,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
     before(() => {
       newCircuit = new Circuit(
         undefined,
-        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
       newCircuit.setConditions([
         new WebhookCondition(

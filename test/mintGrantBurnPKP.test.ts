@@ -32,7 +32,7 @@ xdescribe("Mint Grant Burn PKP", () => {
   before(() => {
     newCircuit = new Circuit(
       process.env.MUMBAI_PROVIDER_URL,
-      new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+      new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
     newCircuit.setConditions([
       new WebhookCondition(
@@ -110,7 +110,7 @@ xdescribe("Mint Grant Burn PKP", () => {
   it("PKP Should not Allow Execution of Other Code", async () => {
     const rejectCircuit = new Circuit(
       process.env.MUMBAI_PROVIDER_URL,
-      new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+      new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
     rejectCircuit.setConditions([
       new WebhookCondition(

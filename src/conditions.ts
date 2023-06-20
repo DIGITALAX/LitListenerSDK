@@ -1,7 +1,11 @@
 import axios from "axios";
-import ethers, { Event } from "ethers";
+import { ethers } from "ethers";
 import { EventEmitter } from "events";
-import { ContractCondition, WebhookCondition } from "./@types/lit-listener-sdk";
+import {
+  ContractCondition,
+  LitChainIds,
+  WebhookCondition,
+} from "./@types/lit-listener-sdk";
 import lodash from "lodash";
 
 /**
@@ -91,26 +95,39 @@ export class ConditionMonitor extends EventEmitter {
       const contract = new ethers.Contract(
         contractAddress,
         abi,
-        new ethers.providers.JsonRpcProvider(providerURL, condition.chainId),
+        new ethers.providers.JsonRpcProvider(
+          providerURL,
+          LitChainIds[condition.chainId],
+        ),
       );
 
-      const processEvent = async (eventData: Event) => {
-        const { args } = eventData;
+      const processEvent = async (...args) => {
+        const eventData = args.pop();
 
-        if (!args) {
+        if (!eventData.args) {
           this.emit("conditionError", "Error in Retrieving contract args.");
           throw new Error(`Error in Retrieving contract args.`);
         }
 
-        const emittedValues = condition.eventArgName.map(
-          (argName) => args[argName],
-        );
-
-        await this.checkAgainstExpected(condition, emittedValues);
+        try {
+          const emittedValues = condition.eventArgName.map((argName) => {
+            const value = eventData.args[argName];
+            if (value === undefined) {
+              throw new Error(
+                `Argument '${argName}' not found in event arguments.`,
+              );
+            }
+            return value;
+          });
+          await this.checkAgainstExpected(condition, emittedValues);
+        } catch (error) {
+          condition.onError(error);
+          this.emit("conditionError", error, condition);
+        }
       };
 
       const subscribeToEvent = () => {
-        contract.on(eventName, processEvent);
+        contract.on("Transfer", processEvent);
       };
 
       return subscribeToEvent();
@@ -161,13 +178,13 @@ export class ConditionMonitor extends EventEmitter {
 
     try {
       if (match) {
-        await condition.onMatched();
+        await condition.onMatched(emittedValue);
         await condition.sdkOnMatched();
-        this.emit("conditionMatched", condition);
+        this.emit("conditionMatched", emittedValue);
       } else {
-        await condition.onUnMatched();
+        await condition.onUnMatched(emittedValue);
         await condition.sdkOnUnMatched();
-        this.emit("conditionNotMatched", condition);
+        this.emit("conditionNotMatched", emittedValue);
       }
     } catch (error: any) {
       throw new Error(

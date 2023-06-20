@@ -27,16 +27,19 @@ module.exports = {
     ],
   },
   networks: {
+    hardhat: {
+      chainId: 31337,
+      mining: {
+        auto: true,
+        interval: 5000,
+      },
+    },
     localhost: {
       url: "http://127.0.0.1:8545",
     },
-    mumbai: {
-      url: `${process.env.MUMBAI_PROVIDER_URL}`,
-      accounts: [process.env.MUMBAI_PRIVATE_KEY],
-    },
   },
   settings: {
-    optimizer: { enabled: true, runs: 200, details: { yul: false } }
+    optimizer: { enabled: true, runs: 200, details: { yul: false } },
   },
   mocha: {
     timeout: 3200000, // Timeout value in milliseconds
