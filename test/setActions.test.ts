@@ -37,7 +37,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         process.env.MUMBAI_PROVIDER_URL,
-        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
       newCircuit.setConditions([
@@ -127,7 +127,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         process.env.MUMBAI_PROVIDER_URL,
-        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
       newCircuit.setConditions([
@@ -244,7 +244,7 @@ xdescribe("Set the Actions of the Circuit", () => {
     it("Won't Sign on Incorrect Condition Met", async () => {
       const noSignCircuit = new Circuit(
         process.env.MUMBAI_PROVIDER_URL,
-        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [
@@ -354,7 +354,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         process.env.MUMBAI_PROVIDER_URL,
-        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
       newCircuit.setConditions([
@@ -503,7 +503,7 @@ xdescribe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         process.env.MUMBAI_PROVIDER_URL,
-        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
       newCircuit.setConditions([
@@ -605,7 +605,7 @@ xdescribe("Set the Actions of the Circuit", () => {
     it("Revert on Actions of the Same Priority Number", async () => {
       const noSignCircuit = new Circuit(
         process.env.MUMBAI_PROVIDER_URL,
-        new ethers.Wallet(process.env.MUMBAI_PRIVATE_KEY, chronicleProvider),
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [

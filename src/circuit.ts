@@ -182,20 +182,48 @@ export class Circuit extends EventEmitter {
     });
     this.monitor = new ConditionMonitor();
     this.conditionalLogic = { type: "EVERY" };
-    this.monitor.on("conditionMatched", (condition: Condition) => {
-      this.log(
-        LogCategory.CONDITION,
-        `Condition ${condition.id} matched`,
-        JSON.stringify(condition),
-      );
-    });
-    this.monitor.on("conditionNotMatched", (condition: Condition) => {
-      this.log(
-        LogCategory.CONDITION,
-        `Condition ${condition.id} not matched`,
-        JSON.stringify(condition),
-      );
-    });
+    this.monitor.on(
+      "conditionMatched",
+      (
+        emittedValue:
+          | number
+          | string
+          | number[]
+          | string[]
+          | bigint
+          | bigint[]
+          | object
+          | object[]
+          | (string | number | bigint | object)[],
+      ) => {
+        this.log(
+          LogCategory.CONDITION,
+          `Condition Matched with Emitted Value: `,
+          JSON.stringify(emittedValue),
+        );
+      },
+    );
+    this.monitor.on(
+      "conditionNotMatched",
+      (
+        emittedValue:
+          | number
+          | string
+          | number[]
+          | string[]
+          | bigint
+          | bigint[]
+          | object
+          | object[]
+          | (string | number | bigint | object)[],
+      ) => {
+        this.log(
+          LogCategory.CONDITION,
+          `Condition Not Matched with Emitted Value: `,
+          JSON.stringify(emittedValue),
+        );
+      },
+    );
     this.monitor.on("conditionError", (error, condition: Condition) => {
       this.log(
         LogCategory.ERROR,
