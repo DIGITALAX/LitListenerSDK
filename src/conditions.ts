@@ -2,6 +2,7 @@ import axios from "axios";
 import ethers, { Event } from "ethers";
 import { EventEmitter } from "events";
 import { ContractCondition, WebhookCondition } from "./@types/lit-listener-sdk";
+import lodash from "lodash";
 
 /**
  * @class ConditionMonitor
@@ -45,7 +46,9 @@ export class ConditionMonitor extends EventEmitter {
         );
         let value = response.data;
         let pathParts = condition.responsePath.split(".");
-        pathParts = pathParts.flatMap((part) => part.split(/\[(.*?)\]/).filter(Boolean));
+        pathParts = pathParts.flatMap((part) =>
+          part.split(/\[(.*?)\]/).filter(Boolean),
+        );
 
         for (const part of pathParts) {
           if (!isNaN(parseInt(part))) {
@@ -131,12 +134,29 @@ export class ConditionMonitor extends EventEmitter {
     emittedValue: any,
   ) => {
     let match = false;
-    if (Array.isArray(emittedValue) && Array.isArray(condition.expectedValue)) {
-      match = (condition.expectedValue as Array<any>).every((val) =>
-        (emittedValue as Array<any>).includes(val),
-      );
-    } else {
+    if (
+      typeof condition.expectedValue === "number" ||
+      typeof condition.expectedValue === "string" ||
+      typeof condition.expectedValue === "bigint"
+    ) {
       match = emittedValue === condition.expectedValue;
+    } else if (
+      Array.isArray(condition.expectedValue) &&
+      Array.isArray(emittedValue)
+    ) {
+      if (condition.expectedValue.length !== emittedValue.length) {
+        match = false;
+      } else {
+        match = condition.expectedValue.every((expected, index) => {
+          const emitted = emittedValue[index];
+          return this.isEqualWithMixedTypes(expected, emitted);
+        });
+      }
+    } else if (
+      typeof condition.expectedValue === "object" &&
+      typeof emittedValue === "object"
+    ) {
+      match = lodash.isEqual(emittedValue, condition.expectedValue);
     }
 
     try {
@@ -154,5 +174,20 @@ export class ConditionMonitor extends EventEmitter {
         `Error in Checking Against Expected Values: ${error.message}`,
       );
     }
+  };
+
+  private isEqualWithMixedTypes = (
+    expected: (string | number | bigint | object)[],
+    emitted: (string | number | bigint | object)[],
+  ) => {
+    if (typeof expected !== typeof emitted) {
+      return false;
+    }
+
+    if (typeof expected === "object" && expected !== null) {
+      return lodash.isEqual(expected, emitted);
+    }
+
+    return expected === emitted;
   };
 }

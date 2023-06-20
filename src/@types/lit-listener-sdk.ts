@@ -325,7 +325,9 @@ export interface IContractCondition {
     | string[]
     | bigint
     | bigint[]
-    | (string | number | bigint)[];
+    | object
+    | object[]
+    | (string | number | bigint | object)[];
   onMatched: () => Promise<void>;
   onUnMatched: () => Promise<void>;
   onError: (error: Error) => void;
@@ -372,7 +374,9 @@ export class ContractCondition implements IContractCondition {
       | string[]
       | bigint
       | bigint[]
-      | (string | number | bigint)[],
+      | object
+      | object[]
+      | (string | number | bigint | object)[],
     public onMatched: () => Promise<void> = async () => {},
     public onUnMatched: () => Promise<void> = async () => {},
     public onError: (error: Error) => void = () => {},
@@ -402,7 +406,9 @@ export interface IWebhookCondition {
     | string[]
     | bigint
     | bigint[]
-    | (string | number | bigint)[];
+    | object
+    | object[]
+    | (string | number | bigint | object)[];
   apiKey?: string;
   onMatched: () => Promise<void>;
   onUnMatched: () => Promise<void>;
@@ -446,7 +452,9 @@ export class WebhookCondition implements IWebhookCondition {
       | string[]
       | bigint
       | bigint[]
-      | (string | number | bigint)[],
+      | object
+      | object[]
+      | (string | number | bigint | object)[],
     public apiKey?: string,
     public onMatched: () => Promise<void> = async () => {},
     public onUnMatched: () => Promise<void> = async () => {},
