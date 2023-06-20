@@ -256,7 +256,6 @@ export class Circuit extends EventEmitter {
    */
   setActions = (actions: Action[]): string => {
     this.actions = this.actions.concat(actions);
-    this.actions.sort((a, b) => a.priority - b.priority);
     if (!this.hasSetActionHelperFunction) {
       this.code += `
       const concatenatedResponse = {};
@@ -312,10 +311,20 @@ export class Circuit extends EventEmitter {
       this.hasSetActionHelperFunction = true;
     }
 
+    const uniquePriorities = new Set();
+
     this.actions.forEach((action) => {
-      if (this.actions.some((existingAction) => existingAction.priority === action.priority)) {
-        throw new Error(`Action with priority ${action.priority} already exists.`);
+      if (uniquePriorities.has(action.priority)) {
+        throw new Error(
+          `Action with priority ${action.priority} already exists.`,
+        );
       }
+      uniquePriorities.add(action.priority);
+    });
+
+    this.actions.sort((a, b) => a.priority - b.priority);
+
+    this.actions.forEach((action) => {
       let generatedUnsignedData: LitUnsignedTransaction;
       if (action.type === "custom") {
         Object.assign(this.jsParameters, action.args);
@@ -551,6 +560,11 @@ export class Circuit extends EventEmitter {
   }): Promise<void> => {
     try {
       if (this.conditions.length > 0 && this.actions.length > 0) {
+        if (!pkpPublicKey || !pkpPublicKey.toLowerCase().startsWith("0x04")) {
+          this.log(LogCategory.ERROR, `Invalid PKP Public Key.`, pkpPublicKey);
+          throw new Error(`Invalid PKP Public Key.`);
+        }
+
         this.pkpPublicKey = pkpPublicKey;
         if (ipfsCID) {
           this.ipfsCID = ipfsCID;
