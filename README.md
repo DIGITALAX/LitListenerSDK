@@ -102,4 +102,4 @@ await quickStartCircuit.start({publicKey, ipfsCID});
 ### Account abstraction enticing you to abstract away the code too?
 Check out a no code implementation of the SDK live [here](https://listener.irrevocable.dev).
 
-![Abstracted][https://chromadin.infura-ipfs.io/ipfs/QmfMuhWVsCvRs6fAgWuL3yS7mNhqeasNLFQEr8cEbRfA9n]
+![Abstracted](https://chromadin.infura-ipfs.io/ipfs/QmfMuhWVsCvRs6fAgWuL3yS7mNhqeasNLFQEr8cEbRfA9n)
