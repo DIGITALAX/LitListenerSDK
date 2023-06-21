@@ -16,9 +16,8 @@ import {
   WebhookCondition,
 } from "./../src/@types/lit-listener-sdk";
 import { CHRONICLE_PROVIDER, PKP_CONTRACT_ADDRESS } from "./../src/constants";
-import { PKPNFT } from "typechain-types/contracts/PKPNFT";
 
-xdescribe("Set the Actions of the Circuit", () => {
+describe("Set the Actions of the Circuit", () => {
   let LitActionCode: string,
     newCircuit: Circuit,
     deployedListenerToken: Contract,
@@ -36,7 +35,7 @@ xdescribe("Set the Actions of the Circuit", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
-        process.env.MUMBAI_PROVIDER_URL,
+        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
@@ -99,7 +98,7 @@ xdescribe("Set the Actions of the Circuit", () => {
         PKP_CONTRACT_ADDRESS,
         pkpABI,
         chronicleProvider,
-      ) as PKPNFT;
+      );
       const pkpTokenId = pkpTokenData.tokenId;
       pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
 
@@ -126,7 +125,7 @@ xdescribe("Set the Actions of the Circuit", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
-        process.env.MUMBAI_PROVIDER_URL,
+        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
@@ -243,7 +242,7 @@ xdescribe("Set the Actions of the Circuit", () => {
 
     it("Won't Sign on Incorrect Condition Met", async () => {
       const noSignCircuit = new Circuit(
-        process.env.MUMBAI_PROVIDER_URL,
+        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
       const buffer = Buffer.from("polygon");
@@ -294,7 +293,7 @@ xdescribe("Set the Actions of the Circuit", () => {
         PKP_CONTRACT_ADDRESS,
         pkpABI,
         chronicleProvider,
-      ) as PKPNFT;
+      );
       const pkpTokenId = pkpTokenData.tokenId;
       pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
       const authSig = await noSignCircuit.generateAuthSignature(80001);
@@ -324,7 +323,7 @@ xdescribe("Set the Actions of the Circuit", () => {
         PKP_CONTRACT_ADDRESS,
         pkpABI,
         chronicleProvider,
-      ) as PKPNFT;
+      );
       const pkpTokenId = pkpTokenData.tokenId;
       pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
       const authSig = await newCircuit.generateAuthSignature(80001);
@@ -353,7 +352,7 @@ xdescribe("Set the Actions of the Circuit", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
-        process.env.MUMBAI_PROVIDER_URL,
+        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
@@ -446,7 +445,7 @@ xdescribe("Set the Actions of the Circuit", () => {
         PKP_CONTRACT_ADDRESS,
         pkpABI,
         chronicleProvider,
-      ) as PKPNFT;
+      );
       const pkpTokenId = pkpTokenData.tokenId;
       pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
 
@@ -502,7 +501,7 @@ xdescribe("Set the Actions of the Circuit", () => {
 
       // Create a test instance of the circuit
       newCircuit = new Circuit(
-        process.env.MUMBAI_PROVIDER_URL,
+        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
@@ -604,7 +603,7 @@ xdescribe("Set the Actions of the Circuit", () => {
 
     it("Revert on Actions of the Same Priority Number", async () => {
       const noSignCircuit = new Circuit(
-        process.env.MUMBAI_PROVIDER_URL,
+        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
       const buffer = Buffer.from("polygon");
@@ -680,7 +679,7 @@ xdescribe("Set the Actions of the Circuit", () => {
         PKP_CONTRACT_ADDRESS,
         pkpABI,
         chronicleProvider,
-      ) as PKPNFT;
+      );
       const pkpTokenId = pkpTokenData.tokenId;
       pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
 

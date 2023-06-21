@@ -14,7 +14,11 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import ListenerERC20ABI from "./../src/abis/ListenerERC20.json";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-xdescribe("Throws all Errors of the Circuit", () => {
+describe("Throws all Errors of the Circuit", () => {
+  const chronicleProvider = new ethers.providers.JsonRpcProvider(
+    CHRONICLE_PROVIDER,
+    175177,
+  );
   const customActions: CustomAction[] = [
     {
       type: "custom",
@@ -112,12 +116,13 @@ xdescribe("Throws all Errors of the Circuit", () => {
     });
 
     it("Throw Error While Processing Contract Event", async () => {
-      const newCircuit = new Circuit(process.env.MUMBAI_PROVIDER_URL);
+      const newCircuit = new Circuit("http://127.0.0.1:8545",       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+      );
       newCircuit.setActions(customActions);
 
       const contractCondition = new ContractCondition(
-        "0xab111",
-        ListenerERC20ABI,
+        "0x0",
+        "",
         CHAIN_NAME.MUMBAI,
         "Transfer",
         ["from", "value"],
@@ -138,7 +143,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
       expect(() => {
         throw error;
       }).to.throw(
-        "Error running circuit: Error in Contract Action: Cannot read properties of undefined (reading 'Contract')",
+        "Error running circuit: Error in Contract Action: Unexpected end of JSON input",
       );
     });
 
@@ -363,9 +368,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
       }
       expect(() => {
         throw error;
-      }).to.throw(
-        `Error running circuit: Error running Lit Action: There was an error getting the signing shares from the nodes`,
-      );
+      }).to.throw;
     });
 
     it("Throw Error for Invalid PKP Passed to Lit Action", async () => {

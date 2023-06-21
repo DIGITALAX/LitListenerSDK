@@ -33,7 +33,7 @@ const customActions: CustomAction[] = [
   },
 ];
 
-xdescribe("Set the Conditions of the Circuit", () => {
+describe("Set the Conditions of the Circuit", () => {
   let newCircuit: Circuit,
     deployedListenerToken: Contract,
     owner: SignerWithAddress,
@@ -48,6 +48,15 @@ xdescribe("Set the Conditions of the Circuit", () => {
   });
 
   describe("Set the Conditions", () => {
+    before(async () => {
+      [owner, toAddress] = await ethers.getSigners();
+
+      const ListenerToken = await ethers.getContractFactory("ListenerERC20");
+
+      deployedListenerToken = await ListenerToken.deploy();
+      await deployedListenerToken.deployed();
+    });
+
     it("Add ContractCondition to Conditions Array", () => {
       // Prepare contract condition
       const contractCondition = new ContractCondition(
@@ -368,31 +377,31 @@ xdescribe("Set the Conditions of the Circuit", () => {
           "properties.periods[0]",
           {
             number: 1,
-            name: "This Afternoon",
-            startTime: "2023-06-20T14:00:00-04:00",
-            endTime: "2023-06-20T18:00:00-04:00",
-            isDaytime: true,
-            temperature: 80,
+            name: "Tonight",
+            startTime: "2023-06-20T19:00:00-04:00",
+            endTime: "2023-06-21T06:00:00-04:00",
+            isDaytime: false,
+            temperature: 66,
             temperatureUnit: "F",
             temperatureTrend: null,
             probabilityOfPrecipitation: {
               unitCode: "wmoUnit:percent",
-              value: 30,
+              value: 50,
             },
             dewpoint: {
               unitCode: "wmoUnit:degC",
-              value: 17.222222222222221,
+              value: 18.333333333333332,
             },
             relativeHumidity: {
               unitCode: "wmoUnit:percent",
-              value: 56,
+              value: 90,
             },
-            windSpeed: "14 mph",
+            windSpeed: "13 mph",
             windDirection: "E",
-            icon: "https://api.weather.gov/icons/land/day/rain_showers,30?size=medium",
-            shortForecast: "Scattered Rain Showers",
+            icon: "https://api.weather.gov/icons/land/night/rain_showers,40/rain_showers,50?size=medium",
+            shortForecast: "Chance Rain Showers",
             detailedForecast:
-              "Scattered rain showers. Cloudy, with a high near 80. East wind around 14 mph, with gusts as high as 23 mph. Chance of precipitation is 30%. New rainfall amounts less than a tenth of an inch possible.",
+              "A chance of rain showers. Cloudy, with a low around 66. East wind around 13 mph, with gusts as high as 23 mph. Chance of precipitation is 50%. New rainfall amounts less than a tenth of an inch possible.",
           },
           undefined,
           async (emittedValue) => {
@@ -418,31 +427,31 @@ xdescribe("Set the Conditions of the Circuit", () => {
       expect(responseLog[responseLog.length - 2].responseObject).to.equal(
         JSON.stringify({
           number: 1,
-          name: "This Afternoon",
-          startTime: "2023-06-20T14:00:00-04:00",
-          endTime: "2023-06-20T18:00:00-04:00",
-          isDaytime: true,
-          temperature: 80,
+          name: "Tonight",
+          startTime: "2023-06-20T19:00:00-04:00",
+          endTime: "2023-06-21T06:00:00-04:00",
+          isDaytime: false,
+          temperature: 66,
           temperatureUnit: "F",
           temperatureTrend: null,
           probabilityOfPrecipitation: {
             unitCode: "wmoUnit:percent",
-            value: 30,
+            value: 50,
           },
           dewpoint: {
             unitCode: "wmoUnit:degC",
-            value: 17.222222222222221,
+            value: 18.333333333333332,
           },
           relativeHumidity: {
             unitCode: "wmoUnit:percent",
-            value: 56,
+            value: 90,
           },
-          windSpeed: "14 mph",
+          windSpeed: "13 mph",
           windDirection: "E",
-          icon: "https://api.weather.gov/icons/land/day/rain_showers,30?size=medium",
-          shortForecast: "Scattered Rain Showers",
+          icon: "https://api.weather.gov/icons/land/night/rain_showers,40/rain_showers,50?size=medium",
+          shortForecast: "Chance Rain Showers",
           detailedForecast:
-            "Scattered rain showers. Cloudy, with a high near 80. East wind around 14 mph, with gusts as high as 23 mph. Chance of precipitation is 30%. New rainfall amounts less than a tenth of an inch possible.",
+            "A chance of rain showers. Cloudy, with a low around 66. East wind around 13 mph, with gusts as high as 23 mph. Chance of precipitation is 50%. New rainfall amounts less than a tenth of an inch possible.",
         }),
       );
     });
@@ -456,36 +465,8 @@ xdescribe("Set the Conditions of the Circuit", () => {
           [
             {
               number: 1,
-              name: "This Afternoon",
-              startTime: "2023-06-20T14:00:00-04:00",
-              endTime: "2023-06-20T18:00:00-04:00",
-              isDaytime: true,
-              temperature: 80,
-              temperatureUnit: "F",
-              temperatureTrend: null,
-              probabilityOfPrecipitation: {
-                unitCode: "wmoUnit:percent",
-                value: 30,
-              },
-              dewpoint: {
-                unitCode: "wmoUnit:degC",
-                value: 17.222222222222221,
-              },
-              relativeHumidity: {
-                unitCode: "wmoUnit:percent",
-                value: 56,
-              },
-              windSpeed: "14 mph",
-              windDirection: "E",
-              icon: "https://api.weather.gov/icons/land/day/rain_showers,30?size=medium",
-              shortForecast: "Scattered Rain Showers",
-              detailedForecast:
-                "Scattered rain showers. Cloudy, with a high near 80. East wind around 14 mph, with gusts as high as 23 mph. Chance of precipitation is 30%. New rainfall amounts less than a tenth of an inch possible.",
-            },
-            {
-              number: 2,
               name: "Tonight",
-              startTime: "2023-06-20T18:00:00-04:00",
+              startTime: "2023-06-20T19:00:00-04:00",
               endTime: "2023-06-21T06:00:00-04:00",
               isDaytime: false,
               temperature: 66,
@@ -506,12 +487,12 @@ xdescribe("Set the Conditions of the Circuit", () => {
               windSpeed: "13 mph",
               windDirection: "E",
               icon: "https://api.weather.gov/icons/land/night/rain_showers,40/rain_showers,50?size=medium",
-              shortForecast: "Scattered Rain Showers",
+              shortForecast: "Chance Rain Showers",
               detailedForecast:
-                "Scattered rain showers. Cloudy, with a low around 66. East wind around 13 mph, with gusts as high as 23 mph. Chance of precipitation is 50%. New rainfall amounts less than a tenth of an inch possible.",
+                "A chance of rain showers. Cloudy, with a low around 66. East wind around 13 mph, with gusts as high as 23 mph. Chance of precipitation is 50%. New rainfall amounts less than a tenth of an inch possible.",
             },
             {
-              number: 3,
+              number: 2,
               name: "Wednesday",
               startTime: "2023-06-21T06:00:00-04:00",
               endTime: "2023-06-21T18:00:00-04:00",
@@ -534,12 +515,12 @@ xdescribe("Set the Conditions of the Circuit", () => {
               windSpeed: "13 to 17 mph",
               windDirection: "NE",
               icon: "https://api.weather.gov/icons/land/day/rain_showers,50/rain_showers,60?size=medium",
-              shortForecast: "Chance Rain Showers",
+              shortForecast: "Rain Showers Likely",
               detailedForecast:
-                "A chance of rain showers. Cloudy, with a high near 73. Northeast wind 13 to 17 mph, with gusts as high as 30 mph. Chance of precipitation is 60%. New rainfall amounts between a tenth and quarter of an inch possible.",
+                "Rain showers likely. Cloudy, with a high near 73. Northeast wind 13 to 17 mph, with gusts as high as 30 mph. Chance of precipitation is 60%. New rainfall amounts between a quarter and half of an inch possible.",
             },
             {
-              number: 4,
+              number: 3,
               name: "Wednesday Night",
               startTime: "2023-06-21T18:00:00-04:00",
               endTime: "2023-06-22T06:00:00-04:00",
@@ -564,10 +545,10 @@ xdescribe("Set the Conditions of the Circuit", () => {
               icon: "https://api.weather.gov/icons/land/night/tsra,80?size=medium",
               shortForecast: "Showers And Thunderstorms",
               detailedForecast:
-                "Rain showers likely before 8pm, then showers and thunderstorms. Cloudy, with a low around 61. Northeast wind around 17 mph, with gusts as high as 29 mph. Chance of precipitation is 80%. New rainfall amounts between a half and three quarters of an inch possible.",
+                "Rain showers likely before 8pm, then showers and thunderstorms. Cloudy, with a low around 61. Northeast wind around 17 mph, with gusts as high as 29 mph. Chance of precipitation is 80%. New rainfall amounts between three quarters and one inch possible.",
             },
             {
-              number: 5,
+              number: 4,
               name: "Thursday",
               startTime: "2023-06-22T06:00:00-04:00",
               endTime: "2023-06-22T18:00:00-04:00",
@@ -589,13 +570,13 @@ xdescribe("Set the Conditions of the Circuit", () => {
               },
               windSpeed: "15 mph",
               windDirection: "E",
-              icon: "https://api.weather.gov/icons/land/day/tsra,80?size=medium",
-              shortForecast: "Showers And Thunderstorms",
+              icon: "https://api.weather.gov/icons/land/day/rain_showers,80/tsra,80?size=medium",
+              shortForecast: "Rain Showers",
               detailedForecast:
-                "Showers and thunderstorms. Cloudy, with a high near 74. East wind around 15 mph, with gusts as high as 26 mph. Chance of precipitation is 80%.",
+                "Rain showers before 2pm, then showers and thunderstorms. Cloudy, with a high near 74. East wind around 15 mph, with gusts as high as 26 mph. Chance of precipitation is 80%. New rainfall amounts between a half and three quarters of an inch possible.",
             },
             {
-              number: 6,
+              number: 5,
               name: "Thursday Night",
               startTime: "2023-06-22T18:00:00-04:00",
               endTime: "2023-06-23T06:00:00-04:00",
@@ -620,10 +601,10 @@ xdescribe("Set the Conditions of the Circuit", () => {
               icon: "https://api.weather.gov/icons/land/night/tsra,80?size=medium",
               shortForecast: "Showers And Thunderstorms",
               detailedForecast:
-                "Showers and thunderstorms. Cloudy, with a low around 68. Chance of precipitation is 80%.",
+                "Showers and thunderstorms. Cloudy, with a low around 68. East wind around 13 mph, with gusts as high as 22 mph. Chance of precipitation is 80%.",
             },
             {
-              number: 7,
+              number: 6,
               name: "Friday",
               startTime: "2023-06-23T06:00:00-04:00",
               endTime: "2023-06-23T18:00:00-04:00",
@@ -648,10 +629,10 @@ xdescribe("Set the Conditions of the Circuit", () => {
               icon: "https://api.weather.gov/icons/land/day/tsra,60/tsra,80?size=medium",
               shortForecast: "Showers And Thunderstorms",
               detailedForecast:
-                "Rain showers likely before 8am, then showers and thunderstorms. Mostly cloudy, with a high near 82. Chance of precipitation is 80%.",
+                "Showers and thunderstorms. Mostly cloudy, with a high near 82. Chance of precipitation is 80%.",
             },
             {
-              number: 8,
+              number: 7,
               name: "Friday Night",
               startTime: "2023-06-23T18:00:00-04:00",
               endTime: "2023-06-24T06:00:00-04:00",
@@ -679,7 +660,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
                 "Showers and thunderstorms. Mostly cloudy, with a low around 68. Chance of precipitation is 80%.",
             },
             {
-              number: 9,
+              number: 8,
               name: "Saturday",
               startTime: "2023-06-24T06:00:00-04:00",
               endTime: "2023-06-24T18:00:00-04:00",
@@ -707,7 +688,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
                 "A chance of rain showers before 2pm, then showers and thunderstorms likely. Partly sunny, with a high near 85. Chance of precipitation is 70%.",
             },
             {
-              number: 10,
+              number: 9,
               name: "Saturday Night",
               startTime: "2023-06-24T18:00:00-04:00",
               endTime: "2023-06-25T06:00:00-04:00",
@@ -735,7 +716,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
                 "Showers and thunderstorms likely before 2am. Partly cloudy, with a low around 67. Chance of precipitation is 70%.",
             },
             {
-              number: 11,
+              number: 10,
               name: "Sunday",
               startTime: "2023-06-25T06:00:00-04:00",
               endTime: "2023-06-25T18:00:00-04:00",
@@ -764,7 +745,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
                 "A chance of rain showers between 8am and 2pm, then a chance of showers and thunderstorms. Mostly sunny, with a high near 87. Chance of precipitation is 50%.",
             },
             {
-              number: 12,
+              number: 11,
               name: "Sunday Night",
               startTime: "2023-06-25T18:00:00-04:00",
               endTime: "2023-06-26T06:00:00-04:00",
@@ -792,7 +773,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
                 "A chance of showers and thunderstorms before 8pm, then a chance of showers and thunderstorms between 8pm and 2am. Partly cloudy, with a low around 69. Chance of precipitation is 50%.",
             },
             {
-              number: 13,
+              number: 12,
               name: "Monday",
               startTime: "2023-06-26T06:00:00-04:00",
               endTime: "2023-06-26T18:00:00-04:00",
@@ -820,7 +801,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
                 "A chance of rain showers between 8am and 2pm, then showers and thunderstorms likely. Partly sunny, with a high near 89. Chance of precipitation is 60%.",
             },
             {
-              number: 14,
+              number: 13,
               name: "Monday Night",
               startTime: "2023-06-26T18:00:00-04:00",
               endTime: "2023-06-27T06:00:00-04:00",
@@ -846,6 +827,34 @@ xdescribe("Set the Conditions of the Circuit", () => {
               shortForecast: "Showers And Thunderstorms Likely",
               detailedForecast:
                 "Showers and thunderstorms likely. Mostly cloudy, with a low around 69. Chance of precipitation is 60%.",
+            },
+            {
+              number: 14,
+              name: "Tuesday",
+              startTime: "2023-06-27T06:00:00-04:00",
+              endTime: "2023-06-27T18:00:00-04:00",
+              isDaytime: true,
+              temperature: 85,
+              temperatureUnit: "F",
+              temperatureTrend: null,
+              probabilityOfPrecipitation: {
+                unitCode: "wmoUnit:percent",
+                value: 70,
+              },
+              dewpoint: {
+                unitCode: "wmoUnit:degC",
+                value: 21.666666666666668,
+              },
+              relativeHumidity: {
+                unitCode: "wmoUnit:percent",
+                value: 97,
+              },
+              windSpeed: "10 mph",
+              windDirection: "SW",
+              icon: "https://api.weather.gov/icons/land/day/rain_showers,40/tsra_hi,70?size=medium",
+              shortForecast: "Showers And Thunderstorms Likely",
+              detailedForecast:
+                "A chance of rain showers before 2pm, then showers and thunderstorms likely. Partly sunny, with a high near 85. Chance of precipitation is 70%.",
             },
           ],
           undefined,
@@ -873,36 +882,8 @@ xdescribe("Set the Conditions of the Circuit", () => {
         JSON.stringify([
           {
             number: 1,
-            name: "This Afternoon",
-            startTime: "2023-06-20T14:00:00-04:00",
-            endTime: "2023-06-20T18:00:00-04:00",
-            isDaytime: true,
-            temperature: 80,
-            temperatureUnit: "F",
-            temperatureTrend: null,
-            probabilityOfPrecipitation: {
-              unitCode: "wmoUnit:percent",
-              value: 30,
-            },
-            dewpoint: {
-              unitCode: "wmoUnit:degC",
-              value: 17.222222222222221,
-            },
-            relativeHumidity: {
-              unitCode: "wmoUnit:percent",
-              value: 56,
-            },
-            windSpeed: "14 mph",
-            windDirection: "E",
-            icon: "https://api.weather.gov/icons/land/day/rain_showers,30?size=medium",
-            shortForecast: "Scattered Rain Showers",
-            detailedForecast:
-              "Scattered rain showers. Cloudy, with a high near 80. East wind around 14 mph, with gusts as high as 23 mph. Chance of precipitation is 30%. New rainfall amounts less than a tenth of an inch possible.",
-          },
-          {
-            number: 2,
             name: "Tonight",
-            startTime: "2023-06-20T18:00:00-04:00",
+            startTime: "2023-06-20T19:00:00-04:00",
             endTime: "2023-06-21T06:00:00-04:00",
             isDaytime: false,
             temperature: 66,
@@ -923,12 +904,12 @@ xdescribe("Set the Conditions of the Circuit", () => {
             windSpeed: "13 mph",
             windDirection: "E",
             icon: "https://api.weather.gov/icons/land/night/rain_showers,40/rain_showers,50?size=medium",
-            shortForecast: "Scattered Rain Showers",
+            shortForecast: "Chance Rain Showers",
             detailedForecast:
-              "Scattered rain showers. Cloudy, with a low around 66. East wind around 13 mph, with gusts as high as 23 mph. Chance of precipitation is 50%. New rainfall amounts less than a tenth of an inch possible.",
+              "A chance of rain showers. Cloudy, with a low around 66. East wind around 13 mph, with gusts as high as 23 mph. Chance of precipitation is 50%. New rainfall amounts less than a tenth of an inch possible.",
           },
           {
-            number: 3,
+            number: 2,
             name: "Wednesday",
             startTime: "2023-06-21T06:00:00-04:00",
             endTime: "2023-06-21T18:00:00-04:00",
@@ -951,12 +932,12 @@ xdescribe("Set the Conditions of the Circuit", () => {
             windSpeed: "13 to 17 mph",
             windDirection: "NE",
             icon: "https://api.weather.gov/icons/land/day/rain_showers,50/rain_showers,60?size=medium",
-            shortForecast: "Chance Rain Showers",
+            shortForecast: "Rain Showers Likely",
             detailedForecast:
-              "A chance of rain showers. Cloudy, with a high near 73. Northeast wind 13 to 17 mph, with gusts as high as 30 mph. Chance of precipitation is 60%. New rainfall amounts between a tenth and quarter of an inch possible.",
+              "Rain showers likely. Cloudy, with a high near 73. Northeast wind 13 to 17 mph, with gusts as high as 30 mph. Chance of precipitation is 60%. New rainfall amounts between a quarter and half of an inch possible.",
           },
           {
-            number: 4,
+            number: 3,
             name: "Wednesday Night",
             startTime: "2023-06-21T18:00:00-04:00",
             endTime: "2023-06-22T06:00:00-04:00",
@@ -981,10 +962,10 @@ xdescribe("Set the Conditions of the Circuit", () => {
             icon: "https://api.weather.gov/icons/land/night/tsra,80?size=medium",
             shortForecast: "Showers And Thunderstorms",
             detailedForecast:
-              "Rain showers likely before 8pm, then showers and thunderstorms. Cloudy, with a low around 61. Northeast wind around 17 mph, with gusts as high as 29 mph. Chance of precipitation is 80%. New rainfall amounts between a half and three quarters of an inch possible.",
+              "Rain showers likely before 8pm, then showers and thunderstorms. Cloudy, with a low around 61. Northeast wind around 17 mph, with gusts as high as 29 mph. Chance of precipitation is 80%. New rainfall amounts between three quarters and one inch possible.",
           },
           {
-            number: 5,
+            number: 4,
             name: "Thursday",
             startTime: "2023-06-22T06:00:00-04:00",
             endTime: "2023-06-22T18:00:00-04:00",
@@ -1006,13 +987,13 @@ xdescribe("Set the Conditions of the Circuit", () => {
             },
             windSpeed: "15 mph",
             windDirection: "E",
-            icon: "https://api.weather.gov/icons/land/day/tsra,80?size=medium",
-            shortForecast: "Showers And Thunderstorms",
+            icon: "https://api.weather.gov/icons/land/day/rain_showers,80/tsra,80?size=medium",
+            shortForecast: "Rain Showers",
             detailedForecast:
-              "Showers and thunderstorms. Cloudy, with a high near 74. East wind around 15 mph, with gusts as high as 26 mph. Chance of precipitation is 80%.",
+              "Rain showers before 2pm, then showers and thunderstorms. Cloudy, with a high near 74. East wind around 15 mph, with gusts as high as 26 mph. Chance of precipitation is 80%. New rainfall amounts between a half and three quarters of an inch possible.",
           },
           {
-            number: 6,
+            number: 5,
             name: "Thursday Night",
             startTime: "2023-06-22T18:00:00-04:00",
             endTime: "2023-06-23T06:00:00-04:00",
@@ -1037,10 +1018,10 @@ xdescribe("Set the Conditions of the Circuit", () => {
             icon: "https://api.weather.gov/icons/land/night/tsra,80?size=medium",
             shortForecast: "Showers And Thunderstorms",
             detailedForecast:
-              "Showers and thunderstorms. Cloudy, with a low around 68. Chance of precipitation is 80%.",
+              "Showers and thunderstorms. Cloudy, with a low around 68. East wind around 13 mph, with gusts as high as 22 mph. Chance of precipitation is 80%.",
           },
           {
-            number: 7,
+            number: 6,
             name: "Friday",
             startTime: "2023-06-23T06:00:00-04:00",
             endTime: "2023-06-23T18:00:00-04:00",
@@ -1065,10 +1046,10 @@ xdescribe("Set the Conditions of the Circuit", () => {
             icon: "https://api.weather.gov/icons/land/day/tsra,60/tsra,80?size=medium",
             shortForecast: "Showers And Thunderstorms",
             detailedForecast:
-              "Rain showers likely before 8am, then showers and thunderstorms. Mostly cloudy, with a high near 82. Chance of precipitation is 80%.",
+              "Showers and thunderstorms. Mostly cloudy, with a high near 82. Chance of precipitation is 80%.",
           },
           {
-            number: 8,
+            number: 7,
             name: "Friday Night",
             startTime: "2023-06-23T18:00:00-04:00",
             endTime: "2023-06-24T06:00:00-04:00",
@@ -1096,7 +1077,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
               "Showers and thunderstorms. Mostly cloudy, with a low around 68. Chance of precipitation is 80%.",
           },
           {
-            number: 9,
+            number: 8,
             name: "Saturday",
             startTime: "2023-06-24T06:00:00-04:00",
             endTime: "2023-06-24T18:00:00-04:00",
@@ -1124,7 +1105,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
               "A chance of rain showers before 2pm, then showers and thunderstorms likely. Partly sunny, with a high near 85. Chance of precipitation is 70%.",
           },
           {
-            number: 10,
+            number: 9,
             name: "Saturday Night",
             startTime: "2023-06-24T18:00:00-04:00",
             endTime: "2023-06-25T06:00:00-04:00",
@@ -1152,7 +1133,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
               "Showers and thunderstorms likely before 2am. Partly cloudy, with a low around 67. Chance of precipitation is 70%.",
           },
           {
-            number: 11,
+            number: 10,
             name: "Sunday",
             startTime: "2023-06-25T06:00:00-04:00",
             endTime: "2023-06-25T18:00:00-04:00",
@@ -1181,7 +1162,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
               "A chance of rain showers between 8am and 2pm, then a chance of showers and thunderstorms. Mostly sunny, with a high near 87. Chance of precipitation is 50%.",
           },
           {
-            number: 12,
+            number: 11,
             name: "Sunday Night",
             startTime: "2023-06-25T18:00:00-04:00",
             endTime: "2023-06-26T06:00:00-04:00",
@@ -1209,7 +1190,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
               "A chance of showers and thunderstorms before 8pm, then a chance of showers and thunderstorms between 8pm and 2am. Partly cloudy, with a low around 69. Chance of precipitation is 50%.",
           },
           {
-            number: 13,
+            number: 12,
             name: "Monday",
             startTime: "2023-06-26T06:00:00-04:00",
             endTime: "2023-06-26T18:00:00-04:00",
@@ -1237,7 +1218,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
               "A chance of rain showers between 8am and 2pm, then showers and thunderstorms likely. Partly sunny, with a high near 89. Chance of precipitation is 60%.",
           },
           {
-            number: 14,
+            number: 13,
             name: "Monday Night",
             startTime: "2023-06-26T18:00:00-04:00",
             endTime: "2023-06-27T06:00:00-04:00",
@@ -1264,6 +1245,34 @@ xdescribe("Set the Conditions of the Circuit", () => {
             detailedForecast:
               "Showers and thunderstorms likely. Mostly cloudy, with a low around 69. Chance of precipitation is 60%.",
           },
+          {
+            number: 14,
+            name: "Tuesday",
+            startTime: "2023-06-27T06:00:00-04:00",
+            endTime: "2023-06-27T18:00:00-04:00",
+            isDaytime: true,
+            temperature: 85,
+            temperatureUnit: "F",
+            temperatureTrend: null,
+            probabilityOfPrecipitation: {
+              unitCode: "wmoUnit:percent",
+              value: 70,
+            },
+            dewpoint: {
+              unitCode: "wmoUnit:degC",
+              value: 21.666666666666668,
+            },
+            relativeHumidity: {
+              unitCode: "wmoUnit:percent",
+              value: 97,
+            },
+            windSpeed: "10 mph",
+            windDirection: "SW",
+            icon: "https://api.weather.gov/icons/land/day/rain_showers,40/tsra_hi,70?size=medium",
+            shortForecast: "Showers And Thunderstorms Likely",
+            detailedForecast:
+              "A chance of rain showers before 2pm, then showers and thunderstorms likely. Partly sunny, with a high near 85. Chance of precipitation is 70%.",
+          },
         ]),
       );
     });
@@ -1278,13 +1287,6 @@ xdescribe("Set the Conditions of the Circuit", () => {
       };
 
     beforeEach(async () => {
-      [owner, toAddress] = await ethers.getSigners();
-
-      const ListenerToken = await ethers.getContractFactory("ListenerERC20");
-
-      deployedListenerToken = await ListenerToken.deploy();
-      await deployedListenerToken.deployed();
-
       const LitActionCode = newCircuit.setActions(customActions);
       newCircuit.executionConstraints({ maxLitActionCompletions: 1 });
       newCircuit.setConditionalLogic({ type: "EVERY", interval: 60000 });
@@ -1332,7 +1334,6 @@ xdescribe("Set the Conditions of the Circuit", () => {
       await startPromise;
 
       const responseLog = newCircuit.getLogs(LogCategory.CONDITION);
-      console.log({ responseLog });
       expect(responseLog[responseLog.length - 2].category).to.equal(2);
       expect(responseLog[responseLog.length - 2].message).to.equal(
         `Condition Matched with Emitted Value: `,

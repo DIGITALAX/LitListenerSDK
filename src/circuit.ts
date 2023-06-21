@@ -751,6 +751,10 @@ export class Circuit extends EventEmitter {
     }
   };
 
+
+  /**
+   * Forcefully interrupts the circuit.
+   */
   interrupt = () => {
     this.emitter.emit("stop");
     this.log(
