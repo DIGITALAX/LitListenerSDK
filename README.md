@@ -7,7 +7,7 @@ The __LitListenerSDK__ is designed around the principle of conditionally pre-app
 ![Lit Listener](https://chromadin.infura-ipfs.io/ipfs/Qmdmr63FxiEm4AAxv6kmPK5PvEPMNNxS2KLzkCQdcbkFHr)
 
 
-Check out the [documentation](https://docs.irrevocable.dev) for in depth implementation details.
+### Check out the [documentation](https://docs.irrevocable.dev) for in depth implementation details.
 
 To install the SDK run:
 
@@ -15,7 +15,7 @@ To install the SDK run:
 npm i lit-listener-sdk
 ```
 
-Quick Start
+## Quick Start
 ```typescript
 import { ethers, BigNumber } from "ethers";
 import { Circuit } from "lit-listener-sdk";
@@ -99,7 +99,7 @@ const { publicKey, tokenId, address } = await quickStartCircuit.mintGrantBurnPKP
 await quickStartCircuit.start({publicKey, ipfsCID});
 ```
 
-![Abstracted][https://chromadin.infura-ipfs.io/ipfs/QmfMuhWVsCvRs6fAgWuL3yS7mNhqeasNLFQEr8cEbRfA9n]
-
 ### Account abstraction enticing you to abstract away the code too?
 Check out a no code implementation of the SDK live [here](https://listener.irrevocable.dev).
+
+![Abstracted][https://chromadin.infura-ipfs.io/ipfs/QmfMuhWVsCvRs6fAgWuL3yS7mNhqeasNLFQEr8cEbRfA9n]
