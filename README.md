@@ -2,7 +2,7 @@
 
 An open source typescript SDK, compatible with node and browser, with an easy interface to automate responses from webhooks, subscribed on-chain events and intervals through triggered callback functions and the use of [Lit Protocol](https://litprotocol.com) PKPs.
 
-The __LitListenerSDK__ is designed around the principle of conditionally pre-approved chain reactions with account abstraction. 
+### The __LitListenerSDK__ is designed around the principle of conditionally pre-approved chain reactions with account abstraction. 
 
 ![Lit Listener](https://chromadin.infura-ipfs.io/ipfs/Qmdmr63FxiEm4AAxv6kmPK5PvEPMNNxS2KLzkCQdcbkFHr)
 
