@@ -308,6 +308,7 @@ export type IConditionalLogic =
  * @property eventName - The name of the contract event to monitor.
  * @property eventArgName - The name of the event arg/s that the expectedValue will be matched against.
  * @property expectedValue - The value that will be matched against the emitted value.
+ * @property matchOperator - The operator used for the comparison. It must be one of the following: "<", ">", "==", "===", "!==", "!=", ">=", "<=".
  * @property onMatched - A callback function that will be invoked when the emitted value matches the expected value.
  * @property onUnMatched - A callback function that will be invoked when the emitted value does not match the expected value.
  * @property onError - A callback function that will be invoked when an error occurs during monitoring.
@@ -324,6 +325,7 @@ export interface IContractCondition {
     | bigint[]
     | object[]
     | (string | number | bigint | object)[];
+  matchOperator: "<" | ">" | "==" | "===" | "!==" | "!=" | ">=" | "<=";
   onMatched: (
     emittedValue:
       | number[]
@@ -367,6 +369,7 @@ export class ContractCondition implements IContractCondition {
    * @param eventName - The name of the event to monitor.
    * @param eventArgName -
    * @param expectedValue - The value that will be matched against the emitted value.
+   * @param matchOperator - The operator used for the comparison. It must be one of the following: "<", ">", "==", "===", "!==", "!=", ">=", "<=".
    * @param onMatched - A callback function to execute when the emitted value matches the expected value.
    * @param onUnMatched - A callback function to execute when the emitted value does not match the expected value.
    * @param onError - A callback function to execute when an error occurs during monitoring.
@@ -383,6 +386,7 @@ export class ContractCondition implements IContractCondition {
       | bigint[]
       | object[]
       | (string | number | bigint | object)[],
+    public matchOperator: "<" | ">" | "==" | "===" | "!==" | "!=" | ">=" | "<=",
     public onMatched: (
       emittedValue:
         | number[]
@@ -410,6 +414,7 @@ export class ContractCondition implements IContractCondition {
  * @property endpoint - The specific endpoint for the webhook.
  * @property responsePath - The path to access the expected value in the response body.
  * @property expectedValue - The value to match against the emitted value.
+ * @property matchOperator - The operator used for the comparison. It must be one of the following: "<", ">", "==", "===", "!==", "!=", ">=", "<=".
  * @property apiKey - Optional API key for authorization.
  * @property onMatched - A callback function to execute when the emitted value matches the expected value.
  * @property onUnMatched - A callback function to execute when the emitted value does not match the expected value.
@@ -429,6 +434,7 @@ export interface IWebhookCondition {
     | object
     | object[]
     | (string | number | bigint | object)[];
+  matchOperator: "<" | ">" | "==" | "===" | "!==" | "!=" | ">=" | "<=";
   apiKey?: string;
   onMatched: (
     emittedValue:
@@ -478,6 +484,7 @@ export class WebhookCondition implements IWebhookCondition {
    * @param endpoint - The specific endpoint for the webhook.
    * @param responsePath - The path to access the expected value in the response body.
    * @param expectedValue - The value to match against the emitted value.
+   * @param matchOperator - The operator used for the comparison. It must be one of the following: "<", ">", "==", "===", "!==", "!=", ">=", "<=".
    * @param apiKey - Optional API key for authorization.
    * @param onMatched - A callback function to execute when the emitted value matches the expected value.
    * @param onUnMatched - A callback function to execute when the emitted value does not match the expected value.
@@ -497,6 +504,7 @@ export class WebhookCondition implements IWebhookCondition {
       | object
       | object[]
       | (string | number | bigint | object)[],
+    public matchOperator: "<" | ">" | "==" | "===" | "!==" | "!=" | ">=" | "<=",
     public apiKey?: string,
     public onMatched: (
       emittedValue:

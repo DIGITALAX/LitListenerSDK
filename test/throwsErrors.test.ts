@@ -43,6 +43,7 @@ describe("Throws all Errors of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -78,6 +79,7 @@ describe("Throws all Errors of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "another.path.invalid",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -127,6 +129,7 @@ describe("Throws all Errors of the Circuit", () => {
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
+        "===",
         async () => {},
         async () => {},
         (err) => console.error(err.message),
@@ -158,6 +161,7 @@ describe("Throws all Errors of the Circuit", () => {
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
+        "===",
         async () => {},
         async () => {},
         (err) => console.error(err.message),
@@ -283,6 +287,7 @@ describe("Throws all Errors of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -317,6 +322,7 @@ describe("Throws all Errors of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
