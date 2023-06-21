@@ -40,6 +40,7 @@ describe("Mint Grant Burn PKP", () => {
         "/gridpoints/LWX/97,71/forecast",
         "geometry.type",
         "Polygon",
+        "===",
         undefined,
         async () => {
           console.log("matched");
@@ -118,6 +119,7 @@ describe("Mint Grant Burn PKP", () => {
         "/gridpoints/LWX/97,71/forecast",
         "geometry.type",
         "Polygon",
+        "===",
         undefined,
         async () => {
           console.log("matched");

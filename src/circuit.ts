@@ -751,7 +751,6 @@ export class Circuit extends EventEmitter {
     }
   };
 
-
   /**
    * Forcefully interrupts the circuit.
    */

@@ -66,6 +66,7 @@ describe("Set the Conditions of the Circuit", () => {
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
+        "===",
         async () => {
           console.log("matched");
         },
@@ -122,6 +123,7 @@ describe("Set the Conditions of the Circuit", () => {
         "/endpoint",
         "this.response.path",
         "returnedValue",
+        "===",
         undefined,
         async () => {
           console.log("matched");
@@ -182,6 +184,7 @@ describe("Set the Conditions of the Circuit", () => {
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
+        "===",
         async () => {
           console.log("matched");
         },
@@ -195,6 +198,7 @@ describe("Set the Conditions of the Circuit", () => {
         "/endpoint",
         "this.response.path",
         "returnedValue",
+        "===",
         undefined,
         async () => {
           console.log("matched");
@@ -311,6 +315,7 @@ describe("Set the Conditions of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async (emittedValue) => {
             console.log("matched: ", { emittedValue });
@@ -343,6 +348,7 @@ describe("Set the Conditions of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "properties.periods[0].number",
           1,
+          "===",
           undefined,
           async (emittedValue) => {
             console.log("matched: ", { emittedValue });
@@ -403,6 +409,7 @@ describe("Set the Conditions of the Circuit", () => {
             detailedForecast:
               "A chance of rain showers. Cloudy, with a low around 66. East wind around 13 mph, with gusts as high as 23 mph. Chance of precipitation is 50%. New rainfall amounts less than a tenth of an inch possible.",
           },
+          "===",
           undefined,
           async (emittedValue) => {
             console.log("matched: ", { emittedValue });
@@ -857,6 +864,7 @@ describe("Set the Conditions of the Circuit", () => {
                 "A chance of rain showers before 2pm, then showers and thunderstorms likely. Partly sunny, with a high near 85. Chance of precipitation is 70%.",
             },
           ],
+          "===",
           undefined,
           async (emittedValue) => {
             console.log("matched: ", { emittedValue });
@@ -1288,7 +1296,10 @@ describe("Set the Conditions of the Circuit", () => {
 
     beforeEach(async () => {
       const LitActionCode = newCircuit.setActions(customActions);
-      newCircuit.executionConstraints({ maxLitActionCompletions: 1 });
+      newCircuit.executionConstraints({
+        maxLitActionCompletions: 1,
+        conditionMonitorExecutions: 2,
+      });
       newCircuit.setConditionalLogic({ type: "EVERY", interval: 60000 });
 
       const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
@@ -1305,6 +1316,7 @@ describe("Set the Conditions of the Circuit", () => {
           "Transfer",
           ["from", "to", "value"],
           [owner.address, toAddress.address, BigNumber.from("5000")],
+          "===",
           async (emittedValue) => {
             console.log("matched: ", { emittedValue });
           },

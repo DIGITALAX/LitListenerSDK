@@ -151,12 +151,17 @@ export class ConditionMonitor extends EventEmitter {
     emittedValue: any,
   ) => {
     let match = false;
+
     if (
       typeof condition.expectedValue === "number" ||
       typeof condition.expectedValue === "string" ||
       typeof condition.expectedValue === "bigint"
     ) {
-      match = emittedValue === condition.expectedValue;
+      match = this.compareValues(
+        condition.expectedValue,
+        emittedValue,
+        condition.matchOperator,
+      );
     } else if (
       Array.isArray(condition.expectedValue) &&
       Array.isArray(emittedValue)
@@ -166,14 +171,27 @@ export class ConditionMonitor extends EventEmitter {
       } else {
         match = condition.expectedValue.every((expected, index) => {
           const emitted = emittedValue[index];
-          return this.isEqualWithMixedTypes(expected, emitted);
+          return this.compareValues(expected, emitted, condition.matchOperator);
         });
       }
     } else if (
       typeof condition.expectedValue === "object" &&
       typeof emittedValue === "object"
     ) {
-      match = lodash.isEqual(emittedValue, condition.expectedValue);
+      const expectedKeys = Object.keys(condition.expectedValue);
+      const emittedKeys = Object.keys(emittedValue);
+
+      if (expectedKeys.length !== emittedKeys.length) {
+        match = false;
+      } else {
+        match = expectedKeys.every((key) => {
+          return this.compareValues(
+            condition.expectedValue[key],
+            emittedValue[key],
+            condition.matchOperator,
+          );
+        });
+      }
     }
 
     try {
@@ -193,6 +211,15 @@ export class ConditionMonitor extends EventEmitter {
     }
   };
 
+  /**
+   * Compares two values of potentially mixed types for equality. If the types are not equal, the function will return false.
+   * If both values are objects, it uses lodash's isEqual function for a deep comparison.
+   * If the values are of any other type, it uses the strict equality (===) operator.
+   *
+   * @param {string | number | bigint | object} expected - The expected value.
+   * @param {string | number | bigint | object} emitted - The emitted value.
+   * @return {boolean} - True if the values are equal, otherwise false.
+   */
   private isEqualWithMixedTypes = (
     expected: (string | number | bigint | object)[],
     emitted: (string | number | bigint | object)[],
@@ -206,5 +233,41 @@ export class ConditionMonitor extends EventEmitter {
     }
 
     return expected === emitted;
+  };
+
+  /**
+   * Compares the emittedValue with the expectedValue based on the operator provided.
+   * The operator could be one of the following: "<", ">", "==", "===", "!==", "!=", ">=", "<=".
+   * An error is thrown for any unsupported operator.
+   *
+   * @param {any} expectedValue - The expected value.
+   * @param {any} emittedValue - The value that is being compared against the expected value.
+   * @param {string} operator - The operator used for the comparison. It must be one of the following: "<", ">", "==", "===", "!==", "!=", ">=", "<=".
+   * @return {boolean} - True if the condition holds based on the operator, otherwise false.
+   * @throws {Error} - If the operator is unsupported.
+   */
+  private compareValues = (
+    expectedValue: any,
+    emittedValue: any,
+    operator: string,
+  ) => {
+    switch (operator) {
+      case "<":
+        return emittedValue < expectedValue;
+      case ">":
+        return emittedValue > expectedValue;
+      case "==":
+        return emittedValue == expectedValue;
+      case "===":
+        return emittedValue === expectedValue;
+      case "!==":
+        return emittedValue !== expectedValue;
+      case "!=":
+        return emittedValue != expectedValue;
+      case ">=":
+        return emittedValue >= expectedValue;
+      case "<=":
+        return emittedValue <= expectedValue;
+    }
   };
 }

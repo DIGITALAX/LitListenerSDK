@@ -47,6 +47,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -61,6 +62,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "properties.periods[0].number",
           1,
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -86,6 +88,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -100,6 +103,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "properties.periods[0].number",
           10,
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -132,6 +136,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -146,6 +151,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "properties.periods[0].number",
           1,
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -176,6 +182,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -190,6 +197,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "properties.periods[0].number",
           1,
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -220,6 +228,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -234,6 +243,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "properties.periods[0].number",
           100,
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -274,6 +284,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -288,6 +299,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "properties.periods[0].number",
           1,
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -318,6 +330,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -332,6 +345,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "properties.periods[0].number",
           100,
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -383,6 +397,7 @@ describe("Verify the Conditional Logic", () => {
           "/gridpoints/LWX/97,71/forecast",
           "properties.periods[0].number",
           1,
+          "===",
           undefined,
           async () => {
             console.log(new Date());

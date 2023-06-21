@@ -45,6 +45,7 @@ describe("Set the Actions of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -135,6 +136,7 @@ describe("Set the Actions of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -269,6 +271,7 @@ describe("Set the Actions of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -362,6 +365,7 @@ describe("Set the Actions of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -511,6 +515,7 @@ describe("Set the Actions of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");
@@ -644,6 +649,7 @@ describe("Set the Actions of the Circuit", () => {
           "/gridpoints/LWX/97,71/forecast",
           "geometry.type",
           "Polygon",
+          "===",
           undefined,
           async () => {
             console.log("matched");

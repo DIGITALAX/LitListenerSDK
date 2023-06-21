@@ -34,6 +34,7 @@ describe("Verify the Execution Constraints", () => {
         "/gridpoints/LWX/97,71/forecast",
         "geometry.type",
         "Polygon",
+        "===",
         undefined,
         async () => {
           console.log("matched");
