@@ -9,7 +9,7 @@ import {
 } from "./../src";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-xdescribe("Verify the Conditional Logic", () => {
+describe("Verify the Conditional Logic", () => {
   let newCircuit: Circuit, pkpPublicKey: string;
   const customActions: CustomAction[] = [
     {

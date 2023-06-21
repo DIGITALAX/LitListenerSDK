@@ -127,7 +127,7 @@ export class ConditionMonitor extends EventEmitter {
       };
 
       const subscribeToEvent = () => {
-        contract.on("Transfer", processEvent);
+        contract.on(eventName, processEvent);
       };
 
       return subscribeToEvent();

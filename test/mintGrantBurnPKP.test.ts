@@ -21,7 +21,7 @@ const chronicleProvider = new ethers.providers.JsonRpcProvider(
   175177,
 );
 
-xdescribe("Mint Grant Burn PKP", () => {
+describe("Mint Grant Burn PKP", () => {
   let LitActionCode: string,
     ipfsCID: string,
     randomNonce: string,
@@ -31,7 +31,7 @@ xdescribe("Mint Grant Burn PKP", () => {
 
   before(() => {
     newCircuit = new Circuit(
-      process.env.MUMBAI_PROVIDER_URL,
+      "http://127.0.0.1:8545",
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
     newCircuit.setConditions([
@@ -109,7 +109,7 @@ xdescribe("Mint Grant Burn PKP", () => {
 
   it("PKP Should not Allow Execution of Other Code", async () => {
     const rejectCircuit = new Circuit(
-      process.env.MUMBAI_PROVIDER_URL,
+      "http://127.0.0.1:8545",
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
     rejectCircuit.setConditions([
