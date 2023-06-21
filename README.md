@@ -5,7 +5,6 @@ Check out our [gitbook documentation](https://docs.irrevocable.dev) for in depth
 To install the SDK run:
 
 ```
-npm i ethers
 npm i lit-listener-sdk
 ```
 
