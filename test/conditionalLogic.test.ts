@@ -10,7 +10,7 @@ import {
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
 describe("Verify the Conditional Logic", () => {
-  let newCircuit: Circuit, pkpPublicKey: string;
+  let newCircuit: Circuit, publicKey: string;
   const customActions: CustomAction[] = [
     {
       type: "custom",
@@ -36,7 +36,7 @@ describe("Verify the Conditional Logic", () => {
     const LitActionCode = newCircuit.setActions(customActions);
     const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
     const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
-    pkpPublicKey = pkpTokenData.publicKey;
+    publicKey = pkpTokenData.publicKey;
   });
 
   describe("EVERY Type", () => {
@@ -76,7 +76,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 1,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
     });
@@ -117,7 +117,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 1,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       const responseLog = newCircuit.getLogs(LogCategory.CONDITION);
       expect(responseLog[responseLog.length - 1].category).to.equal(2);
@@ -168,7 +168,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 1,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
     });
@@ -215,7 +215,7 @@ describe("Verify the Conditional Logic", () => {
         type: "THRESHOLD",
         value: 2,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
       expect(newCircuit["litActionCompletionCount"]).to.equal(1);
@@ -261,7 +261,7 @@ describe("Verify the Conditional Logic", () => {
         type: "THRESHOLD",
         value: 2,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
       expect(newCircuit["litActionCompletionCount"]).to.equal(0);
@@ -317,7 +317,7 @@ describe("Verify the Conditional Logic", () => {
         type: "TARGET",
         targetCondition: "2",
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
       expect(newCircuit["litActionCompletionCount"]).to.equal(1);
@@ -363,7 +363,7 @@ describe("Verify the Conditional Logic", () => {
         type: "TARGET",
         targetCondition: "2",
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
       expect(newCircuit["litActionCompletionCount"]).to.equal(0);
@@ -415,7 +415,7 @@ describe("Verify the Conditional Logic", () => {
         type: "EVERY",
         interval: 60000,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       console.log = originalConsoleLog;
 

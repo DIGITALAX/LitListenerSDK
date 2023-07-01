@@ -23,7 +23,7 @@ describe("Set the Actions of the Circuit", () => {
     deployedListenerToken: Contract,
     from: SignerWithAddress,
     to: SignerWithAddress,
-    pkpPublicKey: string,
+    publicKey: string,
     ipfsCID: string;
 
   const chronicleProvider = new ethers.providers.JsonRpcProvider(
@@ -101,11 +101,11 @@ describe("Set the Actions of the Circuit", () => {
         chronicleProvider,
       );
       const pkpTokenId = pkpTokenData.tokenId;
-      pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
+      publicKey = await pkpContract.getPubkey(pkpTokenId);
 
       const authSig = await newCircuit.generateAuthSignature(80001);
       await newCircuit.start({
-        pkpPublicKey: pkpTokenData.publicKey,
+        publicKey: pkpTokenData.publicKey,
         authSig,
       });
 
@@ -298,10 +298,10 @@ describe("Set the Actions of the Circuit", () => {
         chronicleProvider,
       );
       const pkpTokenId = pkpTokenData.tokenId;
-      pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
+      publicKey = await pkpContract.getPubkey(pkpTokenId);
       const authSig = await noSignCircuit.generateAuthSignature(80001);
       await noSignCircuit.start({
-        pkpPublicKey: pkpTokenData.publicKey,
+        publicKey: pkpTokenData.publicKey,
         authSig,
       });
 
@@ -328,10 +328,10 @@ describe("Set the Actions of the Circuit", () => {
         chronicleProvider,
       );
       const pkpTokenId = pkpTokenData.tokenId;
-      pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
+      publicKey = await pkpContract.getPubkey(pkpTokenId);
       const authSig = await newCircuit.generateAuthSignature(80001);
       await newCircuit.start({
-        pkpPublicKey: pkpTokenData.publicKey,
+        publicKey: pkpTokenData.publicKey,
         authSig,
       });
 
@@ -451,11 +451,11 @@ describe("Set the Actions of the Circuit", () => {
         chronicleProvider,
       );
       const pkpTokenId = pkpTokenData.tokenId;
-      pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
+      publicKey = await pkpContract.getPubkey(pkpTokenId);
 
       const authSig = await newCircuit.generateAuthSignature(80001);
       await newCircuit.start({
-        pkpPublicKey,
+        publicKey,
         authSig,
       });
 
@@ -687,11 +687,11 @@ describe("Set the Actions of the Circuit", () => {
         chronicleProvider,
       );
       const pkpTokenId = pkpTokenData.tokenId;
-      pkpPublicKey = await pkpContract.getPubkey(pkpTokenId);
+      publicKey = await pkpContract.getPubkey(pkpTokenId);
 
       const authSig = await newCircuit.generateAuthSignature(80001);
       await newCircuit.start({
-        pkpPublicKey,
+        publicKey,
         authSig,
       });
 

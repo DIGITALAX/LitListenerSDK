@@ -57,7 +57,7 @@ describe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ pkpPublicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x04" });
       } catch (err) {
         error = err;
       }
@@ -93,7 +93,7 @@ describe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ pkpPublicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x04" });
       } catch (err) {
         error = err;
       }
@@ -138,7 +138,7 @@ describe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ pkpPublicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x04" });
       } catch (err) {
         error = err;
       }
@@ -170,7 +170,7 @@ describe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ pkpPublicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x04" });
       } catch (err) {
         error = err;
       }
@@ -270,7 +270,7 @@ describe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ pkpPublicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x04" });
       } catch (err) {
         error = err;
       }
@@ -301,7 +301,7 @@ describe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ pkpPublicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x04" });
       } catch (err) {
         error = err;
       }
@@ -339,7 +339,7 @@ describe("Throws all Errors of the Circuit", () => {
       let error;
       newCircuit.setActions(customActions);
       try {
-        await newCircuit.start({ pkpPublicKey: "mypkp" });
+        await newCircuit.start({ publicKey: "mypkp" });
       } catch (err) {
         error = err;
       }
@@ -366,7 +366,7 @@ describe("Throws all Errors of the Circuit", () => {
       let error;
       try {
         await newCircuit.start({
-          pkpPublicKey: pkpTokenData.publicKey,
+          publicKey: pkpTokenData.publicKey,
           authSig,
         });
       } catch (err) {
@@ -401,7 +401,7 @@ describe("Throws all Errors of the Circuit", () => {
       let error;
       try {
         await newCircuit.start({
-          pkpPublicKey: "0x04",
+          publicKey: "0x04",
           authSig,
         });
       } catch (err) {

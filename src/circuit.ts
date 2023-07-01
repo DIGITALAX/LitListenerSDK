@@ -131,7 +131,7 @@ export class Circuit extends EventEmitter {
    * The public key of the PKP contract.
    * @private
    */
-  private pkpPublicKey: string;
+  private publicKey: string;
   /**
    * The authentication signature for executing Lit Actions.
    * @private
@@ -571,28 +571,28 @@ export class Circuit extends EventEmitter {
 
   /**
    * Starts the circuit with the specified parameters.
-   * @param pkpPublicKey The public key of the PKP contract.
+   * @param publicKey The public key of the PKP contract.
    * @param ipfsCID The IPFS CID of the Lit Action code.
    * @param authSig Optional. The authentication signature for executing Lit Actions.
    * @throws {Error} If an error occurs while running the circuit.
    */
   start = async ({
-    pkpPublicKey,
+    publicKey,
     ipfsCID,
     authSig,
   }: {
-    pkpPublicKey: string;
+    publicKey: string;
     ipfsCID?: string;
     authSig?: LitAuthSig;
   }): Promise<void> => {
     try {
       if (this.conditions.length > 0 && this.actions.length > 0) {
-        if (!pkpPublicKey || !pkpPublicKey.toLowerCase().startsWith("0x04")) {
-          this.log(LogCategory.ERROR, `Invalid PKP Public Key.`, pkpPublicKey);
+        if (!publicKey || !publicKey.toLowerCase().startsWith("0x04")) {
+          this.log(LogCategory.ERROR, `Invalid PKP Public Key.`, publicKey);
           throw new Error(`Invalid PKP Public Key.`);
         }
 
-        this.pkpPublicKey = pkpPublicKey;
+        this.publicKey = publicKey;
         if (ipfsCID) {
           this.ipfsCID = ipfsCID;
         }
@@ -821,8 +821,8 @@ export class Circuit extends EventEmitter {
           ? this.authSig
           : await this.generateAuthSignature(),
         jsParams: {
-          pkpAddress: ethers.utils.computeAddress(this.pkpPublicKey),
-          publicKey: this.pkpPublicKey,
+          pkpAddress: ethers.utils.computeAddress(this.publicKey),
+          publicKey: this.publicKey,
           ...this.jsParameters,
         },
       });

@@ -4,7 +4,7 @@ import { ethers } from "hardhat";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
 describe("Verify the Execution Constraints", () => {
-  let newCircuit: Circuit, pkpPublicKey: string;
+  let newCircuit: Circuit, publicKey: string;
   const customActions: CustomAction[] = [
     {
       type: "custom",
@@ -47,7 +47,7 @@ describe("Verify the Execution Constraints", () => {
     ]);
     const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
     const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
-    pkpPublicKey = pkpTokenData.publicKey;
+    publicKey = pkpTokenData.publicKey;
   });
 
   describe("Successful Execution Constraints", () => {
@@ -55,7 +55,7 @@ describe("Verify the Execution Constraints", () => {
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 3,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
       expect(newCircuit["conditionExecutedCount"]).to.equal(3);
     });
 
@@ -73,7 +73,7 @@ describe("Verify the Execution Constraints", () => {
       ]);
       const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
-      const pkpPublicKey = pkpTokenData.publicKey;
+      const publicKey = pkpTokenData.publicKey;
 
       const futureDate = new Date();
       futureDate.setSeconds(futureDate.getSeconds() + 20);
@@ -82,7 +82,7 @@ describe("Verify the Execution Constraints", () => {
         startDate: futureDate,
       });
 
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -104,7 +104,7 @@ describe("Verify the Execution Constraints", () => {
       ]);
       const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
-      const pkpPublicKey = pkpTokenData.publicKey;
+      const publicKey = pkpTokenData.publicKey;
 
       const endDate = new Date();
       endDate.setSeconds(endDate.getSeconds() - 20);
@@ -113,7 +113,7 @@ describe("Verify the Execution Constraints", () => {
         endDate: endDate,
       });
 
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -125,7 +125,7 @@ describe("Verify the Execution Constraints", () => {
       newCircuit.executionConstraints({
         maxLitActionCompletions: 3,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
       expect(newCircuit["litActionCompletionCount"]).to.equal(3);
     });
 
@@ -134,7 +134,7 @@ describe("Verify the Execution Constraints", () => {
         conditionMonitorExecutions: 4,
         maxLitActionCompletions: 1,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
       expect(newCircuit["litActionCompletionCount"]).to.equal(1);
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
     });
@@ -144,13 +144,13 @@ describe("Verify the Execution Constraints", () => {
         conditionMonitorExecutions: 1,
         maxLitActionCompletions: 2,
       });
-      await newCircuit.start({ pkpPublicKey });
+      await newCircuit.start({ publicKey });
       expect(newCircuit["litActionCompletionCount"]).to.equal(1);
       expect(newCircuit["conditionExecutedCount"]).to.equal(1);
     });
 
     it("Continuously Execute for No Constraints Provided", async () => {
-      const startPromise = newCircuit.start({ pkpPublicKey });
+      const startPromise = newCircuit.start({ publicKey });
 
       setTimeout(() => {
         newCircuit.interrupt();
