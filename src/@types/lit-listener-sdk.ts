@@ -90,7 +90,7 @@ export interface LitActionsSDK {
     sigName,
   }: {
     toSign: Uint8Array;
-    publicKey: string;
+    publicKey: `0x04${string}`;
     sigName: string;
   }) => Promise<void>;
 
@@ -564,3 +564,10 @@ export interface ILogEntry {
   message: string;
   responseObject: string;
 }
+
+export type LitAuthSig = {
+  sig: string;
+  derivedVia: string;
+  signedMessage: string;
+  address: string;
+};

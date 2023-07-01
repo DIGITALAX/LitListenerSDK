@@ -2,11 +2,7 @@ import * as LitJsSdk from "@lit-protocol/lit-node-client";
 import { EventEmitter } from "events";
 import { ethers } from "ethers";
 import Hash from "ipfs-only-hash";
-import {
-  LitAuthSig,
-  generateAuthSig,
-  getBytesFromMultihash,
-} from "./utils/litProtocol";
+import { generateAuthSig, getBytesFromMultihash } from "./utils/litProtocol";
 import { PKP_CONTRACT_ADDRESS } from "./constants";
 import pkpNftAbi from "./abis/PKPNFT.json";
 import { PKPNFT } from "../typechain-types/contracts/PKPNFT";
@@ -17,6 +13,7 @@ import {
   IConditionalLogic,
   IExecutionConstraints,
   ILogEntry,
+  LitAuthSig,
   LitChainIds,
   LitUnsignedTransaction,
   LogCategory,
@@ -131,7 +128,7 @@ export class Circuit extends EventEmitter {
    * The public key of the PKP contract.
    * @private
    */
-  private publicKey: string;
+  private publicKey: `0x04${string}`;
   /**
    * The authentication signature for executing Lit Actions.
    * @private
@@ -552,12 +549,43 @@ export class Circuit extends EventEmitter {
     cidIPFS: string,
   ): Promise<{
     tokenId: string;
-    publicKey: string;
+    publicKey: `0x04${string}`;
     address: string;
   }> => {
     try {
       const mintGrantBurnLogs = await this.mintNextPKP(cidIPFS);
       const pkpTokenId = BigInt(mintGrantBurnLogs[0].topics[3]).toString();
+      const publicKey = await this.getPubKeyByPKPTokenId(pkpTokenId);
+      return {
+        tokenId: pkpTokenId,
+        publicKey: publicKey,
+        address: ethers.utils.computeAddress(publicKey),
+      };
+    } catch (err) {
+      throw new Error(`Error in mintGrantBurn: ${err.message}`);
+    }
+  };
+
+  /**
+   * Mints, grants, and burns a PKP token for the specified IPFS CID of the Lit Action Code. Specific for when using the SDK within a server.
+   * @param signedTransactionData The signed transaction data to be sent to the server for minting, granting and burning the PKP remotely.
+   * @returns An object containing the token ID, public key, and address.
+   * @throws {Error} If an error occurs while minting the PKP.
+   */
+  mintGrantBurnPKPDatabase = async (
+    signedTransactionData: string,
+  ): Promise<{
+    tokenId: string;
+    publicKey: `0x04${string}`;
+    address: string;
+  }> => {
+    try {
+      const tx = await this.signer.provider.sendTransaction(
+        signedTransactionData,
+      );
+      const receipt = await tx.wait();
+      const logs = receipt.logs;
+      const pkpTokenId = BigInt(logs[0].topics[3]).toString();
       const publicKey = await this.getPubKeyByPKPTokenId(pkpTokenId);
       return {
         tokenId: pkpTokenId,
@@ -581,7 +609,7 @@ export class Circuit extends EventEmitter {
     ipfsCID,
     authSig,
   }: {
-    publicKey: string;
+    publicKey: `0x04${string}`;
     ipfsCID?: string;
     authSig?: LitAuthSig;
   }): Promise<void> => {
@@ -798,9 +826,11 @@ export class Circuit extends EventEmitter {
    * @returns The public key associated with the PKP token ID.
    * @throws {Error} If an error occurs while retrieving the public key.
    */
-  private async getPubKeyByPKPTokenId(tokenId: string): Promise<string> {
+  private async getPubKeyByPKPTokenId(
+    tokenId: string,
+  ): Promise<`0x04${string}`> {
     try {
-      return await this.pkpContract.getPubkey(tokenId);
+      return (await this.pkpContract.getPubkey(tokenId)) as `0x04${string}`;
     } catch (err) {
       throw new Error(`Error getting pkp public key: ${err.message}`);
     }
