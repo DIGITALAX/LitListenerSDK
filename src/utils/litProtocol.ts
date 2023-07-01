@@ -1,13 +1,7 @@
 import { ethers } from "ethers";
 import bs58 from "bs58";
 import { SiweMessage } from "siwe";
-
-export type LitAuthSig = {
-  sig: string;
-  derivedVia: string;
-  signedMessage: string;
-  address: string;
-};
+import { LitAuthSig } from "src/@types/lit-listener-sdk";
 
 export const generateAuthSig = async (
   signer: ethers.Signer,
