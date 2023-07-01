@@ -327,7 +327,7 @@ describe("Set the Conditions of the Circuit", () => {
         ),
       ]);
       await newCircuit.start({
-        pkpPublicKey: pkpTokenData.publicKey,
+        publicKey: pkpTokenData.publicKey,
         authSig,
       });
 
@@ -361,7 +361,7 @@ describe("Set the Conditions of the Circuit", () => {
       ]);
 
       await newCircuit.start({
-        pkpPublicKey: pkpTokenData.publicKey,
+        publicKey: pkpTokenData.publicKey,
         authSig,
       });
 
@@ -422,7 +422,7 @@ describe("Set the Conditions of the Circuit", () => {
       ]);
 
       await newCircuit.start({
-        pkpPublicKey: pkpTokenData.publicKey,
+        publicKey: pkpTokenData.publicKey,
         authSig,
       });
 
@@ -877,7 +877,7 @@ describe("Set the Conditions of the Circuit", () => {
       ]);
 
       await newCircuit.start({
-        pkpPublicKey: pkpTokenData.publicKey,
+        publicKey: pkpTokenData.publicKey,
         authSig,
       });
 
@@ -1327,7 +1327,7 @@ describe("Set the Conditions of the Circuit", () => {
         ),
       ]);
       const startPromise = newCircuit.start({
-        pkpPublicKey: pkpTokenData.publicKey,
+        publicKey: pkpTokenData.publicKey,
         authSig,
       });
 

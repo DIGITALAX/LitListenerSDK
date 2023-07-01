@@ -165,7 +165,7 @@ describe("Mint Grant Burn PKP", () => {
     ]);
     await expect(
       rejectCircuit.start({
-        pkpPublicKey: pkpNftPublicKey,
+        publicKey: pkpNftPublicKey,
         authSig: authSig,
       }),
     ).to.be.rejectedWith(
@@ -176,7 +176,7 @@ describe("Mint Grant Burn PKP", () => {
   it("PKP should successfully execute the Lit Action that was Granted upon Mint and Burn", async () => {
     const authSig = await newCircuit.generateAuthSignature();
     await newCircuit.start({
-      pkpPublicKey: pkpNftPublicKey,
+      publicKey: pkpNftPublicKey,
       authSig,
     });
     const responseLog = newCircuit.getLogs(LogCategory.RESPONSE);
