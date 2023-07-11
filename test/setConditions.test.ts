@@ -6,6 +6,7 @@ import {
   Condition,
   ContractCondition,
   CustomAction,
+  LitAuthSig,
   LogCategory,
   WebhookCondition,
 } from "./../src/@types/lit-listener-sdk";
@@ -13,7 +14,6 @@ import { BigNumber, Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import ListenerERC20ABI from "./../src/abis/ListenerERC20.json";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
-import { LitAuthSig } from "./../src/utils/litProtocol";
 
 const chronicleProvider = new ethers.providers.JsonRpcProvider(
   CHRONICLE_PROVIDER,
