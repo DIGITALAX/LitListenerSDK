@@ -128,7 +128,7 @@ export class Circuit extends EventEmitter {
    * The public key of the PKP contract.
    * @private
    */
-  private publicKey: `0x04${string}`;
+  private publicKey: `0x04${string}` | string;
   /**
    * The authentication signature for executing Lit Actions.
    * @private
@@ -549,7 +549,7 @@ export class Circuit extends EventEmitter {
     cidIPFS: string,
   ): Promise<{
     tokenId: string;
-    publicKey: `0x04${string}`;
+    publicKey: `0x04${string}` | string;
     address: string;
   }> => {
     try {
@@ -576,7 +576,7 @@ export class Circuit extends EventEmitter {
     signedTransactionData: string,
   ): Promise<{
     tokenId: string;
-    publicKey: `0x04${string}`;
+    publicKey: `0x04${string}` | string;
     address: string;
   }> => {
     try {
@@ -609,7 +609,7 @@ export class Circuit extends EventEmitter {
     ipfsCID,
     authSig,
   }: {
-    publicKey: `0x04${string}`;
+    publicKey: `0x04${string}` | string;
     ipfsCID?: string;
     authSig?: LitAuthSig;
   }): Promise<void> => {
@@ -828,9 +828,9 @@ export class Circuit extends EventEmitter {
    */
   private async getPubKeyByPKPTokenId(
     tokenId: string,
-  ): Promise<`0x04${string}`> {
+  ): Promise<`0x04${string}` | string> {
     try {
-      return (await this.pkpContract.getPubkey(tokenId)) as `0x04${string}`;
+      return await this.pkpContract.getPubkey(tokenId);
     } catch (err) {
       throw new Error(`Error getting pkp public key: ${err.message}`);
     }
