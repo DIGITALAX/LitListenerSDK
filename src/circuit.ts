@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import { ethers } from "ethers";
 import Hash from "ipfs-only-hash";
 import { generateAuthSig, getBytesFromMultihash } from "./utils/litProtocol";
-import { PKP_CONTRACT_ADDRESS } from "./constants";
+import { CHRONICLE_PROVIDER, PKP_CONTRACT_ADDRESS } from "./constants";
 import pkpNftAbi from "./abis/PKPNFT.json";
 import { PKPNFT } from "../typechain-types/contracts/PKPNFT";
 import {
@@ -580,9 +580,9 @@ export class Circuit extends EventEmitter {
     address: string;
   }> => {
     try {
-      const tx = await this.signer.provider.sendTransaction(
-        signedTransactionData,
-      );
+      const provider = new ethers.providers.JsonRpcProvider(CHRONICLE_PROVIDER);
+
+      const tx = await provider.sendTransaction(signedTransactionData);
       const receipt = await tx.wait();
       const logs = receipt.logs;
       const pkpTokenId = BigInt(logs[0].topics[3]).toString();
