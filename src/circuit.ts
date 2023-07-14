@@ -567,37 +567,6 @@ export class Circuit extends EventEmitter {
   };
 
   /**
-   * Mints, grants, and burns a PKP token for the specified IPFS CID of the Lit Action Code. Specific for when using the SDK within a server.
-   * @param signedTransactionData The signed transaction data to be sent to the server for minting, granting and burning the PKP remotely.
-   * @returns An object containing the token ID, public key, and address.
-   * @throws {Error} If an error occurs while minting the PKP.
-   */
-  mintGrantBurnPKPDatabase = async (
-    signedTransactionData: string,
-  ): Promise<{
-    tokenId: string;
-    publicKey: `0x04${string}` | string;
-    address: string;
-  }> => {
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(CHRONICLE_PROVIDER);
-
-      const tx = await provider.sendTransaction(signedTransactionData);
-      const receipt = await tx.wait();
-      const logs = receipt.logs;
-      const pkpTokenId = BigInt(logs[0].topics[3]).toString();
-      const publicKey = await this.getPubKeyByPKPTokenId(pkpTokenId);
-      return {
-        tokenId: pkpTokenId,
-        publicKey: publicKey,
-        address: ethers.utils.computeAddress(publicKey),
-      };
-    } catch (err) {
-      throw new Error(`Error in mintGrantBurn: ${err.message}`);
-    }
-  };
-
-  /**
    * Starts the circuit with the specified parameters.
    * @param publicKey The public key of the PKP contract.
    * @param ipfsCID The IPFS CID of the Lit Action code.
