@@ -1,4 +1,5 @@
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
+import { PKPEthersWallet } from "@lit-protocol/pkp-ethers";
 import { EventEmitter } from "events";
 import { ethers } from "ethers";
 import Hash from "ipfs-only-hash";
@@ -9,7 +10,7 @@ import { PKPNFT } from "../typechain-types/contracts/PKPNFT";
 import {
   Action,
   Condition,
-  ContractCondition,
+  ContractAction,
   IConditionalLogic,
   IExecutionConstraints,
   ILogEntry,
@@ -24,11 +25,6 @@ import { ConditionMonitor } from "./conditions";
 import { Fragment } from "ethers/lib/utils";
 
 export class Circuit extends EventEmitter {
-  /**
-   * The URL of the Ethereum provider.
-   * @private
-   */
-  private providerURL?: string;
   /**
    * The array of conditions.
    * @private
@@ -162,12 +158,10 @@ export class Circuit extends EventEmitter {
 
   /**
    * Creates an instance of Circuit.
-   * @param providerURL The URL of the Ethereum provider.
    * @param signer The Ethereum signer for transactions.
    * @param pkpContractAddress The address of the PKPNFT contract.
    */
   constructor(
-    providerURL?: string,
     signer?: ethers.Signer,
     pkpContractAddress = PKP_CONTRACT_ADDRESS,
   ) {
@@ -229,7 +223,6 @@ export class Circuit extends EventEmitter {
       );
     });
     this.actionFunctions = new Set<string>();
-    this.providerURL = providerURL;
     this.pkpContract = new ethers.Contract(
       pkpContractAddress,
       pkpNftAbi,
@@ -247,9 +240,6 @@ export class Circuit extends EventEmitter {
   setConditions = (conditions: Condition[]): void => {
     conditions.forEach((condition) => {
       condition.id = (this.conditions.length + 1).toString();
-      if (condition instanceof ContractCondition && !condition.providerURL) {
-        condition.providerURL = this.providerURL;
-      }
       this.conditions.push(condition);
     });
   };
@@ -577,10 +567,12 @@ export class Circuit extends EventEmitter {
     publicKey,
     ipfsCID,
     authSig,
+    broadcast = false,
   }: {
     publicKey: `0x04${string}` | string;
     ipfsCID?: string;
     authSig?: LitAuthSig;
+    broadcast?: boolean;
   }): Promise<void> => {
     try {
       if (this.conditions.length > 0 && this.actions.length > 0) {
@@ -641,7 +633,7 @@ export class Circuit extends EventEmitter {
             conditionResBefore === RunStatus.ACTION_RUN &&
             executionResBefore === RunStatus.ACTION_RUN
           ) {
-            await this.runLitAction();
+            await this.runLitAction(broadcast);
             const executionResAfter = this.checkExecutionLimitations();
             if (executionResAfter === RunStatus.EXIT_RUN) {
               this.log(
@@ -810,7 +802,7 @@ export class Circuit extends EventEmitter {
    * @returns The response of the Lit Action.
    * @throws {Error} If an error occurs while running the LitAction.
    */
-  private runLitAction = async (): Promise<void> => {
+  private runLitAction = async (broadcast: boolean): Promise<void> => {
     try {
       await this.connectLit();
       const response = await this.litClient.executeJs({
@@ -825,7 +817,55 @@ export class Circuit extends EventEmitter {
           ...this.jsParameters,
         },
       });
-      // broadcast response on-chain
+
+      // broadcast actions
+      if (broadcast) {
+        if ("signatures" in response) {
+          for (const [key, signature] of Object.entries(response.signatures)) {
+            const match = key.match(/^contract(\d+)$/);
+            if (match) {
+              const priority = parseInt(match[1], 10);
+              const action = this.actions.find(
+                (action) => action.priority === priority,
+              );
+              if (action) {
+                const sig: {
+                  r: string;
+                  s: string;
+                  recid: number;
+                  signature: string;
+                  publicKey: string;
+                  dataSigned: string;
+                } = signature as {
+                  r: string;
+                  s: string;
+                  recid: number;
+                  signature: string;
+                  publicKey: string;
+                  dataSigned: string;
+                };
+                const tx = {
+                  data: sig.dataSigned,
+                  r: sig.r,
+                  s: sig.s,
+                  v: sig.recid + 27,
+                };
+
+                const pkpWallet = new PKPEthersWallet({
+                  controllerAuthSig: this.authSig,
+                  pkpPubKey: this.publicKey,
+                  rpc: (action as ContractAction).providerURL,
+                });
+                const serializedTx = ethers.utils.serializeTransaction(tx);
+                await pkpWallet.init();
+                const txHash = await pkpWallet.sendTransaction(serializedTx);
+
+                console.log(`Transaction hash: ${txHash}`);
+              }
+            }
+          }
+        }
+      }
 
       this.log(
         LogCategory.RESPONSE,

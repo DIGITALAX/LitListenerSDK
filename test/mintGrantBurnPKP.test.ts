@@ -31,7 +31,6 @@ xdescribe("Mint Grant Burn PKP", () => {
 
   before(() => {
     newCircuit = new Circuit(
-      "http://127.0.0.1:8545",
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
     newCircuit.setConditions([
@@ -110,7 +109,6 @@ xdescribe("Mint Grant Burn PKP", () => {
 
   it("PKP Should not Allow Execution of Other Code", async () => {
     const rejectCircuit = new Circuit(
-      "http://127.0.0.1:8545",
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
     rejectCircuit.setConditions([

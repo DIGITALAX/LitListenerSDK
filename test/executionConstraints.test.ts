@@ -24,7 +24,6 @@ xdescribe("Verify the Execution Constraints", () => {
 
   beforeEach(async () => {
     newCircuit = new Circuit(
-      undefined,
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
     const LitActionCode = newCircuit.setActions(customActions);

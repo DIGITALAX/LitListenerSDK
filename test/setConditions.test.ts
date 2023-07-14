@@ -42,7 +42,6 @@ xdescribe("Set the Conditions of the Circuit", () => {
   // Initialize the new Circuit instance and deploy the ListenerERC20 Contract
   beforeEach(async () => {
     newCircuit = new Circuit(
-      "http://127.0.0.1:8545",
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
   });
@@ -63,6 +62,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
         deployedListenerToken.address as `0x${string}`,
         ListenerERC20ABI,
         CHAIN_NAME.MUMBAI,
+        "https://alchemy.com",
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
@@ -181,6 +181,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
         deployedListenerToken.address as `0x${string}`,
         ListenerERC20ABI,
         CHAIN_NAME.MUMBAI,
+        "https://alchemy.com",
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
@@ -1313,6 +1314,7 @@ xdescribe("Set the Conditions of the Circuit", () => {
           deployedListenerToken.address as `0x${string}`,
           ListenerERC20ABI,
           CHAIN_NAME.HARDHAT,
+          "https://alchemy.com",
           "Transfer",
           ["from", "to", "value"],
           [owner.address, toAddress.address, BigNumber.from("5000")],

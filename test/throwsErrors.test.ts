@@ -118,7 +118,8 @@ xdescribe("Throws all Errors of the Circuit", () => {
     });
 
     it("Throw Error While Processing Contract Event", async () => {
-      const newCircuit = new Circuit("http://127.0.0.1:8545",       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+      const newCircuit = new Circuit(
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
       newCircuit.setActions(customActions);
 
@@ -126,6 +127,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
         "0x0",
         "",
         CHAIN_NAME.MUMBAI,
+        "https://alchemy.com",
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
@@ -158,6 +160,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
         deployedListenerToken.address as `0x${string}`,
         ListenerERC20ABI,
         CHAIN_NAME.MUMBAI,
+        "https://alchemy.com",
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
@@ -313,7 +316,6 @@ xdescribe("Throws all Errors of the Circuit", () => {
     let newCircuit: Circuit;
     before(() => {
       newCircuit = new Circuit(
-        undefined,
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
       newCircuit.setConditions([

@@ -35,7 +35,6 @@ describe("Set the Actions of the Circuit", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
-        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
@@ -126,7 +125,6 @@ describe("Set the Actions of the Circuit", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
-        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
@@ -244,7 +242,6 @@ describe("Set the Actions of the Circuit", () => {
 
     it("Won't Sign on Incorrect Condition Met", async () => {
       const noSignCircuit = new Circuit(
-        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
       const buffer = Buffer.from("polygon");
@@ -355,7 +352,6 @@ describe("Set the Actions of the Circuit", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
-        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
@@ -414,6 +410,7 @@ describe("Set the Actions of the Circuit", () => {
           functionName: "transferFrom",
           from: from.address as `0x${string}`,
           chainId: CHAIN_NAME.MUMBAI,
+          providerURL: "https://alchemy.com",
           args: [from.address, to.address, 5000],
         },
       ];
@@ -505,7 +502,6 @@ describe("Set the Actions of the Circuit", () => {
 
       // Create a test instance of the circuit
       newCircuit = new Circuit(
-        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
 
@@ -567,6 +563,7 @@ describe("Set the Actions of the Circuit", () => {
           functionName: "transferFrom",
           from: from.address as `0x${string}`,
           chainId: CHAIN_NAME.MUMBAI,
+          providerURL: "https://alchemy.com",
           args: [from.address, to.address, 5000],
         },
       ];
@@ -608,7 +605,6 @@ describe("Set the Actions of the Circuit", () => {
 
     it("Revert on Actions of the Same Priority Number", async () => {
       const noSignCircuit = new Circuit(
-        "http://127.0.0.1:8545",
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
       const buffer = Buffer.from("polygon");
@@ -701,8 +697,8 @@ describe("Set the Actions of the Circuit", () => {
         `Circuit executed successfully. Lit Action Response.`.trim(),
       );
       const parsed = JSON.parse(responseLog[0].responseObject);
-      console.log(LitActionCode)
-      console.log({parsed: parsed.signatures})
+      console.log(LitActionCode);
+      console.log({ parsed: parsed.signatures });
       expect({
         ...parsed.response,
         contract2: {
