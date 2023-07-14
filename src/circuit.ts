@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import { ethers } from "ethers";
 import Hash from "ipfs-only-hash";
 import { generateAuthSig, getBytesFromMultihash } from "./utils/litProtocol";
-import { CHRONICLE_PROVIDER, PKP_CONTRACT_ADDRESS } from "./constants";
+import { PKP_CONTRACT_ADDRESS } from "./constants";
 import pkpNftAbi from "./abis/PKPNFT.json";
 import { PKPNFT } from "../typechain-types/contracts/PKPNFT";
 import {
@@ -419,7 +419,7 @@ export class Circuit extends EventEmitter {
                         await Lit.Actions.signEcdsa({
                             toSign,
                             publicKey,
-                            sigName: "sig1",
+                            sigName: "fetch${action.priority}",
                           });
                           concatenatedResponse.fetch${action.priority} = {value,signed:true};
                     }  else {
@@ -439,7 +439,7 @@ export class Circuit extends EventEmitter {
                   await Lit.Actions.signEcdsa({
                       toSign: hashTransaction(generatedUnsignedData),
                       publicKey,
-                      sigName: "sig1",
+                      sigName: "contract${action.priority}",
                   });
                   concatenatedResponse.contract${action.priority} = generatedUnsignedData;
                } catch (err) {
@@ -825,6 +825,8 @@ export class Circuit extends EventEmitter {
           ...this.jsParameters,
         },
       });
+      // broadcast response on-chain
+
       this.log(
         LogCategory.RESPONSE,
         "Circuit executed successfully. Lit Action Response.",

@@ -213,7 +213,7 @@ describe("Set the Actions of the Circuit", () => {
         `await Lit.Actions.signEcdsa({
           toSign,
           publicKey,
-          sigName: "sig1",
+          sigName: "fetch0",
       });`.replace(/\s/g, ""),
       );
       expect(LitActionCode.replace(/\s/g, "")).to.include(
@@ -701,6 +701,8 @@ describe("Set the Actions of the Circuit", () => {
         `Circuit executed successfully. Lit Action Response.`.trim(),
       );
       const parsed = JSON.parse(responseLog[0].responseObject);
+      console.log(LitActionCode)
+      console.log({parsed: parsed.signatures})
       expect({
         ...parsed.response,
         contract2: {

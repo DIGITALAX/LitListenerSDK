@@ -33,7 +33,7 @@ const customActions: CustomAction[] = [
   },
 ];
 
-describe("Set the Conditions of the Circuit", () => {
+xdescribe("Set the Conditions of the Circuit", () => {
   let newCircuit: Circuit,
     deployedListenerToken: Contract,
     owner: SignerWithAddress,

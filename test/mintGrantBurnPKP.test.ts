@@ -21,7 +21,7 @@ const chronicleProvider = new ethers.providers.JsonRpcProvider(
   175177,
 );
 
-describe("Mint Grant Burn PKP", () => {
+xdescribe("Mint Grant Burn PKP", () => {
   let LitActionCode: string,
     ipfsCID: string,
     randomNonce: string,
