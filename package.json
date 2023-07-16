@@ -1,6 +1,6 @@
 {
   "name": "lit-listener-sdk",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "An open source typescript SDK, compatible with node and browser, with an easy interface to automate responses from webhooks, subscribed on-chain events and intervals through triggered callback functions and the use of Lit Protocol PKPs.",
   "main": "dist/src/index.js",
   "module": "dist/index.m.js",
