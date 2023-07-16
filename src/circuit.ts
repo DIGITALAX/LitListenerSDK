@@ -490,6 +490,7 @@ export class Circuit extends EventEmitter {
    * @param {string} data.functionName - The name of the function to call in the smart contract.
    * @param {Array} data.args - The arguments to pass to the function call.
    * @param {number} [data.value] - The value to send with the transaction, in wei.
+   * @param {string} providerURL - The provider URL for the network the transaction will be broadcast to.
    *
    * @returns {LitUnsignedTransaction} - An object with the data required to construct an unsigned transaction.
    * @throws {Error} - Throws an error if the provided chain ID is not a valid value.

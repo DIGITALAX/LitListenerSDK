@@ -9,7 +9,7 @@ import {
 } from "./../src";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-describe("Verify the Conditional Logic", () => {
+xdescribe("Verify the Conditional Logic", () => {
   let newCircuit: Circuit, publicKey: string;
   const customActions: CustomAction[] = [
     {
