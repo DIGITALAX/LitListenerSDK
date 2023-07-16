@@ -1117,9 +1117,7 @@ describe("Set the Conditions of the Circuit", () => {
           console.error(err);
         }
       }, 10000);
-
-      console.log([ownerAddress, toAddress, ethers.utils.parseEther("5000")]);
-
+      
       await startPromise;
 
       const responseLog = newCircuit.getLogs(LogCategory.CONDITION);
