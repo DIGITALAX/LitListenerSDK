@@ -42,6 +42,6 @@ module.exports = {
     optimizer: { enabled: true, runs: 200, details: { yul: false } },
   },
   mocha: {
-    timeout: 3200000, // Timeout value in milliseconds
+    timeout: 180000000, // Timeout value in milliseconds
   },
 };

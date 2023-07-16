@@ -3,7 +3,7 @@ import { Circuit, CustomAction, WebhookCondition } from "./../src";
 import { ethers } from "hardhat";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-xdescribe("Verify the Execution Constraints", () => {
+describe("Verify the Execution Constraints", () => {
   let newCircuit: Circuit, publicKey: string;
   const customActions: CustomAction[] = [
     {
@@ -26,7 +26,7 @@ xdescribe("Verify the Execution Constraints", () => {
     newCircuit = new Circuit(
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
-    const LitActionCode = newCircuit.setActions(customActions);
+    const LitActionCode = await newCircuit.setActions(customActions);
     newCircuit.setConditions([
       new WebhookCondition(
         "https://api.weather.gov",
@@ -60,7 +60,7 @@ xdescribe("Verify the Execution Constraints", () => {
 
     it("Execute Only After the Start Date", async () => {
       let actionSet = false;
-      const LitActionCode = newCircuit.setActions([
+      const LitActionCode = await newCircuit.setActions([
         {
           type: "custom",
           priority: 2,
@@ -91,7 +91,7 @@ xdescribe("Verify the Execution Constraints", () => {
 
     it("Execute Only Before the End Date", async () => {
       let actionSet = false;
-      const LitActionCode = newCircuit.setActions([
+      const LitActionCode = await newCircuit.setActions([
         {
           type: "custom",
           priority: 2,

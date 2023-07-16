@@ -107,7 +107,6 @@ export type UnsignedTransactionData = {
   nonce?: number;
 
   gasLimit?: BigNumberish;
-  gasPrice?: BigNumberish;
 
   value?: BigNumberish;
   chainId?: CHAIN_NAME;
@@ -131,7 +130,6 @@ export type UnsignedTransaction = {
   nonce?: number;
 
   gasLimit?: BigNumberish;
-  gasPrice?: BigNumberish;
 
   data?: BytesLike;
   value?: BigNumberish;
@@ -183,7 +181,6 @@ export interface CustomAction {
  * @property providerURL - The provider URL compatible with the network specified.
  * @property nonce - The transaction nonce.
  * @property gasLimit - The transaction gas limit.
- * @property gasPrice - The transaction gas price.
  * @property value - Any value to be passed with the transaction.
  * @property from - The address from which the transaction as called. This will usually be the PKP address.
  * @property maxPriorityFeePerGas - The max priority fee per gas for the transaction.
@@ -200,7 +197,6 @@ export interface ContractAction {
   providerURL: string;
   nonce?: number;
   gasLimit?: BigNumberish;
-  gasPrice?: BigNumberish;
   value?: BigNumberish;
   from?: `0x${string}`;
   maxPriorityFeePerGas?: BigNumberish;
@@ -553,6 +549,7 @@ export enum LogCategory {
   ERROR = 0,
   RESPONSE = 1,
   CONDITION = 2,
+  BROADCAST = 3,
 }
 
 export interface ILogEntry {

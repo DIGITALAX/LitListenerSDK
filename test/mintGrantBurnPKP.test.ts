@@ -21,7 +21,7 @@ const chronicleProvider = new ethers.providers.JsonRpcProvider(
   175177,
 );
 
-xdescribe("Mint Grant Burn PKP", () => {
+describe("Mint Grant Burn PKP", () => {
   let LitActionCode: string,
     ipfsCID: string,
     randomNonce: string,
@@ -29,7 +29,7 @@ xdescribe("Mint Grant Burn PKP", () => {
     pkpNftPublicKey: string,
     newCircuit: Circuit;
 
-  before(() => {
+  before(async () => {
     newCircuit = new Circuit(
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
@@ -50,7 +50,7 @@ xdescribe("Mint Grant Burn PKP", () => {
         (err) => console.error(err.message),
       ),
     ]);
-    LitActionCode = newCircuit.setActions([
+    LitActionCode = await newCircuit.setActions([
       {
         type: "custom",
         priority: 0,
@@ -128,7 +128,7 @@ xdescribe("Mint Grant Burn PKP", () => {
         (err) => console.error(err.message),
       ),
     ]);
-    LitActionCode = rejectCircuit.setActions([
+    LitActionCode = await rejectCircuit.setActions([
       {
         type: "custom",
         priority: 0,

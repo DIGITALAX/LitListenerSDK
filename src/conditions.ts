@@ -87,9 +87,11 @@ export class ConditionMonitor extends EventEmitter {
     try {
       const { contractAddress, abi, eventName, providerURL } = condition;
 
-      if (!providerURL) {
-        this.emit("conditionError", "Error: No Provider URL.", condition);
-        throw new Error(`Error: No Provider URL.`);
+      const checkProviderValid = await this.checkProvider(providerURL);
+
+      if (!providerURL || !checkProviderValid) {
+        this.emit("conditionError", "Error: Invalid Provider URL.", condition);
+        throw new Error(`Error: Invalid Provider URL.`);
       }
 
       const contract = new ethers.Contract(
@@ -245,29 +247,68 @@ export class ConditionMonitor extends EventEmitter {
    * @param {string} operator - The operator used for the comparison. It must be one of the following: "<", ">", "==", "===", "!==", "!=", ">=", "<=".
    * @return {boolean} - True if the condition holds based on the operator, otherwise false.
    * @throws {Error} - If the operator is unsupported.
-   */
-  private compareValues = (
+   */ private compareValues = (
     expectedValue: any,
     emittedValue: any,
     operator: string,
   ) => {
-    switch (operator) {
-      case "<":
-        return emittedValue < expectedValue;
-      case ">":
-        return emittedValue > expectedValue;
-      case "==":
-        return emittedValue == expectedValue;
-      case "===":
-        return emittedValue === expectedValue;
-      case "!==":
-        return emittedValue !== expectedValue;
-      case "!=":
-        return emittedValue != expectedValue;
-      case ">=":
-        return emittedValue >= expectedValue;
-      case "<=":
-        return emittedValue <= expectedValue;
+    if (
+      ethers.BigNumber.isBigNumber(expectedValue) &&
+      ethers.BigNumber.isBigNumber(emittedValue)
+    ) {
+      switch (operator) {
+        case "<":
+          return emittedValue.lt(expectedValue);
+        case ">":
+          return emittedValue.gt(expectedValue);
+        case "==":
+        case "===":
+          return emittedValue.eq(expectedValue);
+        case "!==":
+        case "!=":
+          return !emittedValue.eq(expectedValue);
+        case ">=":
+          return emittedValue.gte(expectedValue);
+        case "<=":
+          return emittedValue.lte(expectedValue);
+      }
+    } else {
+      switch (operator) {
+        case "<":
+          return emittedValue < expectedValue;
+        case ">":
+          return emittedValue > expectedValue;
+        case "==":
+          return emittedValue == expectedValue;
+        case "===":
+          return emittedValue === expectedValue;
+        case "!==":
+          return emittedValue !== expectedValue;
+        case "!=":
+          return emittedValue != expectedValue;
+        case ">=":
+          return emittedValue >= expectedValue;
+        case "<=":
+          return emittedValue <= expectedValue;
+      }
+    }
+  };
+
+  private checkProvider = async (providerURL: string): Promise<boolean> => {
+    const timeout = new Promise((_, reject) => {
+      const id = setTimeout(() => {
+        clearTimeout(id);
+        reject(new Error("Timeout"));
+      }, 10000);
+    });
+
+    const provider = new ethers.providers.JsonRpcProvider(providerURL);
+
+    try {
+      await Promise.race([provider.ready, timeout]);
+      return true;
+    } catch (error) {
+      return false;
     }
   };
 }

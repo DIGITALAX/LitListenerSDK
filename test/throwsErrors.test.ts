@@ -14,7 +14,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import ListenerERC20ABI from "./../src/abis/ListenerERC20.json";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-xdescribe("Throws all Errors of the Circuit", () => {
+describe("Throws all Errors of the Circuit", () => {
   const chronicleProvider = new ethers.providers.JsonRpcProvider(
     CHRONICLE_PROVIDER,
     175177,
@@ -36,7 +36,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
     it("Throw Error While Retrieving Webhook Information", async () => {
       const newCircuit = new Circuit();
 
-      newCircuit.setActions(customActions);
+      await newCircuit.setActions(customActions);
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.govvv",
@@ -57,7 +57,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ publicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x045008a4be7b862e5c74b354025d8b63581260cecf2db375f2a9a12d7cad7a863ad5d281a16427663b5c3f24abc1602f25d9ac700d93fd7ff6e5033a7fa798f2f0" });
       } catch (err) {
         error = err;
       }
@@ -72,7 +72,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
     it("Throw Error on Invalid Response Path", async () => {
       const newCircuit = new Circuit();
 
-      newCircuit.setActions(customActions);
+      await newCircuit.setActions(customActions);
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
@@ -93,7 +93,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ publicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x045008a4be7b862e5c74b354025d8b63581260cecf2db375f2a9a12d7cad7a863ad5d281a16427663b5c3f24abc1602f25d9ac700d93fd7ff6e5033a7fa798f2f0" });
       } catch (err) {
         error = err;
       }
@@ -121,13 +121,13 @@ xdescribe("Throws all Errors of the Circuit", () => {
       const newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
       );
-      newCircuit.setActions(customActions);
+      await newCircuit.setActions(customActions);
 
       const contractCondition = new ContractCondition(
         "0x0",
         "",
-        CHAIN_NAME.MUMBAI,
-        "https://alchemy.com",
+        CHAIN_NAME.HARDHAT,
+        "http://127.0.0.1:8545",
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
@@ -140,7 +140,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ publicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x045008a4be7b862e5c74b354025d8b63581260cecf2db375f2a9a12d7cad7a863ad5d281a16427663b5c3f24abc1602f25d9ac700d93fd7ff6e5033a7fa798f2f0" });
       } catch (err) {
         error = err;
       }
@@ -152,15 +152,15 @@ xdescribe("Throws all Errors of the Circuit", () => {
       );
     });
 
-    it("Throw Error for No Provider", async () => {
+    it("Throw Error for Invalid Provider URL", async () => {
       const newCircuit = new Circuit();
-      newCircuit.setActions(customActions);
+      await newCircuit.setActions(customActions);
 
       const contractCondition = new ContractCondition(
         deployedListenerToken.address as `0x${string}`,
         ListenerERC20ABI,
-        CHAIN_NAME.MUMBAI,
-        "https://alchemy.com",
+        CHAIN_NAME.HARDHAT,
+        "http://127.0.0.1:8545",
         "Transfer",
         ["from", "value"],
         [owner.address, 5000],
@@ -173,19 +173,19 @@ xdescribe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ publicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x045008a4be7b862e5c74b354025d8b63581260cecf2db375f2a9a12d7cad7a863ad5d281a16427663b5c3f24abc1602f25d9ac700d93fd7ff6e5033a7fa798f2f0" });
       } catch (err) {
         error = err;
       }
 
       expect(() => {
         throw error;
-      }).to.throw("Error: No Provider URL.");
+      }).to.throw("Error: Invalid Provider URL.");
     });
   });
 
   describe("Throw Error Adding Actions", () => {
-    it("Throw Error on Non Unique Action Priority", () => {
+    it("Throw Error on Non Unique Action Priority", async () => {
       const noSignCircuit = new Circuit();
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [
@@ -221,7 +221,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        noSignCircuit.setActions(fetchActions);
+        await noSignCircuit.setActions(fetchActions);
       } catch (err) {
         error = err;
       }
@@ -233,22 +233,24 @@ xdescribe("Throws all Errors of the Circuit", () => {
   });
 
   describe("Throw Error for Invalid Chain on Auth Sig", () => {
-    it("Throw error for Invalid Chain", () => {
+    it("Throw error for Invalid Chain", async () => {
       const newCircuit = new Circuit();
       let error;
       try {
-        newCircuit.generateUnsignedTransactionData({
-          contractAddress: "0x",
-          chainId: "wrong chain" as any,
-          gasLimit: undefined,
-          gasPrice: undefined,
-          maxFeePerGas: undefined,
-          maxPriorityFeePerGas: undefined,
-          from: "0x",
-          functionName: "transferFrom",
-          args: [],
-          abi: ListenerERC20ABI,
-        });
+        await newCircuit.generateUnsignedTransactionData(
+          {
+            contractAddress: "0x",
+            chainId: "wrong chain" as any,
+            gasLimit: undefined,
+            maxFeePerGas: undefined,
+            maxPriorityFeePerGas: undefined,
+            from: "0x",
+            functionName: "transferFrom",
+            args: [],
+            abi: ListenerERC20ABI,
+          },
+          "http://127.0.0.1:8545",
+        );
       } catch (err) {
         error = err;
       }
@@ -266,14 +268,14 @@ xdescribe("Throws all Errors of the Circuit", () => {
       175177,
     );
 
-    it("Throw Rrror for No Conditions Set", async () => {
+    it("Throw Error for No Conditions Set", async () => {
       const newCircuit = new Circuit();
 
-      newCircuit.setActions(customActions);
+      await newCircuit.setActions(customActions);
 
       let error;
       try {
-        await newCircuit.start({ publicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x045008a4be7b862e5c74b354025d8b63581260cecf2db375f2a9a12d7cad7a863ad5d281a16427663b5c3f24abc1602f25d9ac700d93fd7ff6e5033a7fa798f2f0" });
       } catch (err) {
         error = err;
       }
@@ -304,7 +306,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
 
       let error;
       try {
-        await newCircuit.start({ publicKey: "0x04" });
+        await newCircuit.start({ publicKey: "0x045008a4be7b862e5c74b354025d8b63581260cecf2db375f2a9a12d7cad7a863ad5d281a16427663b5c3f24abc1602f25d9ac700d93fd7ff6e5033a7fa798f2f0" });
       } catch (err) {
         error = err;
       }
@@ -339,7 +341,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
 
     it("Throw Error for Invalid PKP", async () => {
       let error;
-      newCircuit.setActions(customActions);
+      await newCircuit.setActions(customActions);
       try {
         await newCircuit.start({ publicKey: "mypkp" });
       } catch (err) {
@@ -351,7 +353,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
     });
 
     it("Throw Error for Invalid JS Params to Lit Action", async () => {
-      const LitActionCode = newCircuit.setActions([
+      const LitActionCode = await newCircuit.setActions([
         {
           type: "custom",
           priority: 2,
@@ -381,7 +383,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
 
     it("Throw Error for Invalid PKP Passed to Lit Action", async () => {
       const buffer = Buffer.from("Polygon");
-      newCircuit.setActions([
+      await newCircuit.setActions([
         {
           type: "custom",
           priority: 3,
@@ -412,7 +414,7 @@ xdescribe("Throws all Errors of the Circuit", () => {
       expect(() => {
         throw error;
       }).to.throw(
-        `Error running circuit: Error running Lit Action: invalid public or private key (argument="key", value="[REDACTED]", code=INVALID_ARGUMENT, version=signing-key/5.7.0)`,
+        `Error running circuit: invalid public or private key (argument="key", value="[REDACTED]", code=INVALID_ARGUMENT, version=signing-key/5.7.0)`,
       );
     });
   });
