@@ -14,7 +14,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import ListenerERC20ABI from "./../src/abis/ListenerERC20.json";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-xdescribe("Throws all Errors of the Circuit", () => {
+describe("Throws all Errors of the Circuit", () => {
   const chronicleProvider = new ethers.providers.JsonRpcProvider(
     CHRONICLE_PROVIDER,
     175177,
