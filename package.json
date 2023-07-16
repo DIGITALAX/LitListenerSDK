@@ -31,6 +31,8 @@
   },
   "homepage": "https://github.com/DIGITALAX/LitListenerSDK#readme",
   "dependencies": {
+    "@ethersproject/bytes": "^5.7.0",
+    "@ethersproject/transactions": "^5.7.0",
     "@lit-protocol/lit-node-client": "^2.2.24",
     "@lit-protocol/pkp-ethers": "^2.2.41",
     "@typechain/ethers-v5": "^10.1.1",

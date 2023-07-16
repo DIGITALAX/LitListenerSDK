@@ -9,7 +9,7 @@ import {
 } from "./../src";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-xdescribe("Verify the Conditional Logic", () => {
+describe("Verify the Conditional Logic", () => {
   let newCircuit: Circuit, publicKey: string;
   const customActions: CustomAction[] = [
     {
@@ -32,7 +32,7 @@ xdescribe("Verify the Conditional Logic", () => {
     newCircuit = new Circuit(
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
-    const LitActionCode = newCircuit.setActions(customActions);
+    const LitActionCode = await newCircuit.setActions(customActions);
     const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
     const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
     publicKey = pkpTokenData.publicKey;
