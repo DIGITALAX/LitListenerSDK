@@ -2,6 +2,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 import { EventEmitter } from "events";
 import {
+  Condition,
   ContractCondition,
   LitChainIds,
   WebhookCondition,
@@ -22,11 +23,24 @@ export class ConditionMonitor extends EventEmitter {
    * @description Accepts a condition and starts monitoring it.
    * @param condition - The condition to monitor.
    */
-  createCondition = async (condition: WebhookCondition | ContractCondition) => {
+  createCondition = async (
+    condition: WebhookCondition | ContractCondition,
+    errorHandlingModeStrict: boolean,
+  ) => {
     if (condition instanceof WebhookCondition) {
-      await this.startMonitoringWebHook(condition);
+      await this.retry(
+        () => this.startMonitoringWebHook(condition),
+        3,
+        errorHandlingModeStrict,
+        condition,
+      );
     } else if (condition instanceof ContractCondition) {
-      await this.startMonitoringContract(condition);
+      await this.retry(
+        () => this.startMonitoringContract(condition),
+        3,
+        errorHandlingModeStrict,
+        condition,
+      );
     }
   };
 
@@ -107,7 +121,11 @@ export class ConditionMonitor extends EventEmitter {
         const eventData = args.pop();
 
         if (!eventData.args) {
-          this.emit("conditionError", "Error in Retrieving contract args.");
+          this.emit(
+            "conditionError",
+            "Error in Retrieving contract args.",
+            condition,
+          );
           throw new Error(`Error in Retrieving contract args.`);
         }
 
@@ -214,30 +232,6 @@ export class ConditionMonitor extends EventEmitter {
   };
 
   /**
-   * Compares two values of potentially mixed types for equality. If the types are not equal, the function will return false.
-   * If both values are objects, it uses lodash's isEqual function for a deep comparison.
-   * If the values are of any other type, it uses the strict equality (===) operator.
-   *
-   * @param {string | number | bigint | object} expected - The expected value.
-   * @param {string | number | bigint | object} emitted - The emitted value.
-   * @return {boolean} - True if the values are equal, otherwise false.
-   */
-  private isEqualWithMixedTypes = (
-    expected: (string | number | bigint | object)[],
-    emitted: (string | number | bigint | object)[],
-  ) => {
-    if (typeof expected !== typeof emitted) {
-      return false;
-    }
-
-    if (typeof expected === "object" && expected !== null) {
-      return lodash.isEqual(expected, emitted);
-    }
-
-    return expected === emitted;
-  };
-
-  /**
    * Compares the emittedValue with the expectedValue based on the operator provided.
    * The operator could be one of the following: "<", ">", "==", "===", "!==", "!=", ">=", "<=".
    * An error is thrown for any unsupported operator.
@@ -272,6 +266,22 @@ export class ConditionMonitor extends EventEmitter {
         case "<=":
           return emittedValue.lte(expectedValue);
       }
+    } else if (
+      typeof expectedValue === "object" &&
+      typeof emittedValue === "object"
+    ) {
+      switch (operator) {
+        case "==":
+        case "===":
+          return this.deepEqualObjects(emittedValue, expectedValue);
+        case "!=":
+        case "!==":
+          return !this.deepEqualObjects(emittedValue, expectedValue);
+        default:
+          throw new Error(
+            `Operator '${operator}' not supported for object comparison.`,
+          );
+      }
     } else {
       switch (operator) {
         case "<":
@@ -294,6 +304,24 @@ export class ConditionMonitor extends EventEmitter {
     }
   };
 
+  /**
+   * Checks if two objects are deeply equal by comparing their stringified versions.
+   *
+   * @param obj1 - The first object to compare.
+   * @param obj2 - The second object to compare.
+   * @returns - Boolean indicating whether the two objects are deeply equal.
+   */
+  private deepEqualObjects = (obj1: any, obj2: any): boolean => {
+    return JSON.stringify(obj1) === JSON.stringify(obj2);
+  };
+
+  /**
+   * Checks the validity of a provider URL by attempting to establish a connection
+   * with the provider within a specified timeout.
+   *
+   * @param providerURL - The URL of the provider to check.
+   * @returns - Promise resolving to a boolean indicating whether the provider is valid.
+   */
   private checkProvider = async (providerURL: string): Promise<boolean> => {
     let timerId: NodeJS.Timeout;
     const timeout = new Promise((_, reject) => {
@@ -311,6 +339,40 @@ export class ConditionMonitor extends EventEmitter {
     } catch (error) {
       clearTimeout(timerId);
       return false;
+    }
+  };
+
+  /**
+   * Retry a Promise-based function a specified number of times, handling errors according to the
+   * specified error handling mode. If errorHandlingModeStrict is true, throws an error and exits
+   * the loop upon encountering an error. Otherwise, emits an error message and continues retrying
+   * until the retry limit is reached.
+   *
+   * @param fn - The Promise-based function to retry.
+   * @param retryCount - The number of times to retry the function (default: 3).
+   * @param errorHandlingModeStrict - The error handling mode (default: false).
+   * @returns - Promise resolving when the function has succeeded or the retry limit is reached.
+   */
+  private retry = async (
+    fn: () => Promise<void>,
+    retryCount: number = 3,
+    errorHandlingModeStrict: boolean,
+    condition: Condition,
+  ): Promise<void> => {
+    for (let i = 0; i < retryCount; i++) {
+      try {
+        await fn();
+        break;
+      } catch (err: any) {
+        if (errorHandlingModeStrict) {
+          this.emit("conditionError", err, condition);
+          throw new Error(`Error in checking conditions: ${err.message}`);
+        } else {
+          if (i === retryCount - 1) {
+            this.emit("conditionNotMatched", err.message);
+          }
+        }
+      }
     }
   };
 }

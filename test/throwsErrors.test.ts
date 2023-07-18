@@ -34,7 +34,7 @@ describe("Throws all Errors of the Circuit", () => {
 
   describe("Starts Monitoring Webhook", () => {
     it("Throw Error While Retrieving Webhook Information", async () => {
-      const newCircuit = new Circuit();
+      const newCircuit = new Circuit(undefined, undefined, true);
 
       await newCircuit.setActions(customActions);
       newCircuit.setConditions([
@@ -73,7 +73,7 @@ describe("Throws all Errors of the Circuit", () => {
     });
 
     it("Throw Error on Invalid Response Path", async () => {
-      const newCircuit = new Circuit();
+      const newCircuit = new Circuit(undefined, undefined, true);
 
       await newCircuit.setActions(customActions);
       newCircuit.setConditions([
@@ -126,6 +126,8 @@ describe("Throws all Errors of the Circuit", () => {
     it("Throw Error While Processing Contract Event", async () => {
       const newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true,
       );
       await newCircuit.setActions(customActions);
 
@@ -154,15 +156,17 @@ describe("Throws all Errors of the Circuit", () => {
         error = err;
       }
 
+      console.log(error)
+
       expect(() => {
         throw error;
       }).to.throw(
-        "Error running circuit: Error in Contract Action: Unexpected end of JSON input",
+        "Error running circuit: Error in checking conditions: Error in Contract Action: Unexpected end of JSON input",
       );
     });
 
     it("Throw Error for Invalid Provider URL", async () => {
-      const newCircuit = new Circuit();
+      const newCircuit = new Circuit(undefined, undefined, true);
       await newCircuit.setActions(customActions);
 
       const contractCondition = new ContractCondition(
@@ -198,7 +202,7 @@ describe("Throws all Errors of the Circuit", () => {
 
   describe("Throw Error Adding Actions", () => {
     it("Throw Error on Non Unique Action Priority", async () => {
-      const noSignCircuit = new Circuit();
+      const noSignCircuit = new Circuit(undefined, undefined, true);
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [
         {
@@ -246,7 +250,7 @@ describe("Throws all Errors of the Circuit", () => {
 
   describe("Throw Error for Invalid Chain on Auth Sig", () => {
     it("Throw error for Invalid Chain", async () => {
-      const newCircuit = new Circuit();
+      const newCircuit = new Circuit(undefined, undefined, true);
       let error;
       try {
         await newCircuit.generateUnsignedTransactionData(
@@ -281,7 +285,7 @@ describe("Throws all Errors of the Circuit", () => {
     );
 
     it("Throw Error for No Conditions Set", async () => {
-      const newCircuit = new Circuit();
+      const newCircuit = new Circuit(undefined, undefined, true);
 
       await newCircuit.setActions(customActions);
 
@@ -300,7 +304,7 @@ describe("Throws all Errors of the Circuit", () => {
     });
 
     it("Throw Error for No Actions Set", async () => {
-      const newCircuit = new Circuit();
+      const newCircuit = new Circuit(undefined, undefined, true);
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.govvv",
@@ -337,6 +341,8 @@ describe("Throws all Errors of the Circuit", () => {
     before(() => {
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true,
       );
       newCircuit.setConditions([
         new WebhookCondition(
