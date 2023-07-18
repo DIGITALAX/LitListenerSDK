@@ -77,7 +77,8 @@ describe("Set the Actions of the Circuit", () => {
       ];
 
       // Set the actions on the circuit
-      LitActionCode = await newCircuit.setActions(customActions);
+      const res = await newCircuit.setActions(customActions);
+      LitActionCode = res.litActionCode;
 
       // Assert that the generated code contains the expected custom actions
       expect(LitActionCode).to.include(
@@ -172,7 +173,8 @@ describe("Set the Actions of the Circuit", () => {
       ];
 
       // Set the actions on the circuit
-      LitActionCode = await newCircuit.setActions(fetchActions);
+      const res = await newCircuit.setActions(fetchActions);
+      LitActionCode = res.litActionCode;
       // Assert that the generated code contains the expected fetch action
       expect(LitActionCode.replace(/\s/g, "")).to.include(
         `const fetch0 = async () => {`.replace(/\s/g, ""),
@@ -290,7 +292,9 @@ describe("Set the Actions of the Circuit", () => {
       // Set the actions on the circuit
       const LitActionCode = await noSignCircuit.setActions(fetchActions);
 
-      const ipfsCID = await noSignCircuit.getIPFSHash(LitActionCode);
+      const ipfsCID = await noSignCircuit.getIPFSHash(
+        LitActionCode.litActionCode,
+      );
       const pkpTokenData = await noSignCircuit.mintGrantBurnPKP(ipfsCID);
       const pkpContract = new ethers.Contract(
         PKP_CONTRACT_ADDRESS,
@@ -421,8 +425,8 @@ describe("Set the Actions of the Circuit", () => {
       ];
 
       // Set the actions on the circuit
-      LitActionCode = await newCircuit.setActions(contractActions);
-
+      const res = await newCircuit.setActions(contractActions);
+      LitActionCode = res.litActionCode;
       // Assert that the generated code contains the expected contract action
       expect(LitActionCode.replace(/\s/g, "")).to.include(
         `const contract0 = async () => {`.replace(/\s/g, ""),
@@ -608,7 +612,8 @@ describe("Set the Actions of the Circuit", () => {
       ];
 
       // Set the actions on the circuit
-      LitActionCode = await newCircuit.setActions(combinedActions);
+      const res = await newCircuit.setActions(combinedActions);
+      LitActionCode = res.litActionCode;
 
       expect(LitActionCode.replace(/\s/g, "")).to.include(
         `concatenatedResponse.fetch3 = { value, signed: true };`.replace(
@@ -916,7 +921,8 @@ describe("Set the Actions of the Circuit", () => {
       ];
 
       // Set the actions on the circuit
-      LitActionCode = await newCircuit.setActions(contractActions);
+      const res = await newCircuit.setActions(contractActions);
+      LitActionCode = res.litActionCode;
       ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
 
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);

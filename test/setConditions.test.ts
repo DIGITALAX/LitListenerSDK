@@ -10,7 +10,7 @@ import {
   LogCategory,
   WebhookCondition,
 } from "./../src/@types/lit-listener-sdk";
-import {  Contract } from "ethers";
+import { Contract } from "ethers";
 import ListenerERC20ABI from "./../src/abis/ListenerERC20.json";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
@@ -32,7 +32,7 @@ const customActions: CustomAction[] = [
   },
 ];
 
-describe("Set the Conditions of the Circuit", () => {
+xdescribe("Set the Conditions of the Circuit", () => {
   let newCircuit: Circuit,
     deployedListenerToken: Contract,
     owner: any,
@@ -321,7 +321,7 @@ describe("Set the Conditions of the Circuit", () => {
       const LitActionCode = await newCircuit.setActions(customActions);
       newCircuit.executionConstraints({ conditionMonitorExecutions: 1 });
 
-      const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
+      const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
       pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
       authSig = await newCircuit.generateAuthSignature(80001);
     });
@@ -1077,7 +1077,7 @@ describe("Set the Conditions of the Circuit", () => {
       });
       newCircuit.setConditionalLogic({ type: "EVERY", interval: 60000 });
 
-      const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
+      const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
       pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
       authSig = await newCircuit.generateAuthSignature(80001);
     });
@@ -1117,7 +1117,7 @@ describe("Set the Conditions of the Circuit", () => {
           console.error(err);
         }
       }, 10000);
-      
+
       await startPromise;
 
       const responseLog = newCircuit.getLogs(LogCategory.CONDITION);

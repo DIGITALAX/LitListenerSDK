@@ -277,10 +277,19 @@ export class Circuit extends EventEmitter {
   /**
    * Sets the specified actions to the circuit.
    * @param actions The array of actions to be executed.
-   * @returns The generated code for the actions.
+   * @returns The generated code for the actions and the unsigned transaction data object generated from contract actions.
    */
-  setActions = async (actions: Action[]): Promise<string> => {
+  setActions = async (
+    actions: Action[],
+  ): Promise<{
+    unsignedTransactionDataObject: { [key: string]: LitUnsignedTransaction };
+    litActionCode: string;
+  }> => {
     this.actions = this.actions.concat(actions);
+    let unsignedTransactionDataObject: {
+      [key: string]: LitUnsignedTransaction;
+    } = {};
+
     if (!this.hasSetActionHelperFunction) {
       this.code += `
       const concatenatedResponse = {};
@@ -331,7 +340,7 @@ export class Circuit extends EventEmitter {
   
           return type === '&&' ? (previousResult && result) : (previousResult || result);
         }, signCondition[0].type === '&&');
-      }
+      }\n\n
         `;
       this.hasSetActionHelperFunction = true;
     }
@@ -379,6 +388,10 @@ export class Circuit extends EventEmitter {
           [`generatedUnsignedDataContract${action.priority}`]:
             generatedUnsignedData,
         });
+
+        unsignedTransactionDataObject[
+          `generatedUnsignedDataContract${action.priority}`
+        ] = generatedUnsignedData;
       }
       switch (action.type) {
         case "custom":
@@ -456,9 +469,11 @@ export class Circuit extends EventEmitter {
       }
     }
 
-    let functionCallsCode: string = ``;
-    this.actionFunctions.forEach((funcName) => {
-      functionCallsCode += `await ${funcName}();\n`;
+    let functionCallsCode: string[] = [];
+    let actionFunctionsArray = Array.from(this.actionFunctions);
+    actionFunctionsArray.forEach((funcName: string, index: number) => {
+      if (!functionCallsCode[index]) functionCallsCode[index] = "";
+      functionCallsCode[index] += `await ${funcName}();\n`;
     });
 
     // Remove the old 'go' function if it exists.
@@ -466,13 +481,21 @@ export class Circuit extends EventEmitter {
       /const go = async \(\) => {[\s\S]*go\(\);/m,
       "",
     );
-    this.code += `const go = async () => {
-    ${functionCallsCode}
-    Lit.Actions.setResponse({ response: JSON.stringify(concatenatedResponse) });
-  }
 
-  go();`;
-    return this.code;
+    functionCallsCode.forEach((code, index) => {
+      this.code += `\nconst go${index} = async () => {
+        ${code}
+        Lit.Actions.setResponse({ response: JSON.stringify(concatenatedResponse) });
+      }
+      
+      if (currentAction === ${index}) {
+        go${index}();
+      }
+      
+      \n`;
+    });
+
+    return { unsignedTransactionDataObject, litActionCode: this.code };
   };
 
   /**
@@ -516,9 +539,14 @@ export class Circuit extends EventEmitter {
       LitChainIds[data.chainId],
     );
 
-    const gasPrice = await provider.getGasPrice();
-    const maxFeePerGas = gasPrice.mul(2);
-    const maxPriorityFeePerGas = gasPrice.div(2);
+    let maxFeePerGas: ethers.BigNumber;
+    let maxPriorityFeePerGas: ethers.BigNumber;
+
+    if (!data.maxFeePerGas || !data.maxPriorityFeePerGas) {
+      const gasPrice = await provider.getGasPrice();
+      maxFeePerGas = gasPrice.mul(2);
+      maxPriorityFeePerGas = gasPrice.div(2);
+    }
 
     return {
       to: data.contractAddress,
@@ -878,23 +906,47 @@ export class Circuit extends EventEmitter {
         }
       }
 
-      const response = await this.litClient.executeJs({
-        ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
-        code: this.ipfsCID ? undefined : this.code,
-        authSig: this.authSig
-          ? this.authSig
-          : await this.generateAuthSignature(),
-        jsParams: {
-          pkpAddress: ethers.utils.computeAddress(this.publicKey),
-          publicKey: this.publicKey,
-          ...this.jsParameters,
-        },
+      const actionPromises = [];
+
+      let actions = Array.from(this.actionFunctions);
+
+      for (let i = 0; i < actions.length; i++) {
+        const promise = this.litClient.executeJs({
+          ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
+          code: this.ipfsCID ? undefined : this.code,
+          authSig: this.authSig
+            ? this.authSig
+            : await this.generateAuthSignature(),
+          jsParams: {
+            pkpAddress: ethers.utils.computeAddress(this.publicKey),
+            publicKey: this.publicKey,
+            ...this.jsParameters,
+            currentAction: i,
+          },
+        });
+
+        actionPromises.push(promise);
+      }
+
+      const response = (await Promise.all(actionPromises)).flat();
+      let combinedResponse = { signatures: {}, response: {}, logs: "" };
+
+      response.forEach((res) => {
+        combinedResponse.signatures = {
+          ...combinedResponse.signatures,
+          ...res.signatures,
+        };
+        combinedResponse.response = {
+          ...combinedResponse.response,
+          ...res.response,
+        };
+        combinedResponse.logs += "\n" + res.logs;
       });
 
       // broadcast actions
       if (broadcast) {
-        if ("signatures" in response) {
-          const priorities = Object.keys(response.signatures)
+        if ("signatures" in combinedResponse) {
+          const priorities = Object.keys(combinedResponse.signatures)
             .map((key) => {
               const match = key.match(/^contract(\d+)$/);
               return match ? parseInt(match[1], 10) : null;
@@ -902,13 +954,14 @@ export class Circuit extends EventEmitter {
             .filter((priority) => priority !== null)
             .sort((a, b) => a - b);
 
-          for (const priority of priorities) {
+          const transactionPromises = priorities.map(async (priority) => {
             const action = this.actions.find(
               (action) => action.priority === priority,
             );
 
             if (action) {
-              const signature = response.signatures[`contract${priority}`];
+              const signature =
+                combinedResponse.signatures[`contract${priority}`];
               const sig: {
                 r: string;
                 s: string;
@@ -961,14 +1014,18 @@ export class Circuit extends EventEmitter {
                 JSON.stringify(transactionHash),
               );
             }
-          }
+          });
+
+          await Promise.all(transactionPromises);
         }
       }
 
       this.log(
         LogCategory.RESPONSE,
         "Circuit executed successfully. Lit Action Response.",
-        typeof response === "object" ? JSON.stringify(response) : response,
+        typeof combinedResponse === "object"
+          ? JSON.stringify(combinedResponse)
+          : combinedResponse,
       );
       this.litActionCompletionCount++;
     } catch (err: any) {

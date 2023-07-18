@@ -295,9 +295,9 @@ export class ConditionMonitor extends EventEmitter {
   };
 
   private checkProvider = async (providerURL: string): Promise<boolean> => {
+    let timerId: NodeJS.Timeout;
     const timeout = new Promise((_, reject) => {
-      const id = setTimeout(() => {
-        clearTimeout(id);
+      timerId = setTimeout(() => {
         reject(new Error("Timeout"));
       }, 10000);
     });
@@ -306,8 +306,10 @@ export class ConditionMonitor extends EventEmitter {
 
     try {
       await Promise.race([provider.ready, timeout]);
+      clearTimeout(timerId);
       return true;
     } catch (error) {
+      clearTimeout(timerId);
       return false;
     }
   };
