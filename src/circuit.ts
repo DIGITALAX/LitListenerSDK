@@ -804,7 +804,7 @@ export class Circuit extends EventEmitter {
   /**
    * Generates an authentication signature for the Lit Action.
    * @param chainId - The chain ID (default: 1).
-   * @param uri - The URI (default: "eventlistenersdk").
+   * @param uri - The URI (default: "https://localhost/login").
    * @param version - The version (default: "1").
    * @returns The authentication signature.
    * @throws {Error} If an error occurs while generating the authentication signature.
