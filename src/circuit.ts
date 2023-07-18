@@ -954,69 +954,7 @@ export class Circuit extends EventEmitter {
             .filter((priority) => priority !== null)
             .sort((a, b) => a - b);
 
-          const transactionPromises = priorities.map(async (priority) => {
-            const action = this.actions.find(
-              (action) => action.priority === priority,
-            );
-
-            if (action) {
-              const signature =
-                combinedResponse.signatures[`contract${priority}`];
-              const sig: {
-                r: string;
-                s: string;
-                recid: number;
-                signature: string;
-                publicKey: string;
-                dataSigned: string;
-              } = signature as {
-                r: string;
-                s: string;
-                recid: number;
-                signature: string;
-                publicKey: string;
-                dataSigned: string;
-              };
-
-              const encodedSignature = joinSignature({
-                r: "0x" + sig.r,
-                s: "0x" + sig.s,
-                recoveryParam: sig.recid,
-              });
-              const provider = new ethers.providers.JsonRpcProvider(
-                (action as ContractAction).providerURL,
-                LitChainIds[(action as ContractAction).chainId],
-              );
-
-              const serialized = serialize(
-                this.jsParameters[
-                  `generatedUnsignedDataContract${action.priority}`
-                ],
-                encodedSignature,
-              );
-              const transactionHash = await provider.sendTransaction(
-                serialized,
-              );
-              try {
-                await transactionHash.wait();
-              } catch (err) {
-                this.log(LogCategory.ERROR, `Broadcast Failed.`, err.message);
-                throw new Error(
-                  `Error in broadcasting Contract Action: ${err.message}`,
-                );
-              }
-
-              this.log(
-                LogCategory.BROADCAST,
-                `Contract Action broadcast to chain ${
-                  (action as ContractAction).chainId
-                } successfully. Lit Action Response.`,
-                JSON.stringify(transactionHash),
-              );
-            }
-          });
-
-          await Promise.all(transactionPromises);
+          await this.broadcastContractActions(priorities, combinedResponse);
         }
       }
 
@@ -1082,6 +1020,77 @@ export class Circuit extends EventEmitter {
     } else {
       return RunStatus.ACTION_RUN;
     }
+  };
+
+  /**
+   * Broadcasts signed Contract Actions.
+   */
+  private broadcastContractActions = async (
+    priorities: number[],
+    combinedResponse: {
+      signatures: {};
+      response: {};
+      logs: string;
+    },
+  ): Promise<void> => {
+    const transactionPromises = priorities.map(async (priority) => {
+      const action = this.actions.find(
+        (action) => action.priority === priority,
+      );
+
+      if (action) {
+        const signature = combinedResponse.signatures[`contract${priority}`];
+        const sig: {
+          r: string;
+          s: string;
+          recid: number;
+          signature: string;
+          publicKey: string;
+          dataSigned: string;
+        } = signature as {
+          r: string;
+          s: string;
+          recid: number;
+          signature: string;
+          publicKey: string;
+          dataSigned: string;
+        };
+
+        const encodedSignature = joinSignature({
+          r: "0x" + sig.r,
+          s: "0x" + sig.s,
+          recoveryParam: sig.recid,
+        });
+        const provider = new ethers.providers.JsonRpcProvider(
+          (action as ContractAction).providerURL,
+          LitChainIds[(action as ContractAction).chainId],
+        );
+
+        const serialized = serialize(
+          this.jsParameters[`generatedUnsignedDataContract${action.priority}`],
+          encodedSignature,
+        );
+        const transactionHash = await provider.sendTransaction(serialized);
+        try {
+          await transactionHash.wait();
+        } catch (err) {
+          this.log(LogCategory.ERROR, `Broadcast Failed.`, err.message);
+          throw new Error(
+            `Error in broadcasting Contract Action: ${err.message}`,
+          );
+        }
+
+        this.log(
+          LogCategory.BROADCAST,
+          `Contract Action broadcast to chain ${
+            (action as ContractAction).chainId
+          } successfully. Lit Action Response.`,
+          JSON.stringify(transactionHash),
+        );
+      }
+    });
+
+    await Promise.all(transactionPromises);
   };
 
   /**
