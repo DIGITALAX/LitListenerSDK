@@ -2,10 +2,9 @@
 
 An open source typescript SDK, compatible with node and browser, with an easy interface to automate responses from webhooks, subscribed on-chain events and intervals through triggered callback functions and the use of [Lit Protocol](https://litprotocol.com) PKPs.
 
-### The __LitListenerSDK__ is designed around the principle of conditionally pre-approved chain reactions with account abstraction. 
+### The **LitListenerSDK** is designed around the principle of conditionally pre-approved chain reactions with account abstraction.
 
 ![Lit Listener](https://chromadin.infura-ipfs.io/ipfs/Qmdmr63FxiEm4AAxv6kmPK5PvEPMNNxS2KLzkCQdcbkFHr)
-
 
 ### Check out the [documentation](https://docs.irrevocable.dev) for in depth implementation details.
 
@@ -16,6 +15,7 @@ npm i lit-listener-sdk
 ```
 
 ## Quick Start
+
 ```typescript
 import { ethers, BigNumber } from "ethers";
 import { Circuit } from "lit-listener-sdk";
@@ -64,11 +64,11 @@ quickStartCircuit.setConditions([
       async () => { console.log("Unmatched!"); }, // onUnMatched function
       (error: Error) => { console.log("Error:", error); } // onError function,
 ), ]);
-        
+
 const litActionCode = quickStartCircuit.setActions([{
-  type: "contract", 
-  priority: 2, 
-  contractAddress: "0xAbcDefGhiJklMnoPqrStuVwxYz0123456789Abcd", 
+  type: "contract",
+  priority: 2,
+  contractAddress: "0xAbcDefGhiJklMnoPqrStuVwxYz0123456789Abcd",
   abi: [
      {
       constant: true,
@@ -79,15 +79,15 @@ const litActionCode = quickStartCircuit.setActions([{
       stateMutability: "external",
       type: "function",
       },
-  ], 
-  functionName: "your_function_name", 
-  chainId: "polygon", 
-  nonce: 1, 
-  gasLimit: 21000, 
-  value: 0, 
-  maxPriorityFeePerGas: 1000, 
-  maxFeePerGas: 10000, 
-  args: [20], 
+  ],
+  functionName: "your_function_name",
+  chainId: "polygon",
+  nonce: 1,
+  gasLimit: 21000,
+  value: 0,
+  maxPriorityFeePerGas: 1000,
+  maxFeePerGas: 10000,
+  args: [20],
 };
 ]);
 
@@ -99,6 +99,19 @@ await quickStartCircuit.start({publicKey, ipfsCID});
 ```
 
 ### Account abstraction enticing you to abstract away the code too?
+
 Check out a no code implementation of the SDK live [here](https://listener.irrevocable.dev).
 
 ![Abstracted](https://chromadin.infura-ipfs.io/ipfs/QmfMuhWVsCvRs6fAgWuL3yS7mNhqeasNLFQEr8cEbRfA9n)
+
+### Usage Terms
+
+By using this project or its source code, for any purpose and in any shape or form, you grant your implicit agreement to all the following statements:
+
+- You condemn Russia and its military aggression against Ukraine
+- You recognize that Russia is an occupant that unlawfully invaded a sovereign state
+- You support Ukraine's territorial integrity, including its claims over temporarily occupied territories of Crimea and Donbas
+- You reject false narratives perpetuated by Russian state propaganda
+- To learn more about the war and how you can help, [click here](https://tyrrrz.me/ukraine). Glory to Ukraine! 🇺🇦
+
+[og source](https://github.com/Tyrrrz/DiscordChatExporter)

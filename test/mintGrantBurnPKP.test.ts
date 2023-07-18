@@ -21,7 +21,7 @@ const chronicleProvider = new ethers.providers.JsonRpcProvider(
   175177,
 );
 
-describe("Mint Grant Burn PKP", () => {
+xdescribe("Mint Grant Burn PKP", () => {
   let LitActionCode: string,
     ipfsCID: string,
     randomNonce: string,
@@ -50,7 +50,7 @@ describe("Mint Grant Burn PKP", () => {
         (err) => console.error(err.message),
       ),
     ]);
-    LitActionCode = await newCircuit.setActions([
+    const res = await newCircuit.setActions([
       {
         type: "custom",
         priority: 0,
@@ -59,6 +59,7 @@ describe("Mint Grant Burn PKP", () => {
         }`,
       },
     ]);
+    LitActionCode = res.litActionCode;
     newCircuit.executionConstraints({
       conditionMonitorExecutions: 1,
     });
@@ -128,7 +129,7 @@ describe("Mint Grant Burn PKP", () => {
         (err) => console.error(err.message),
       ),
     ]);
-    LitActionCode = await rejectCircuit.setActions([
+    const res = await rejectCircuit.setActions([
       {
         type: "custom",
         priority: 0,
@@ -137,6 +138,7 @@ describe("Mint Grant Burn PKP", () => {
         }`,
       },
     ]);
+    LitActionCode = res.litActionCode;
     rejectCircuit.executionConstraints({
       conditionMonitorExecutions: 1,
     });

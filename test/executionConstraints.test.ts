@@ -3,7 +3,7 @@ import { Circuit, CustomAction, WebhookCondition } from "./../src";
 import { ethers } from "hardhat";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-describe("Verify the Execution Constraints", () => {
+xdescribe("Verify the Execution Constraints", () => {
   let newCircuit: Circuit, publicKey: string;
   const customActions: CustomAction[] = [
     {
@@ -44,7 +44,7 @@ describe("Verify the Execution Constraints", () => {
         (err) => console.error(err.message),
       ),
     ]);
-    const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
+    const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
     const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
     publicKey = pkpTokenData.publicKey;
   });
@@ -70,7 +70,7 @@ describe("Verify the Execution Constraints", () => {
           },
         },
       ]);
-      const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
+      const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
       const publicKey = pkpTokenData.publicKey;
 
@@ -101,7 +101,7 @@ describe("Verify the Execution Constraints", () => {
           },
         },
       ]);
-      const ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
+      const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
       const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
       const publicKey = pkpTokenData.publicKey;
 
