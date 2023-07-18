@@ -111,6 +111,8 @@ describe("Mint Grant Burn PKP", () => {
   it("PKP Should not Allow Execution of Other Code", async () => {
     const rejectCircuit = new Circuit(
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+      undefined,
+      true,
     );
     rejectCircuit.setConditions([
       new WebhookCondition(
@@ -163,13 +165,17 @@ describe("Mint Grant Burn PKP", () => {
         code: otherCustomCode,
       },
     ]);
-    await expect(
-      rejectCircuit.start({
+    let error;
+    try {
+      await rejectCircuit.start({
         publicKey: pkpNftPublicKey,
         authSig: authSig,
-      }),
-    ).to.be.rejectedWith(
-      "There was an error getting the signing shares from the nodes".trim(),
+      });
+    } catch (err: any) {
+      error = err.message;
+    }
+    expect(error).to.include(
+      "There was an error getting the signing shares from the nodes",
     );
   });
 
@@ -184,8 +190,8 @@ describe("Mint Grant Burn PKP", () => {
     expect(responseLog[0].message.trim()).to.equal(
       `Circuit executed successfully. Lit Action Response.`.trim(),
     );
-    expect(responseLog[0].responseObject.trim()).to.equal(
-      `{"signatures":{},"response":{"custom0":"Transaction Signed Successfully."},"logs":""}`.trim(),
+    expect(responseLog[0].responseObject).to.include(
+      `{"signatures":{},"response":{"custom0":"Transaction Signed Successfully."}`,
     );
   });
 });

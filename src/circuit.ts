@@ -37,6 +37,11 @@ export class Circuit extends EventEmitter {
    */
   private conditions: Condition[] = [];
   /**
+   * Stores pending promise broadcasts for clean up.
+   * @private
+   */
+  private pendingBroadcasts: Promise<PromiseSettledResult<void>[]>[] = [];
+  /**
    * The condition monitor instance.
    * @private
    */
@@ -166,6 +171,11 @@ export class Circuit extends EventEmitter {
    * @private
    */
   private jsParameters: Object = {};
+  /**
+   * Flag indicating whether to strict error throwing is enabled.
+   * @private
+   */
+  private errorHandlingModeStrict: boolean = false;
 
   /**
    * Creates an instance of Circuit.
@@ -175,8 +185,10 @@ export class Circuit extends EventEmitter {
   constructor(
     signer?: ethers.Signer,
     pkpContractAddress = PKP_CONTRACT_ADDRESS,
+    errorHandlingModeStrict: boolean = false,
   ) {
     super();
+    this.errorHandlingModeStrict = errorHandlingModeStrict;
     this.signer = signer ? signer : ethers.Wallet.createRandom();
     this.litClient = new LitJsSdk.LitNodeClient({
       litNetwork: "serrano",
@@ -680,7 +692,10 @@ export class Circuit extends EventEmitter {
               this.satisfiedConditions.delete(condition.id!);
             };
 
-            const conditionPromise = this.monitor.createCondition(condition);
+            const conditionPromise = this.monitor.createCondition(
+              condition,
+              this.errorHandlingModeStrict,
+            );
 
             if (this.conditionalLogic?.interval) {
               const timeoutPromise = new Promise<void>((resolve) =>
@@ -774,6 +789,7 @@ export class Circuit extends EventEmitter {
     } catch (err: any) {
       throw new Error(`Error running circuit: ${err.message}`);
     } finally {
+      await Promise.all(this.pendingBroadcasts.map((p) => p));
       this.isRunning = false;
     }
   };
@@ -968,7 +984,9 @@ export class Circuit extends EventEmitter {
       this.litActionCompletionCount++;
     } catch (err: any) {
       this.log(LogCategory.ERROR, `Lit Action failed.`, err.message);
-      throw new Error(`Error running Lit Action: ${err.message}`);
+      if (this.errorHandlingModeStrict) {
+        throw new Error(`Error running Lit Action: ${err.message}`);
+      }
     }
   };
 
@@ -1075,9 +1093,11 @@ export class Circuit extends EventEmitter {
           await transactionHash.wait();
         } catch (err) {
           this.log(LogCategory.ERROR, `Broadcast Failed.`, err.message);
-          throw new Error(
-            `Error in broadcasting Contract Action: ${err.message}`,
-          );
+          if (this.errorHandlingModeStrict) {
+            throw new Error(
+              `Error in broadcasting Contract Action: ${err.message}`,
+            );
+          }
         }
 
         this.log(
@@ -1089,6 +1109,10 @@ export class Circuit extends EventEmitter {
         );
       }
     });
+
+    this.pendingBroadcasts.push(
+      Promise.resolve(Promise.allSettled(transactionPromises)),
+    );
 
     await Promise.all(transactionPromises);
   };
