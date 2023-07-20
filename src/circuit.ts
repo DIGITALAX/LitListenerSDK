@@ -195,7 +195,7 @@ export class Circuit extends EventEmitter {
       debug: false,
     });
     this.monitor = new ConditionMonitor();
-    this.conditionalLogic = { type: "EVERY" };
+    this.conditionalLogic = { type: "EVERY", interval: 1800000 };
     this.monitor.on(
       "conditionMatched",
       (
