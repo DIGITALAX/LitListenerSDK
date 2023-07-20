@@ -263,7 +263,7 @@ export type Action = CustomAction | ContractAction | FetchAction;
  * @property type - The type of the conditional logic. It can be "THRESHOLD", "TARGET", or "EVERY".
  * @property value - Used when the type is "THRESHOLD". It's the threshold number of conditions that must have passed in order for the Lit Action to run.
  * @property targetCondition - Used when the type is "TARGET". It's the specific Condition Id (In order of Conditions Added to Array) that must be met in order for the Lit Action to run.
- * @property interval - Optional. It's the frequency of condition checks. If omitted, the condition is checked continuously. Resolves in milliseconds.
+ * @property interval - Optional. It's the frequency of condition checks. If omitted, the condition is checked every 30 minutes (1,800,000 ms). Resolves in milliseconds.
  */
 export interface IThresholdConditionalLogic {
   type: "THRESHOLD";
