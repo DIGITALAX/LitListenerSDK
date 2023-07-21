@@ -32,6 +32,7 @@ describe("Verify the Conditional Logic", () => {
     newCircuit = new Circuit(
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
+
     const LitActionCode = await newCircuit.setActions(customActions);
     const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
     const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
@@ -81,6 +82,10 @@ describe("Verify the Conditional Logic", () => {
     });
 
     it("Runs on EVERY for No Conditional Logic for No Match", async () => {
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
@@ -163,6 +168,7 @@ describe("Verify the Conditional Logic", () => {
       ]);
       newCircuit.setConditionalLogic({
         type: "EVERY",
+        interval: 10000
       });
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 1,
@@ -213,6 +219,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "THRESHOLD",
         value: 2,
+        interval: 10000
       });
       await newCircuit.start({ publicKey });
 
@@ -259,6 +266,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "THRESHOLD",
         value: 2,
+        interval: 10000
       });
       await newCircuit.start({ publicKey });
 
@@ -315,6 +323,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "TARGET",
         targetCondition: "2",
+        interval: 10000
       });
       await newCircuit.start({ publicKey });
 
@@ -361,6 +370,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "TARGET",
         targetCondition: "2",
+        interval: 10000
       });
       await newCircuit.start({ publicKey });
 
@@ -413,6 +423,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "EVERY",
         interval: 60000,
+  
       });
       await newCircuit.start({ publicKey });
 

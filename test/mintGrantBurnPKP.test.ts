@@ -33,6 +33,10 @@ describe("Mint Grant Burn PKP", () => {
     newCircuit = new Circuit(
       new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
     );
+    newCircuit.setConditionalLogic({
+      type: "EVERY",
+      interval: 10000,
+    });
     newCircuit.setConditions([
       new WebhookCondition(
         "https://api.weather.gov",
@@ -114,6 +118,10 @@ describe("Mint Grant Burn PKP", () => {
       undefined,
       true,
     );
+    newCircuit.setConditionalLogic({
+      type: "EVERY",
+      interval: 10000,
+    });
     rejectCircuit.setConditions([
       new WebhookCondition(
         "https://api.weather.gov",

@@ -35,7 +35,10 @@ describe("Throws all Errors of the Circuit", () => {
   describe("Starts Monitoring Webhook", () => {
     it("Throw Error While Retrieving Webhook Information", async () => {
       const newCircuit = new Circuit(undefined, undefined, true);
-
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       await newCircuit.setActions(customActions);
       newCircuit.setConditions([
         new WebhookCondition(
@@ -74,7 +77,10 @@ describe("Throws all Errors of the Circuit", () => {
 
     it("Throw Error on Invalid Response Path", async () => {
       const newCircuit = new Circuit(undefined, undefined, true);
-
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       await newCircuit.setActions(customActions);
       newCircuit.setConditions([
         new WebhookCondition(
@@ -129,6 +135,10 @@ describe("Throws all Errors of the Circuit", () => {
         undefined,
         true,
       );
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       await newCircuit.setActions(customActions);
 
       const contractCondition = new ContractCondition(
@@ -156,8 +166,6 @@ describe("Throws all Errors of the Circuit", () => {
         error = err;
       }
 
-      console.log(error)
-
       expect(() => {
         throw error;
       }).to.throw(
@@ -168,7 +176,10 @@ describe("Throws all Errors of the Circuit", () => {
     it("Throw Error for Invalid Provider URL", async () => {
       const newCircuit = new Circuit(undefined, undefined, true);
       await newCircuit.setActions(customActions);
-
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       const contractCondition = new ContractCondition(
         deployedListenerToken.address as `0x${string}`,
         ListenerERC20ABI,
@@ -203,6 +214,10 @@ describe("Throws all Errors of the Circuit", () => {
   describe("Throw Error Adding Actions", () => {
     it("Throw Error on Non Unique Action Priority", async () => {
       const noSignCircuit = new Circuit(undefined, undefined, true);
+      noSignCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [
         {
@@ -251,6 +266,10 @@ describe("Throws all Errors of the Circuit", () => {
   describe("Throw Error for Invalid Chain on Auth Sig", () => {
     it("Throw error for Invalid Chain", async () => {
       const newCircuit = new Circuit(undefined, undefined, true);
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       let error;
       try {
         await newCircuit.generateUnsignedTransactionData(
@@ -286,7 +305,10 @@ describe("Throws all Errors of the Circuit", () => {
 
     it("Throw Error for No Conditions Set", async () => {
       const newCircuit = new Circuit(undefined, undefined, true);
-
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       await newCircuit.setActions(customActions);
 
       let error;
@@ -305,6 +327,10 @@ describe("Throws all Errors of the Circuit", () => {
 
     it("Throw Error for No Actions Set", async () => {
       const newCircuit = new Circuit(undefined, undefined, true);
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.govvv",
@@ -344,6 +370,10 @@ describe("Throws all Errors of the Circuit", () => {
         undefined,
         true,
       );
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
