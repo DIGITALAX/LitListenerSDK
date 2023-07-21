@@ -1204,6 +1204,6 @@ export class Circuit extends EventEmitter {
 
     this.logs[this.logIndex] = { category, message, responseObject };
     this.logIndex = (this.logIndex + 1) % this.logSize;
-    this.emit("log", message);
+    this.emitter.emit("log", message);
   };
 }
