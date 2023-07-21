@@ -230,9 +230,9 @@ export interface FetchAction {
    */
   apiKey?: string;
   /**
-   * The data to sign.
+   * Optional data to sign. If left blank the returned response will be signed.
    */
-  toSign: Uint8Array;
+  toSign?: Uint8Array;
   /**
    * The condition under which to sign the data.
    */

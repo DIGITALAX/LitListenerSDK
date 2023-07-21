@@ -44,6 +44,10 @@ describe("Verify the Execution Constraints", () => {
         (err) => console.error(err.message),
       ),
     ]);
+    newCircuit.setConditionalLogic({
+      type: "EVERY",
+      interval: 1000,
+    });
     const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
     const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
     publicKey = pkpTokenData.publicKey;

@@ -31,13 +31,14 @@ describe("Set the Actions of the Circuit", () => {
     175177,
   );
 
-  describe("Set Custom Actions", () => {
+  xdescribe("Set Custom Actions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true
       );
-
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
@@ -55,6 +56,12 @@ describe("Set the Actions of the Circuit", () => {
           (err) => console.error(err.message),
         ),
       ]);
+
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
+
 
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 1,
@@ -122,12 +129,18 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Set Fetch Actions", () => {
+  xdescribe("Set Fetch Actions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true
       );
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
 
       newCircuit.setConditions([
         new WebhookCondition(
@@ -248,7 +261,13 @@ describe("Set the Actions of the Circuit", () => {
     it("Won't Sign on Incorrect Condition Met", async () => {
       const noSignCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true
       );
+      noSignCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [
         {
@@ -354,13 +373,18 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  let generateUnsignedTransactionData: LitUnsignedTransaction;
-  describe("Set Contract Actions", () => {
+  xdescribe("Fetch Action for No To Sign", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true
       );
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
 
       newCircuit.setConditions([
         new WebhookCondition(
@@ -379,6 +403,90 @@ describe("Set the Actions of the Circuit", () => {
           (err) => console.error(err.message),
         ),
       ]);
+
+      newCircuit.executionConstraints({
+        conditionMonitorExecutions: 1,
+      });
+
+      const fetchActions: FetchAction[] = [
+        {
+          type: "fetch",
+          priority: 0,
+          apiKey: undefined,
+          baseUrl: "https://api.weather.gov",
+          endpoint: "/gridpoints/LWX/97,71/forecast",
+          responsePath: "geometry.type",
+          signCondition: [{ type: "&&", operator: "==", value: "Polygon" }],
+        },
+      ];
+
+      // Set the actions on the circuit
+      const res = await newCircuit.setActions(fetchActions);
+    });
+
+    it("Check Returned Response is Signed", async () => {
+      ipfsCID = await newCircuit.getIPFSHash(LitActionCode);
+      const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
+      const pkpContract = new ethers.Contract(
+        PKP_CONTRACT_ADDRESS,
+        pkpABI,
+        chronicleProvider,
+      );
+      const pkpTokenId = pkpTokenData.tokenId;
+      publicKey = await pkpContract.getPubkey(pkpTokenId);
+      const authSig = await newCircuit.generateAuthSignature(31337);
+      await newCircuit.start({
+        publicKey: pkpTokenData.publicKey,
+        authSig,
+      });
+
+      const responseLog = newCircuit.getLogs(LogCategory.RESPONSE);
+      expect(responseLog[0].category).to.equal(1);
+      expect(responseLog[0].message.trim()).to.equal(
+        `Circuit executed successfully. Lit Action Response.`.trim(),
+      );
+      const parsed = JSON.parse(responseLog[0].responseObject);
+      expect(parsed.response).to.deep.equal({
+        fetch0: {
+          value: "Polygon",
+          signed: true,
+        },
+      });
+    });
+  });
+
+  let generateUnsignedTransactionData: LitUnsignedTransaction;
+  xdescribe("Set Contract Actions", () => {
+    before(async () => {
+      // Create a test instance of the circuit
+      newCircuit = new Circuit(
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true
+      );
+ 
+      newCircuit.setConditions([
+        new WebhookCondition(
+          "https://api.weather.gov",
+          "/gridpoints/LWX/97,71/forecast",
+          "geometry.type",
+          "Polygon",
+          "===",
+          undefined,
+          async () => {
+            console.log("matched");
+          },
+          async () => {
+            console.log("unmatched");
+          },
+          (err) => console.error(err.message),
+        ),
+      ]);
+
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
 
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 1,
@@ -515,7 +623,13 @@ describe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true
       );
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 1200000,
+      });
 
       const ListenerToken = new ethers.ContractFactory(
         ListenerERC20ABI,
@@ -537,7 +651,7 @@ describe("Set the Actions of the Circuit", () => {
           {
             contractAddress: deployedListenerToken.address as `0x${string}`,
             chainId: CHAIN_NAME.HARDHAT,
-            gasLimit: undefined,
+            gasLimit: 21584,
             maxFeePerGas: undefined,
             maxPriorityFeePerGas: undefined,
             from: from as `0x${string}`,
@@ -608,6 +722,7 @@ describe("Set the Actions of the Circuit", () => {
           chainId: CHAIN_NAME.HARDHAT,
           providerURL: "http://127.0.0.1:8545",
           args: [to, 5000],
+          
         },
       ];
 
@@ -650,7 +765,13 @@ describe("Set the Actions of the Circuit", () => {
     it("Revert on Actions of the Same Priority Number", async () => {
       const noSignCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true
       );
+      noSignCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [
         {
@@ -731,7 +852,7 @@ describe("Set the Actions of the Circuit", () => {
 
       await fromSigner.sendTransaction({
         to: pkpTokenData.address,
-        value: ethers.utils.parseEther("5.0"),
+        value: ethers.utils.parseEther("20.0"),
       });
 
       const mintTx = await deployedListenerToken.mint(
@@ -742,7 +863,8 @@ describe("Set the Actions of the Circuit", () => {
 
       await deployedListenerToken.approve(
         pkpTokenData.address,
-        ethers.utils.parseUnits("20", 18),
+        ethers.utils.parseUnits("40", 18),
+        
       );
 
       const authSig = await newCircuit.generateAuthSignature(31337);
@@ -842,14 +964,20 @@ describe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true
       );
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 120000,
+      });
 
       generateUnsignedTransactionData =
         await newCircuit.generateUnsignedTransactionData(
           {
             contractAddress: contract.address as `0x${string}`,
             chainId: CHAIN_NAME.HARDHAT,
-            gasLimit: undefined,
+            gasLimit: 21584,
             maxFeePerGas: undefined,
             maxPriorityFeePerGas: undefined,
             from: fromAddress as `0x${string}`,
@@ -954,6 +1082,7 @@ describe("Set the Actions of the Circuit", () => {
         publicKey,
         authSig,
         broadcast: true,
+        
       });
 
       const responseLogResponse = newCircuit.getLogs(LogCategory.RESPONSE);

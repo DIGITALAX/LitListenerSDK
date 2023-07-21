@@ -176,11 +176,17 @@ export class Circuit extends EventEmitter {
    * @private
    */
   private errorHandlingModeStrict: boolean = false;
+  /**
+   * Map of last successful nonces.
+   * @private
+   */
+  private lastSuccessfulNonce: Map<number, number> = new Map();
 
   /**
    * Creates an instance of Circuit.
    * @param signer The Ethereum signer for transactions.
    * @param pkpContractAddress The address of the PKPNFT contract.
+   * @param errorHandlingModeStrict Strict error handling enabled or not.
    */
   constructor(
     signer?: ethers.Signer,
@@ -377,7 +383,9 @@ export class Circuit extends EventEmitter {
       } else if (action.type === "fetch") {
         Object.assign(this.jsParameters, {
           [`signConditionFetch${action.priority}`]: action.signCondition,
-          [`toSignFetch${action.priority}`]: action.toSign,
+          [`toSignFetch${action.priority}`]: action?.toSign
+            ? action?.toSign
+            : "value",
         });
       } else {
         generatedUnsignedData = await this.generateUnsignedTransactionData(
@@ -568,7 +576,7 @@ export class Circuit extends EventEmitter {
         ? typeof data.gasLimit === "string" || typeof data.gasLimit === "number"
           ? ethers.BigNumber.from(data.gasLimit)
           : data.gasLimit
-        : ethers.BigNumber.from("100000"),
+        : ethers.BigNumber.from("5000000"),
       maxFeePerGas: data.maxFeePerGas
         ? typeof data.maxFeePerGas === "string" ||
           typeof data.maxFeePerGas === "number"
@@ -902,45 +910,70 @@ export class Circuit extends EventEmitter {
   private runLitAction = async (broadcast: boolean): Promise<void> => {
     try {
       // update nonce values
-      const sortedKeys = Object.keys(this.jsParameters).sort();
-      const contractKeys = sortedKeys.filter((key) =>
-        key.startsWith("generatedUnsignedDataContract"),
-      );
-      const action = this.actions[0]; //Assuming all actions are on the same chain
-      const provider = new ethers.providers.JsonRpcProvider(
-        (action as ContractAction).providerURL,
-        LitChainIds[(action as ContractAction).chainId],
-      );
-      let currentNonce = await provider.getTransactionCount(this.pkpAddress);
-
-      for (let i = 0; i < contractKeys.length; i++) {
-        const action = this.actions[i];
-
-        if (action.type === "contract") {
-          this.jsParameters[contractKeys[i]].nonce = currentNonce;
-          currentNonce++;
-        }
-      }
-
-      const actionPromises = [];
-
+      const actionPromises: Promise<any>[] = [];
       let actions = Array.from(this.actionFunctions);
 
-      for (let i = 0; i < actions.length; i++) {
-        const promise = this.litClient.executeJs({
-          ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
-          code: this.ipfsCID ? undefined : this.code,
-          authSig: this.authSig
-            ? this.authSig
-            : await this.generateAuthSignature(),
-          jsParams: {
-            pkpAddress: ethers.utils.computeAddress(this.publicKey),
-            publicKey: this.publicKey,
-            ...this.jsParameters,
-            currentAction: i,
-          },
-        });
+      for (const [i, action] of actions.entries()) {
+        const action = this.actions[i];
 
+        let promise: Promise<any>;
+
+        if (action.type === "contract") {
+          const providerURL = (action as ContractAction).providerURL;
+          const chainId = LitChainIds[(action as ContractAction).chainId];
+          const provider = new ethers.providers.JsonRpcProvider(
+            providerURL,
+            chainId,
+          );
+
+          const blockchainNonce = await provider.getTransactionCount(
+            this.pkpAddress,
+          );
+
+          let currentNonce = Math.max(
+            this.lastSuccessfulNonce.get(chainId) || 0,
+            blockchainNonce,
+          );
+
+          this.jsParameters[
+            `generatedUnsignedDataContract${action.priority}`
+          ].nonce = currentNonce;
+          currentNonce++;
+          this.lastSuccessfulNonce.set(chainId, currentNonce);
+
+          promise = this.litClient.executeJs({
+            ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
+            code: this.ipfsCID ? undefined : this.code,
+            authSig: this.authSig
+              ? this.authSig
+              : await this.generateAuthSignature(),
+            jsParams: {
+              pkpAddress: ethers.utils.computeAddress(this.publicKey),
+              publicKey: this.publicKey,
+              ...this.jsParameters,
+              currentAction: i,
+            },
+          });
+
+          promise.catch(() => {
+            currentNonce--;
+            this.lastSuccessfulNonce.set(chainId, currentNonce);
+          });
+        } else {
+          promise = this.litClient.executeJs({
+            ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
+            code: this.ipfsCID ? undefined : this.code,
+            authSig: this.authSig
+              ? this.authSig
+              : await this.generateAuthSignature(),
+            jsParams: {
+              pkpAddress: ethers.utils.computeAddress(this.publicKey),
+              publicKey: this.publicKey,
+              ...this.jsParameters,
+              currentAction: i,
+            },
+          });
+        }
         actionPromises.push(promise);
       }
 
@@ -1099,7 +1132,6 @@ export class Circuit extends EventEmitter {
             );
           }
         }
-
         this.log(
           LogCategory.BROADCAST,
           `Contract Action broadcast to chain ${
