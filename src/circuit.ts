@@ -808,21 +808,16 @@ export class Circuit extends EventEmitter {
    * @returns The logs of the circuit.
    */
   getLogs = (category?: LogCategory): ILogEntry[] => {
+    const logsInOrder = [
+      ...this.logs.slice(this.logIndex),
+      ...this.logs.slice(0, this.logIndex),
+    ].filter((log) => log !== undefined);
+
     if (!category) {
-      return [
-        ...this.logs.slice(this.logIndex),
-        ...this.logs.slice(0, this.logIndex),
-      ];
+      return logsInOrder;
     }
 
-    return [
-      ...this.logs
-        .slice(this.logIndex)
-        .filter((log) => log.category === category),
-      ...this.logs
-        .slice(0, this.logIndex)
-        .filter((log) => log.category === category),
-    ];
+    return logsInOrder.filter((log) => log.category === category);
   };
 
   /**

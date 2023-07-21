@@ -31,7 +31,7 @@ describe("Set the Actions of the Circuit", () => {
     175177,
   );
 
-  xdescribe("Set Custom Actions", () => {
+  describe("Set Custom Actions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
@@ -129,7 +129,7 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  xdescribe("Set Fetch Actions", () => {
+  describe("Set Fetch Actions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
@@ -373,7 +373,7 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  xdescribe("Fetch Action for No To Sign", () => {
+  describe("Fetch Action for No To Sign", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
@@ -421,7 +421,7 @@ describe("Set the Actions of the Circuit", () => {
       ];
 
       // Set the actions on the circuit
-      const res = await newCircuit.setActions(fetchActions);
+       await newCircuit.setActions(fetchActions);
     });
 
     it("Check Returned Response is Signed", async () => {
@@ -456,7 +456,7 @@ describe("Set the Actions of the Circuit", () => {
   });
 
   let generateUnsignedTransactionData: LitUnsignedTransaction;
-  xdescribe("Set Contract Actions", () => {
+  describe("Set Contract Actions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
