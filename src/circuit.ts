@@ -220,6 +220,7 @@ export class Circuit extends EventEmitter {
           LogCategory.CONDITION,
           `Condition Matched with Emitted Value: `,
           JSON.stringify(emittedValue),
+          new Date().toISOString(),
         );
       },
     );
@@ -241,6 +242,7 @@ export class Circuit extends EventEmitter {
           LogCategory.CONDITION,
           `Condition Not Matched with Emitted Value: `,
           JSON.stringify(emittedValue),
+          new Date().toISOString(),
         );
       },
     );
@@ -249,6 +251,7 @@ export class Circuit extends EventEmitter {
         LogCategory.ERROR,
         `Error in condition monitoring with condition ${condition.id}`,
         typeof error === "object" ? JSON.stringify(error) : error,
+        new Date().toISOString(),
       );
     });
     this.actionFunctions = new Set<string>();
@@ -672,7 +675,12 @@ export class Circuit extends EventEmitter {
     try {
       if (this.conditions.length > 0 && this.actions.length > 0) {
         if (!publicKey || !publicKey.toLowerCase().startsWith("0x04")) {
-          this.log(LogCategory.ERROR, `Invalid PKP Public Key.`, publicKey);
+          this.log(
+            LogCategory.ERROR,
+            `Invalid PKP Public Key.`,
+            publicKey,
+            new Date().toISOString(),
+          );
           throw new Error(`Invalid PKP Public Key.`);
         }
 
@@ -735,6 +743,7 @@ export class Circuit extends EventEmitter {
             LogCategory.EXECUTION,
             "Condition Monitor Count Increased",
             String(this.conditionExecutedCount),
+            new Date().toISOString(),
           );
           if (
             conditionResBefore === RunStatus.ACTION_RUN &&
@@ -747,6 +756,7 @@ export class Circuit extends EventEmitter {
                 LogCategory.CONDITION,
                 `Execution Condition Not Met to Continue Circuit.`,
                 `Run Status ${RunStatus.EXIT_RUN}`,
+                new Date().toISOString(),
               );
               this.emitter.emit("stop");
               break;
@@ -759,6 +769,7 @@ export class Circuit extends EventEmitter {
               LogCategory.CONDITION,
               `Execution Condition Not Met to Continue Circuit.`,
               `Run Status ${RunStatus.EXIT_RUN}`,
+              new Date().toISOString(),
             );
             this.emitter.emit("stop");
             break;
@@ -785,6 +796,7 @@ export class Circuit extends EventEmitter {
               LogCategory.CONDITION,
               `Execution Condition Not Met to Continue Circuit.`,
               `Run Status ${RunStatus.EXIT_RUN}`,
+              new Date().toISOString(),
             );
             this.emitter.emit("stop");
             break;
@@ -854,6 +866,7 @@ export class Circuit extends EventEmitter {
       LogCategory.ERROR,
       "Circuit forcefully interrupted at ",
       `${Date.now()}`,
+      new Date().toISOString(),
     );
   };
 
@@ -1013,15 +1026,22 @@ export class Circuit extends EventEmitter {
         typeof combinedResponse === "object"
           ? JSON.stringify(combinedResponse)
           : combinedResponse,
+        new Date().toISOString(),
       );
       this.litActionCompletionCount++;
       this.log(
         LogCategory.EXECUTION,
         "Lit Action Completion Increased",
         String(this.litActionCompletionCount),
+        new Date().toISOString(),
       );
     } catch (err: any) {
-      this.log(LogCategory.ERROR, `Lit Action failed.`, err.message);
+      this.log(
+        LogCategory.ERROR,
+        `Lit Action failed.`,
+        err.message,
+        new Date().toISOString(),
+      );
       if (this.errorHandlingModeStrict) {
         throw new Error(`Error running Lit Action: ${err.message}`);
       }
@@ -1130,7 +1150,12 @@ export class Circuit extends EventEmitter {
         try {
           await transactionHash.wait();
         } catch (err) {
-          this.log(LogCategory.ERROR, `Broadcast Failed.`, err.message);
+          this.log(
+            LogCategory.ERROR,
+            `Broadcast Failed.`,
+            err.message,
+            new Date().toISOString(),
+          );
           if (this.errorHandlingModeStrict) {
             throw new Error(
               `Error in broadcasting Contract Action: ${err.message}`,
@@ -1143,6 +1168,7 @@ export class Circuit extends EventEmitter {
             (action as ContractAction).chainId
           } successfully. Lit Action Response.`,
           JSON.stringify(transactionHash),
+          new Date().toISOString(),
         );
       }
     });
@@ -1202,6 +1228,7 @@ export class Circuit extends EventEmitter {
     category: LogCategory,
     message: string,
     responseObject: string,
+    isoDate: string,
   ) => {
     if (typeof responseObject === "object") {
       responseObject = JSON.stringify(responseObject);
@@ -1214,6 +1241,7 @@ export class Circuit extends EventEmitter {
       JSON.stringify({
         message,
         responseObject,
+        isoDate,
       }),
     );
   };
