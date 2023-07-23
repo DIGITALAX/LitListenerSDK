@@ -550,6 +550,7 @@ export enum LogCategory {
   RESPONSE = 1,
   CONDITION = 2,
   BROADCAST = 3,
+  EXECUTION = 4,
 }
 
 export interface ILogEntry {
