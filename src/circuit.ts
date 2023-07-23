@@ -1223,6 +1223,8 @@ export class Circuit extends EventEmitter {
    * Logs a message.
    * @param category - The type of message to log.
    * @param message - The message to log.
+   * @param message - The response object to log.
+   * @param message - The iso date to log.
    */
   private log = (
     category: LogCategory,
@@ -1234,7 +1236,7 @@ export class Circuit extends EventEmitter {
       responseObject = JSON.stringify(responseObject);
     }
 
-    this.logs[this.logIndex] = { category, message, responseObject };
+    this.logs[this.logIndex] = { category, message, responseObject, isoDate };
     this.logIndex = (this.logIndex + 1) % this.logSize;
     this.emit(
       "log",

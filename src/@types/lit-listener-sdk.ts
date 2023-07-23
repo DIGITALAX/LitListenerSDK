@@ -557,6 +557,7 @@ export interface ILogEntry {
   category: LogCategory;
   message: string;
   responseObject: string;
+  isoDate: string
 }
 
 export type LitAuthSig = {
