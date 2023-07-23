@@ -23,21 +23,15 @@ import { Circuit } from "lit-listener-sdk";
 const chronicleProvider = new ethers.providers.JsonRpcProvider("https://chain-rpc.litprotocol.com/http", 175177);
 const chronicleSigner = new ethers.Wallet(YOUR_PRIVATE_KEY, chronicleProvider);
 
-const quickStartCircuit = new Circuit(YOUR_PROVIDER_URL, chronicleSigner);
+const quickStartCircuit = new Circuit(chronicleSigner);
 
 quickStartCircuit.setConditions([
  new ContractCondition(
-    "0xAbC1234567890", // contract address
+    "0x6968105460f67c3bf751be7c15f92f5286fd0ce5", // contract address
     [
      {
       "anonymous": false,
       "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
       {
         "indexed": true,
         "internalType": "address",
@@ -57,18 +51,20 @@ quickStartCircuit.setConditions([
       ], // abi
       "Transfer", // event name
       CHAIN_NAME.polygon, // chainId
-      ["from", "value"], // event name args
-      ["0x456000000000", BigNumber.from("500000")], // expected value
+      "https://your_provider_url_for_this_network", // provider URL
+      ["to", "value"], // event name args
+      ["0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
+      BigNumber.from("500000")], // expected value
       "===", // match operator
       async () => { console.log("Matched!"); }, // onMatched function
       async () => { console.log("Unmatched!"); }, // onUnMatched function
       (error: Error) => { console.log("Error:", error); } // onError function,
 ), ]);
 
-const litActionCode = quickStartCircuit.setActions([{
+const {unsignedTransactionDataObject, litActionCode} = await quickStartCircuit.setActions([{
   type: "contract",
   priority: 2,
-  contractAddress: "0xAbcDefGhiJklMnoPqrStuVwxYz0123456789Abcd",
+  contractAddress: "0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
   abi: [
      {
       constant: true,
@@ -83,7 +79,7 @@ const litActionCode = quickStartCircuit.setActions([{
   functionName: "your_function_name",
   chainId: "polygon",
   nonce: 1,
-  gasLimit: 21000,
+  gasLimit: 100000,
   value: 0,
   maxPriorityFeePerGas: 1000,
   maxFeePerGas: 10000,
