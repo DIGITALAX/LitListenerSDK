@@ -731,6 +731,11 @@ export class Circuit extends EventEmitter {
           const executionResBefore = this.checkExecutionLimitations();
 
           this.conditionExecutedCount++;
+          this.log(
+            LogCategory.EXECUTION,
+            "Condition Monitor Count Increased",
+            String(this.conditionExecutedCount),
+          );
           if (
             conditionResBefore === RunStatus.ACTION_RUN &&
             executionResBefore === RunStatus.ACTION_RUN
@@ -1010,6 +1015,11 @@ export class Circuit extends EventEmitter {
           : combinedResponse,
       );
       this.litActionCompletionCount++;
+      this.log(
+        LogCategory.EXECUTION,
+        "Lit Action Completion Increased",
+        String(this.litActionCompletionCount),
+      );
     } catch (err: any) {
       this.log(LogCategory.ERROR, `Lit Action failed.`, err.message);
       if (this.errorHandlingModeStrict) {
