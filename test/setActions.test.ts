@@ -37,7 +37,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
-        true
+        true,
       );
       newCircuit.setConditions([
         new WebhookCondition(
@@ -61,7 +61,6 @@ describe("Set the Actions of the Circuit", () => {
         type: "EVERY",
         interval: 10000,
       });
-
 
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 1,
@@ -135,7 +134,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
-        true
+        true,
       );
       newCircuit.setConditionalLogic({
         type: "EVERY",
@@ -262,7 +261,7 @@ describe("Set the Actions of the Circuit", () => {
       const noSignCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
-        true
+        true,
       );
       noSignCircuit.setConditionalLogic({
         type: "EVERY",
@@ -379,7 +378,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
-        true
+        true,
       );
       newCircuit.setConditionalLogic({
         type: "EVERY",
@@ -405,7 +404,7 @@ describe("Set the Actions of the Circuit", () => {
       ]);
 
       newCircuit.executionConstraints({
-        conditionMonitorExecutions: 1,
+        conditionMonitorExecutions: 10,
       });
 
       const fetchActions: FetchAction[] = [
@@ -421,7 +420,7 @@ describe("Set the Actions of the Circuit", () => {
       ];
 
       // Set the actions on the circuit
-       await newCircuit.setActions(fetchActions);
+      await newCircuit.setActions(fetchActions);
     });
 
     it("Check Returned Response is Signed", async () => {
@@ -462,9 +461,9 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
-        true
+        true,
       );
- 
+
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
@@ -624,7 +623,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
-        true
+        true,
       );
       newCircuit.setConditionalLogic({
         type: "EVERY",
@@ -722,7 +721,6 @@ describe("Set the Actions of the Circuit", () => {
           chainId: CHAIN_NAME.HARDHAT,
           providerURL: "http://127.0.0.1:8545",
           args: [to, 5000],
-          
         },
       ];
 
@@ -766,7 +764,7 @@ describe("Set the Actions of the Circuit", () => {
       const noSignCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
-        true
+        true,
       );
       noSignCircuit.setConditionalLogic({
         type: "EVERY",
@@ -864,7 +862,6 @@ describe("Set the Actions of the Circuit", () => {
       await deployedListenerToken.approve(
         pkpTokenData.address,
         ethers.utils.parseUnits("40", 18),
-        
       );
 
       const authSig = await newCircuit.generateAuthSignature(31337);
@@ -965,7 +962,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
-        true
+        true,
       );
       newCircuit.setConditionalLogic({
         type: "EVERY",
@@ -1082,7 +1079,6 @@ describe("Set the Actions of the Circuit", () => {
         publicKey,
         authSig,
         broadcast: true,
-        
       });
 
       const responseLogResponse = newCircuit.getLogs(LogCategory.RESPONSE);
