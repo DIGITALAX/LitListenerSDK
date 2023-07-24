@@ -435,7 +435,7 @@ export class Circuit extends EventEmitter {
             this.actionFunctions.add(`fetch${action.priority}`);
             this.code += `const fetch${action.priority} = async () => {
                 try {
-                    const headers = ${action.apiKey}
+                    const headers = ${action.apiKey || "undefined"}
                       ? { Authorization: 'Bearer ${action.apiKey}' }
                       : undefined;
                     const response = await fetch(
@@ -450,23 +450,34 @@ export class Circuit extends EventEmitter {
                     for (const part of pathParts) {
                       value = value[part];
                       if (value === undefined) {
-                        console.log('Invalid response path at priority ${action.priority}: ${action.responsePath}');
+                        console.log('Invalid response path at priority ${
+                          action.priority
+                        }: ${action.responsePath}');
                         break;
                       }
                     }
 
-                    if (checkSignCondition(value, signConditionFetch${action.priority})) {
+                    if (checkSignCondition(value, signConditionFetch${
+                      action.priority
+                    })) {
+
                         await Lit.Actions.signEcdsa({
                             toSign: toSignFetch${action.priority},
                             publicKey,
                             sigName: "fetch${action.priority}",
                           });
-                          concatenatedResponse.fetch${action.priority} = {value,signed:true};
+                          concatenatedResponse.fetch${
+                            action.priority
+                          } = {value,signed:true};
                     }  else {
-                        concatenatedResponse.fetch${action.priority} = {value,signed:false};
+                        concatenatedResponse.fetch${
+                          action.priority
+                        } = {value,signed:false};
                     }
                   } catch (err) {
-                    console.log('Error thrown on fetch at priority ${action.priority}: ', err);
+                    console.log('Error thrown on fetch at priority ${
+                      action.priority
+                    }: ', err);
                   }
                 }\n`;
           }
