@@ -1,4 +1,6 @@
 const path = require("path");
+const webpack = require("webpack");
+const DeclarationBundlerPlugin = require("typescript-declaration-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.ts",
@@ -12,22 +14,50 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        exclude: /(node_modules)/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env", "@babel/preset-typescript"],
+        exclude: [/(node_modules)/],
+        use: [
+          {
+            loader: "ts-loader",
           },
-        },
+        ],
+      },
+      {
+        test: /\.d\.ts$/,
+        use: "ignore-loader",
+      },
+      {
+        test: /\.map$/,
+        use: "ignore-loader",
       },
     ],
   },
   resolve: {
+    modules: ["node_modules"],
     extensions: [".tsx", ".ts", ".js"],
     fallback: {
-      crypto: require.resolve("crypto-browserify"),
       stream: require.resolve("stream-browserify"),
+      path: require.resolve("path-browserify"),
+      tty: require.resolve("tty-browserify"),
+      http: require.resolve("stream-http"),
+      crypto: require.resolve("crypto-browserify"),
+      https: require.resolve("https-browserify"),
+      zlib: require.resolve("browserify-zlib"),
+      child_process: false,
+      fs: false,
+      os: require.resolve("os-browserify/browser"),
+      pnpapi: false,
+      worker_threads: false,
     },
   },
+  plugins: [
+    new DeclarationBundlerPlugin({
+      moduleName: "lit-listener-sdk",
+      out: "./index.d.ts",
+    }),
+    new webpack.IgnorePlugin({ resourceRegExp: /^esbuild$/ }),
+  ],
   mode: "production",
+  externals: {
+    esbuild: "esbuild commonjs",
+  },
 };

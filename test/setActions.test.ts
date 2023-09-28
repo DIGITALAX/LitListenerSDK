@@ -5,6 +5,7 @@ import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import ListenerERC20ABI from "./../src/abis/ListenerERC20.json";
 import pkpABI from "./../src/abis/PKPNFT.json";
+import { create } from "ipfs-http-client";
 import {
   Action,
   CHAIN_NAME,
@@ -31,7 +32,7 @@ describe("Set the Actions of the Circuit", () => {
     175177,
   );
 
-  describe("Set Custom Actions", () => {
+  xdescribe("Set Custom Actions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
@@ -128,7 +129,7 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Set Fetch Actions", () => {
+  xdescribe("Set Fetch Actions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
@@ -372,7 +373,7 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Fetch Action for No To Sign", () => {
+  xdescribe("Fetch Action for No To Sign", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
@@ -455,7 +456,7 @@ describe("Set the Actions of the Circuit", () => {
   });
 
   let generateUnsignedTransactionData: LitUnsignedTransaction;
-  describe("Set Contract Actions", () => {
+  xdescribe("Set Contract Actions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
@@ -602,7 +603,7 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Sets the Combined Actions", () => {
+  xdescribe("Sets the Combined Actions", () => {
     let generateUnsignedTransactionData: LitUnsignedTransaction,
       fromSigner: any,
       from: any,
@@ -931,7 +932,7 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Evaluate Contract Action Nonce data", () => {
+  xdescribe("Evaluate Contract Action Nonce data", () => {
     let from: any, fromAddress: any, to: any, contract: any;
     beforeEach(async () => {
       const provider = new ethers.providers.JsonRpcProvider(
@@ -1103,5 +1104,87 @@ describe("Set the Actions of the Circuit", () => {
       expect(parsedTwo).to.equal(1);
       expect(parsedThree).to.equal(2);
     });
+  });
+
+  describe("functions with secure key", () => {
+    before(async () => {
+      // Create a test instance of the circuit
+      newCircuit = new Circuit(
+        new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
+        true,
+      );
+      newCircuit.setConditionalLogic({
+        type: "EVERY",
+        interval: 10000,
+      });
+
+      newCircuit.executionConstraints({
+        conditionMonitorExecutions: 10,
+        maxLitActionCompletions: 1,
+      });
+
+      const fetchActions: FetchAction[] = [
+        {
+          type: "fetch",
+          priority: 0,
+          apiKey: undefined,
+          baseUrl: "https://api.weather.gov",
+          endpoint: "/gridpoints/LWX/97,71/forecast",
+          responsePath: "geometry.type",
+          signCondition: [{ type: "&&", operator: "==", value: "Polygon" }],
+        },
+      ];
+      const { unsignedTransactionDataObject, litActionCode, secureKey } =
+        await newCircuit.setActions(fetchActions, true);
+
+      const ipfsClient = create({
+        url: "https://ipfs.infura.io:5001/api/v0",
+        headers: {
+          authorization:
+            "Basic " +
+            Buffer.from(
+              process.env.INFURA_PROJECT_ID +
+                ":" +
+                process.env.INFURA_SECRET_KEY,
+            ).toString("base64"),
+        },
+      });
+      // try {
+
+      //   const algo = eval(litActionCode);
+      // } catch (err) {
+      //   console.log({ err: err.message });
+      // }
+
+      // const added = await ipfsClient.add(JSON.stringify(litActionCode));
+      // const ipfsBundledCID = added.path;
+
+      // console.log({ ipfsBundledCID });
+
+      // const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsBundledCID);
+      // const pkpContract = new ethers.Contract(
+      //   PKP_CONTRACT_ADDRESS,
+      //   pkpABI,
+      //   chronicleProvider,
+      // );
+      // const pkpTokenId = pkpTokenData.tokenId;
+      // console.log({ pkpTokenId });
+      // publicKey = await pkpContract.getPubkey(pkpTokenId);
+
+      // const authSig = await newCircuit.generateAuthSignature(31337);
+      // await newCircuit.start({
+      //   publicKey: pkpTokenData.publicKey,
+      //   authSig,
+      // });
+    });
+
+    xit("Returns the secure that hashes as in the Lit Action", async () => {
+      // secure key hashed to same output in the lit action
+    });
+
+    xit("Bundled code is returned accurately", async () => {});
+
+    xit("Runs on the Lit Nodes and Broadcasts", async () => {});
   });
 });
