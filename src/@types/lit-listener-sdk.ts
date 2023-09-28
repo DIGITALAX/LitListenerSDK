@@ -5,26 +5,26 @@ import { AccessListish } from "ethers/lib/utils";
  * @constant LitChainIds
  * @description Represents the chain IDs for various blockchain networks.
  */
-export const LitChainIds: { [key: string]: number } = {
-  ethereum: 1,
-  polygon: 137,
-  fantom: 250,
-  bsc: 56,
-  arbitrum: 42161,
-  avalanche: 43114,
-  fuji: 43113,
-  harmony: 1666600000,
-  mumbai: 80001,
-  goerli: 5,
-  cronos: 25,
-  optimism: 10,
-  celo: 42220,
-  aurora: 1313161554,
-  alfajores: 44787,
-  xdc: 50,
-  evmos: 9001,
-  evmosTestnet: 9000,
-  hardhat: 31337,
+export enum LitChainIds {
+  ethereum = 1,
+  polygon = 137,
+  fantom = 250,
+  bsc = 56,
+  arbitrum = 42161,
+  avalanche = 43114,
+  fuji = 43113,
+  harmony = 1666600000,
+  mumbai = 80001,
+  goerli = 5,
+  cronos = 25,
+  optimism = 10,
+  celo = 42220,
+  aurora = 1313161554,
+  alfajores = 44787,
+  xdc = 50,
+  evmos = 9001,
+  evmosTestnet = 9000,
+  hardhat = 31337,
 };
 
 /**
@@ -559,10 +559,3 @@ export interface ILogEntry {
   responseObject: string;
   isoDate: string
 }
-
-export type LitAuthSig = {
-  sig: string;
-  derivedVia: string;
-  signedMessage: string;
-  address: string;
-};

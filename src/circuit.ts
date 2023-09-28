@@ -3,7 +3,14 @@ import { serialize } from "@ethersproject/transactions";
 import { EventEmitter } from "events";
 import { ethers } from "ethers";
 import Hash from "ipfs-only-hash";
-import { generateAuthSig, getBytesFromMultihash } from "./utils/litProtocol";
+import {
+  bundleCode,
+  generateAuthSig,
+  generateSecureRandomKey,
+  getBytesFromMultihash,
+  hashHex,
+} from "./utils/litProtocol";
+import { AuthSig } from "@lit-protocol/types";
 import { joinSignature } from "@ethersproject/bytes";
 import { PKP_CONTRACT_ADDRESS } from "./constants";
 import pkpNftAbi from "./abis/PKPNFT.json";
@@ -15,7 +22,6 @@ import {
   IConditionalLogic,
   IExecutionConstraints,
   ILogEntry,
-  LitAuthSig,
   LitChainIds,
   LitUnsignedTransaction,
   LogCategory,
@@ -31,6 +37,11 @@ export class Circuit extends EventEmitter {
    * @private
    */
   private isRunning: boolean = false;
+  /**
+   * Boolean for setting a secure key for the Lit Action.
+   * @private
+   */
+  private useSecureKey: boolean = false;
   /**
    * The array of conditions.
    * @private
@@ -127,6 +138,11 @@ export class Circuit extends EventEmitter {
    */
   private code: string = "";
   /**
+   * The secure key inputted by the developer.
+   * @private
+   */
+  private secureKey: string;
+  /**
    * The IPFS CID of the Lit Action code.
    * @private
    */
@@ -145,7 +161,7 @@ export class Circuit extends EventEmitter {
    * The authentication signature for executing Lit Actions.
    * @private
    */
-  private authSig: LitAuthSig;
+  private authSig: AuthSig;
   /**
    * Flag indicating if the action helper function has been set.
    * @private
@@ -267,7 +283,7 @@ export class Circuit extends EventEmitter {
 
   /**
    * Sets the specified conditions to the circuit.
-   * @param conditions The array of webhook conditions.
+   * @param conditions The array of webhook and/or contract conditions.
    */
   setConditions = (conditions: Condition[]): void => {
     conditions.forEach((condition) => {
@@ -302,10 +318,16 @@ export class Circuit extends EventEmitter {
    */
   setActions = async (
     actions: Action[],
+    useSecureKey: boolean = false,
   ): Promise<{
     unsignedTransactionDataObject: { [key: string]: LitUnsignedTransaction };
     litActionCode: string;
+    secureKey: string;
   }> => {
+    this.useSecureKey = useSecureKey;
+    if (this.useSecureKey) {
+      this.secureKey = generateSecureRandomKey();
+    }
     this.actions = this.actions.concat(actions);
     let unsignedTransactionDataObject: {
       [key: string]: LitUnsignedTransaction;
@@ -313,6 +335,25 @@ export class Circuit extends EventEmitter {
 
     if (!this.hasSetActionHelperFunction) {
       this.code += `
+      let CryptoJS;
+
+      const loadNodebuild = async () => {
+        if (typeof window === 'undefined') {
+          CryptoJS = await import('crypto-js');
+        }
+      };
+      
+      if (useSecureKey) {
+        loadNodebuild();
+      }
+
+      const CONDITIONAL_HASH = "${hashHex(this.secureKey)}";
+  
+      const hashHex = (input) => {
+        const hash = CryptoJS.SHA256(input);
+        return "0x" + hash.toString(CryptoJS.enc.Hex);
+      }; 
+
       const concatenatedResponse = {};
 
       const hashTransaction = (tx) => {
@@ -523,13 +564,29 @@ export class Circuit extends EventEmitter {
       }
       
       if (currentAction === ${index}) {
-        go${index}();
+        if (!useSecureKey || (useSecureKey && hashHex(secureKey) === CONDITIONAL_HASH)) {
+          go${index}();
+        }
+        
       }
       
       \n`;
     });
 
-    return { unsignedTransactionDataObject, litActionCode: this.code };
+    if (this.useSecureKey) {
+      const { outputString, error } = await bundleCode(this.code);
+      if (error) {
+        throw new Error(`Error bundling code for Lit Action: ${error}`);
+      } else {
+        this.code = outputString;
+      }
+    }
+
+    return {
+      unsignedTransactionDataObject,
+      litActionCode: this.code,
+      secureKey: this.secureKey,
+    };
   };
 
   /**
@@ -675,7 +732,7 @@ export class Circuit extends EventEmitter {
   }: {
     publicKey: `0x04${string}` | string;
     ipfsCID?: string;
-    authSig?: LitAuthSig;
+    authSig?: AuthSig;
     broadcast?: boolean;
   }): Promise<void> => {
     if (this.isRunning) {
@@ -684,7 +741,7 @@ export class Circuit extends EventEmitter {
 
     this.isRunning = true;
     try {
-      if (this.conditions.length > 0 && this.actions.length > 0) {
+      if (this.actions.length > 0) {
         if (!publicKey || !publicKey.toLowerCase().startsWith("0x04")) {
           this.log(
             LogCategory.ERROR,
@@ -710,41 +767,50 @@ export class Circuit extends EventEmitter {
         while (this.continueRun) {
           const monitors: NodeJS.Timeout[] = [];
           const conditionPromises: Promise<void>[] = [];
-          for (const condition of this.conditions) {
-            condition.sdkOnMatched = async () => {
-              this.satisfiedConditions.add(condition.id!);
-            };
+          if (this.conditions.length > 0) {
+            for (const condition of this.conditions) {
+              condition.sdkOnMatched = async () => {
+                this.satisfiedConditions.add(condition.id!);
+              };
 
-            condition.sdkOnUnMatched = async () => {
-              this.satisfiedConditions.delete(condition.id!);
-            };
+              condition.sdkOnUnMatched = async () => {
+                this.satisfiedConditions.delete(condition.id!);
+              };
 
-            const conditionPromise = this.monitor.createCondition(
-              condition,
-              this.errorHandlingModeStrict,
-            );
-
-            if (this.conditionalLogic?.interval) {
-              const timeoutPromise = new Promise<void>((resolve) =>
-                setTimeout(resolve, this.conditionalLogic.interval),
+              const conditionPromise = this.monitor.createCondition(
+                condition,
+                this.errorHandlingModeStrict,
               );
-              conditionPromises.push(
-                Promise.race([conditionPromise, timeoutPromise]).then(() => {
-                  return Promise.resolve();
-                }),
-              );
-              const monitor = setTimeout(async () => {
-                await conditionPromise;
-              }, this.conditionalLogic.interval);
-              monitors.push(monitor);
-            } else {
-              conditionPromises.push(conditionPromise);
+
+              if (this.conditionalLogic?.interval) {
+                const timeoutPromise = new Promise<void>((resolve) =>
+                  setTimeout(resolve, this.conditionalLogic.interval),
+                );
+                conditionPromises.push(
+                  Promise.race([conditionPromise, timeoutPromise]).then(() => {
+                    return Promise.resolve();
+                  }),
+                );
+                const monitor = setTimeout(async () => {
+                  await conditionPromise;
+                }, this.conditionalLogic.interval);
+                monitors.push(monitor);
+              } else {
+                conditionPromises.push(conditionPromise);
+              }
             }
+
+            if (!this.continueRun) break;
+
+            await Promise.all(conditionPromises);
+          } else {
+            this.log(
+              LogCategory.CONDITION,
+              "No conditions set, skipping condition checks.",
+              "",
+              new Date().toISOString(),
+            );
           }
-
-          if (!this.continueRun) break;
-
-          await Promise.all(conditionPromises);
 
           const conditionResBefore = this.checkConditionalLogicAndRun();
           const executionResBefore = this.checkExecutionLimitations();
@@ -813,14 +879,8 @@ export class Circuit extends EventEmitter {
             break;
           }
         }
-      } else {
-        if (this.conditions.length < 1) {
-          throw new Error(
-            `Conditions have not been set. Run setConditions() first.`,
-          );
-        } else if (this.actions.length < 1) {
-          throw new Error(`Actions have not been set. Run setActions() first.`);
-        }
+      } else if (this.actions.length < 1) {
+        throw new Error(`Actions have not been set. Run setActions() first.`);
       }
     } catch (err: any) {
       throw new Error(`Error running circuit: ${err.message}`);
@@ -860,7 +920,7 @@ export class Circuit extends EventEmitter {
     chainId = 1,
     uri = "https://localhost/login",
     version = "1",
-  ): Promise<LitAuthSig> => {
+  ): Promise<AuthSig> => {
     try {
       return generateAuthSig(this.signer, chainId, uri, version);
     } catch (err: any) {
@@ -882,7 +942,6 @@ export class Circuit extends EventEmitter {
   };
 
   // Private methods
-
   /**
    * Mints the next PKP token.
    * @param ipfsCID - The IPFS CID of the Lit Action code.
@@ -936,6 +995,10 @@ export class Circuit extends EventEmitter {
       // update nonce values
       const actionPromises: Promise<any>[] = [];
       let actions = Array.from(this.actionFunctions);
+      console.log(
+        { secureKey: this.secureKey, useSecureKey: this.useSecureKey },
+        "hereeee",
+      );
 
       for (const [i, action] of actions.entries()) {
         const action = this.actions[i];
@@ -964,7 +1027,6 @@ export class Circuit extends EventEmitter {
           ].nonce = currentNonce;
           currentNonce++;
           this.lastSuccessfulNonce.set(chainId, currentNonce);
-
           promise = this.litClient.executeJs({
             ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
             code: this.ipfsCID ? undefined : this.code,
@@ -976,6 +1038,8 @@ export class Circuit extends EventEmitter {
               publicKey: this.publicKey,
               ...this.jsParameters,
               currentAction: i,
+              secureKey: this.secureKey,
+              useSecureKey: this.useSecureKey,
             },
           });
 
@@ -995,6 +1059,8 @@ export class Circuit extends EventEmitter {
               publicKey: this.publicKey,
               ...this.jsParameters,
               currentAction: i,
+              secureKey: this.secureKey,
+              useSecureKey: this.useSecureKey,
             },
           });
         }
@@ -1047,6 +1113,7 @@ export class Circuit extends EventEmitter {
         new Date().toISOString(),
       );
     } catch (err: any) {
+      console.log(err.message, "ERROR");
       this.log(
         LogCategory.ERROR,
         `Lit Action failed.`,
