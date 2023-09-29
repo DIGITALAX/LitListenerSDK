@@ -3,7 +3,7 @@ import { Circuit, CustomAction, WebhookCondition } from "./../src";
 import { ethers } from "hardhat";
 import { CHRONICLE_PROVIDER } from "./../src/constants";
 
-xdescribe("Verify the Execution Constraints", () => {
+describe("Verify the Execution Constraints", () => {
   let newCircuit: Circuit, publicKey: string;
   const customActions: CustomAction[] = [
     {
