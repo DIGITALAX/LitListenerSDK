@@ -214,7 +214,7 @@ export class Circuit extends EventEmitter {
     this.signer = signer ? signer : ethers.Wallet.createRandom();
     this.litClient = new LitJsSdk.LitNodeClient({
       litNetwork: "serrano",
-      debug: true,
+      debug: false,
     });
     this.monitor = new ConditionMonitor();
     this.conditionalLogic = { type: "EVERY", interval: 1800000 };
@@ -314,7 +314,8 @@ export class Circuit extends EventEmitter {
   /**
    * Sets the specified actions to the circuit.
    * @param actions The array of actions to be executed.
-   * @returns The generated code for the actions and the unsigned transaction data object generated from contract actions.
+   * @param useSecureKey Set a secure key to enable only verified accounts to run the LitAction.
+   * @returns The generated code for the actions, the unsigned transaction data object generated from contract actions and the secureKey to be provided when running the LitAction.
    */
   setActions = async (
     actions: Action[],
@@ -334,10 +335,7 @@ export class Circuit extends EventEmitter {
     } = {};
 
     if (!this.hasSetActionHelperFunction) {
-      this.code += `
-      import * as CryptoJS from 'https://deno.land/std@0.113.0/_wasm_crypto/crypto.js'
-
-      const CONDITIONAL_HASH = "${hashHex(this.secureKey)}";
+      this.code += `const CONDITIONAL_HASH = "${hashHex(this.secureKey)}";
   
       const hashHex = (input) => {
         if (!CryptoJS) {
@@ -423,7 +421,7 @@ export class Circuit extends EventEmitter {
           [`signConditionFetch${action.priority}`]: action.signCondition,
           [`toSignFetch${action.priority}`]: action?.toSign
             ? action?.toSign
-            : "value",
+            : action.signCondition[action.priority].value,
         });
       } else {
         generatedUnsignedData = await this.generateUnsignedTransactionData(
@@ -565,7 +563,12 @@ export class Circuit extends EventEmitter {
           runCode = true;
         }
 
-        if (!runCode) return;
+        if (!runCode) {
+          console.log('Invalid secure key, code not running.');
+          return;
+        } else {
+          console.log('Valid secure key, code running.');
+        }
         \n\n
         ${code}
         Lit.Actions.setResponse({ response: JSON.stringify(concatenatedResponse) });
@@ -578,11 +581,7 @@ export class Circuit extends EventEmitter {
       \n`;
     });
 
-    console.log(this.code);
-
-    if (this.useSecureKey) {
-      this.code = bundleCodeManual(this.code);
-    }
+    this.code = bundleCodeManual(this.code);
 
     return {
       unsignedTransactionDataObject,
@@ -640,7 +639,6 @@ export class Circuit extends EventEmitter {
       maxFeePerGas = gasPrice.mul(2);
       maxPriorityFeePerGas = gasPrice.div(2);
     }
-
     return {
       to: data.contractAddress,
       nonce: data.nonce || 0,
@@ -724,6 +722,8 @@ export class Circuit extends EventEmitter {
    * @param publicKey The public key of the PKP contract.
    * @param ipfsCID The IPFS CID of the Lit Action code.
    * @param authSig Optional. The authentication signature for executing Lit Actions.
+   * @param secureKey Optional. The secureKey required to run the LitAction if set during setActions.
+   * @param broadcast Optional. Boolean to broadcast signed contract actions on-chain.
    * @throws {Error} If an error occurs while running the circuit.
    */
   start = async ({
@@ -1004,7 +1004,7 @@ export class Circuit extends EventEmitter {
       const actionPromises: Promise<any>[] = [];
       let actions = Array.from(this.actionFunctions);
 
-      for (const [i, action] of actions.entries()) {
+      for (const [i, _] of actions.entries()) {
         const action = this.actions[i];
 
         let promise: Promise<any>;
@@ -1031,6 +1031,7 @@ export class Circuit extends EventEmitter {
           ].nonce = currentNonce;
           currentNonce++;
           this.lastSuccessfulNonce.set(chainId, currentNonce);
+
           promise = this.litClient.executeJs({
             ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
             code: this.ipfsCID ? undefined : this.code,
@@ -1117,7 +1118,6 @@ export class Circuit extends EventEmitter {
         new Date().toISOString(),
       );
     } catch (err: any) {
-      console.log(err.message, { err }, "ERROR");
       this.log(
         LogCategory.ERROR,
         `Lit Action failed.`,
