@@ -7,7 +7,7 @@ module.exports = {
   output: {
     filename: "main.js",
     path: path.resolve(__dirname, "dist"),
-    libraryTarget: "umd",
+    libraryTarget: "module",
     globalObject: "this",
   },
   module: {
@@ -54,10 +54,6 @@ module.exports = {
       moduleName: "lit-listener-sdk",
       out: "./index.d.ts",
     }),
-    new webpack.IgnorePlugin({ resourceRegExp: /^esbuild$/ }),
   ],
   mode: "production",
-  externals: {
-    esbuild: "esbuild commonjs",
-  },
 };

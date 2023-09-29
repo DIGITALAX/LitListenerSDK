@@ -1150,33 +1150,29 @@ describe("Set the Actions of the Circuit", () => {
             ).toString("base64"),
         },
       });
-      // try {
 
-      //   const algo = eval(litActionCode);
-      // } catch (err) {
-      //   console.log({ err: err.message });
-      // }
+      const added = await ipfsClient.add(JSON.stringify(litActionCode));
+      const ipfsBundledCID = added.path;
 
-      // const added = await ipfsClient.add(JSON.stringify(litActionCode));
-      // const ipfsBundledCID = added.path;
+      console.log({ ipfsBundledCID });
 
-      // console.log({ ipfsBundledCID });
+      const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsBundledCID);
+      const pkpContract = new ethers.Contract(
+        PKP_CONTRACT_ADDRESS,
+        pkpABI,
+        chronicleProvider,
+      );
+      const pkpTokenId = pkpTokenData.tokenId;
+      console.log({ pkpTokenId });
+      publicKey = await pkpContract.getPubkey(pkpTokenId);
 
-      // const pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsBundledCID);
-      // const pkpContract = new ethers.Contract(
-      //   PKP_CONTRACT_ADDRESS,
-      //   pkpABI,
-      //   chronicleProvider,
-      // );
-      // const pkpTokenId = pkpTokenData.tokenId;
-      // console.log({ pkpTokenId });
-      // publicKey = await pkpContract.getPubkey(pkpTokenId);
-
-      // const authSig = await newCircuit.generateAuthSignature(31337);
-      // await newCircuit.start({
-      //   publicKey: pkpTokenData.publicKey,
-      //   authSig,
-      // });
+      const authSig = await newCircuit.generateAuthSignature(31337);
+      await newCircuit.start({
+        publicKey: pkpTokenData.publicKey,
+        ipfsCID: ipfsBundledCID,
+        authSig,
+        secureKey,
+      });
     });
 
     xit("Returns the secure that hashes as in the Lit Action", async () => {

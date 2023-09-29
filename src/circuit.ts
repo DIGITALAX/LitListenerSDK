@@ -4,7 +4,7 @@ import { EventEmitter } from "events";
 import { ethers } from "ethers";
 import Hash from "ipfs-only-hash";
 import {
-  bundleCode,
+  bundleCodeManual,
   generateAuthSig,
   generateSecureRandomKey,
   getBytesFromMultihash,
@@ -214,7 +214,7 @@ export class Circuit extends EventEmitter {
     this.signer = signer ? signer : ethers.Wallet.createRandom();
     this.litClient = new LitJsSdk.LitNodeClient({
       litNetwork: "serrano",
-      debug: false,
+      debug: true,
     });
     this.monitor = new ConditionMonitor();
     this.conditionalLogic = { type: "EVERY", interval: 1800000 };
@@ -335,21 +335,15 @@ export class Circuit extends EventEmitter {
 
     if (!this.hasSetActionHelperFunction) {
       this.code += `
-      let CryptoJS;
-
-      const loadNodebuild = async () => {
-        if (typeof window === 'undefined') {
-          CryptoJS = await import('crypto-js');
-        }
-      };
-      
-      if (useSecureKey) {
-        loadNodebuild();
-      }
+      import * as CryptoJS from 'https://deno.land/std@0.113.0/_wasm_crypto/crypto.js'
 
       const CONDITIONAL_HASH = "${hashHex(this.secureKey)}";
   
       const hashHex = (input) => {
+        if (!CryptoJS) {
+          console.log("CryptoJS is not initialized.");
+          return;
+        }
         const hash = CryptoJS.SHA256(input);
         return "0x" + hash.toString(CryptoJS.enc.Hex);
       }; 
@@ -559,27 +553,35 @@ export class Circuit extends EventEmitter {
 
     functionCallsCode.forEach((code, index) => {
       this.code += `\nconst go${index} = async () => {
+        \n\n
+        let runCode = false;
+        if (useSecureKey) {
+          if (CryptoJS) {
+            if (hashHex(secureKey) === CONDITIONAL_HASH) {
+              runCode = true;
+            }
+          }
+        } else {
+          runCode = true;
+        }
+
+        if (!runCode) return;
+        \n\n
         ${code}
         Lit.Actions.setResponse({ response: JSON.stringify(concatenatedResponse) });
       }
       
       if (currentAction === ${index}) {
-        if (!useSecureKey || (useSecureKey && hashHex(secureKey) === CONDITIONAL_HASH)) {
-          go${index}();
-        }
-        
+        go${index}();
       }
       
       \n`;
     });
 
+    console.log(this.code);
+
     if (this.useSecureKey) {
-      const { outputString, error } = await bundleCode(this.code);
-      if (error) {
-        throw new Error(`Error bundling code for Lit Action: ${error}`);
-      } else {
-        this.code = outputString;
-      }
+      this.code = bundleCodeManual(this.code);
     }
 
     return {
@@ -728,11 +730,13 @@ export class Circuit extends EventEmitter {
     publicKey,
     ipfsCID,
     authSig,
+    secureKey,
     broadcast,
   }: {
     publicKey: `0x04${string}` | string;
     ipfsCID?: string;
     authSig?: AuthSig;
+    secureKey?: string;
     broadcast?: boolean;
   }): Promise<void> => {
     if (this.isRunning) {
@@ -759,6 +763,10 @@ export class Circuit extends EventEmitter {
         }
         if (authSig) {
           this.authSig = authSig;
+        }
+        if (secureKey) {
+          this.secureKey = secureKey;
+          this.useSecureKey = true;
         }
 
         // connect lit client
@@ -995,10 +1003,6 @@ export class Circuit extends EventEmitter {
       // update nonce values
       const actionPromises: Promise<any>[] = [];
       let actions = Array.from(this.actionFunctions);
-      console.log(
-        { secureKey: this.secureKey, useSecureKey: this.useSecureKey },
-        "hereeee",
-      );
 
       for (const [i, action] of actions.entries()) {
         const action = this.actions[i];
@@ -1113,7 +1117,7 @@ export class Circuit extends EventEmitter {
         new Date().toISOString(),
       );
     } catch (err: any) {
-      console.log(err.message, "ERROR");
+      console.log(err.message, { err }, "ERROR");
       this.log(
         LogCategory.ERROR,
         `Lit Action failed.`,

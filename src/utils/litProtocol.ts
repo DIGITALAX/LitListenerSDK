@@ -2,13 +2,12 @@ import { ethers } from "ethers";
 import bs58 from "bs58";
 import { SiweMessage } from "siwe";
 import { AuthSig } from "@lit-protocol/types";
-let esbuild: any, Writable: any, crypto: any, CryptoJS: any;
+import { DENO_BUNDLED } from "./../../src/constants";
+let crypto: any, CryptoJS: any;
 
 const loadNodebuild = async () => {
   if (typeof window === "undefined") {
-    esbuild = await import("esbuild");
     const stream = await import("stream");
-    Writable = stream.Writable;
     crypto = await import("crypto");
     CryptoJS = await import("crypto-js");
   }
@@ -50,39 +49,6 @@ export const getBytesFromMultihash = (multihash: string): string => {
   return `0x${Buffer.from(decoded).toString("hex")}`;
 };
 
-export const bundleCode = async (
-  dynamicCode: string,
-): Promise<{
-  outputString?: string;
-  error?: string;
-}> => {
-  if (!esbuild) {
-    throw new Error("This function can only be run in a Node.js environment.");
-  }
-  try {
-    const result = await esbuild.build({
-      stdin: {
-        contents: dynamicCode,
-        resolveDir: process.cwd(),
-        sourcefile: "in-memory-code.js",
-      },
-      bundle: true,
-      platform: "neutral",
-      write: false,
-      target: "es6",
-      format: "cjs",
-    });
-
-    const outputString = new TextDecoder().decode(
-      result.outputFiles[0].contents,
-    );
-
-    return { outputString };
-  } catch (err: any) {
-    return { error: err.message };
-  }
-};
-
 export const generateSecureRandomKey = (): string => {
   if (!crypto) {
     throw new Error("This function can only be run in a Node.js environment.");
@@ -96,4 +62,8 @@ export const hashHex = (input: string): string => {
   }
   const hash = CryptoJS.SHA256(input);
   return "0x" + hash.toString(CryptoJS.enc.Hex);
+};
+
+export const bundleCodeManual = (dynamicCode: string): string => {
+  return DENO_BUNDLED + "\n\n" + dynamicCode;
 };
