@@ -1,5 +1,4 @@
 const path = require("path");
-const webpack = require("webpack");
 const DeclarationBundlerPlugin = require("typescript-declaration-webpack-plugin");
 
 module.exports = {
@@ -7,7 +6,7 @@ module.exports = {
   output: {
     filename: "main.js",
     path: path.resolve(__dirname, "dist"),
-    libraryTarget: "module",
+    libraryTarget: "umd",
     globalObject: "this",
   },
   module: {
