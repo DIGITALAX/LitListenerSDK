@@ -214,7 +214,7 @@ export class Circuit extends EventEmitter {
     this.signer = signer ? signer : ethers.Wallet.createRandom();
     this.litClient = new LitJsSdk.LitNodeClient({
       litNetwork: "serrano",
-      debug: false,
+      debug: true,
     });
     this.monitor = new ConditionMonitor();
     this.conditionalLogic = { type: "EVERY", interval: 1800000 };

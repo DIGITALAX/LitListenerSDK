@@ -44,7 +44,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -59,7 +59,7 @@ describe("Verify the Conditional Logic", () => {
         ),
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0].number",
           1,
           "===",
@@ -89,7 +89,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -104,7 +104,7 @@ describe("Verify the Conditional Logic", () => {
         ),
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0].number",
           10,
           "===",
@@ -137,7 +137,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -152,7 +152,7 @@ describe("Verify the Conditional Logic", () => {
         ),
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0].number",
           1,
           "===",
@@ -184,7 +184,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -199,7 +199,7 @@ describe("Verify the Conditional Logic", () => {
         ),
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0].number",
           1,
           "===",
@@ -231,7 +231,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -246,7 +246,7 @@ describe("Verify the Conditional Logic", () => {
         ),
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0].number",
           100,
           "===",
@@ -288,7 +288,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -303,7 +303,7 @@ describe("Verify the Conditional Logic", () => {
         ),
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0].number",
           1,
           "===",
@@ -335,7 +335,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -350,7 +350,7 @@ describe("Verify the Conditional Logic", () => {
         ),
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0].number",
           100,
           "===",
@@ -403,7 +403,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0].number",
           1,
           "===",

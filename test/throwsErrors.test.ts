@@ -43,7 +43,7 @@ describe("Throws all Errors of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.govvv",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -85,7 +85,7 @@ describe("Throws all Errors of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "another.path.invalid",
           "Polygon",
           "===",
@@ -225,7 +225,7 @@ describe("Throws all Errors of the Circuit", () => {
           priority: 0,
           apiKey: undefined,
           baseUrl: "https://api.weather.gov",
-          endpoint: "/gridpoints/LWX/97,71/forecast",
+          endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
           toSign: new Uint8Array(
@@ -239,7 +239,7 @@ describe("Throws all Errors of the Circuit", () => {
           priority: 0,
           apiKey: undefined,
           baseUrl: "https://api.weather.gov",
-          endpoint: "/gridpoints/LWX/97,71/forecast",
+          endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
           toSign: new Uint8Array(
@@ -334,7 +334,7 @@ describe("Throws all Errors of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.govvv",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -377,7 +377,7 @@ describe("Throws all Errors of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",

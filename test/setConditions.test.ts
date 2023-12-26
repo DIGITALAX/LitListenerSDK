@@ -21,390 +21,75 @@ const chronicleProvider = new ethers.providers.JsonRpcProvider(
 
 const arrayObject = [
   {
-    number: 1,
-    name: "Tonight",
-    startTime: "2023-09-27T19:00:00-04:00",
-    endTime: "2023-09-28T06:00:00-04:00",
-    isDaytime: false,
-    temperature: 54,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: null,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 12.777777777777779,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 96,
-    },
-    windSpeed: "7 mph",
-    windDirection: "NE",
-    icon: "https://api.weather.gov/icons/land/night/sct?size=medium",
-    shortForecast: "Partly Cloudy",
-    detailedForecast:
-      "Partly cloudy, with a low around 54. Northeast wind around 7 mph.",
+      "number": 1,
+      "name": "Rest Of Tonight",
+      "detailedForecast": "Cloudy with a 50 percent chance of rain. Areas of fog. Lows in the lower 40s. East winds 10 to 15 mph."
   },
   {
-    number: 2,
-    name: "Thursday",
-    startTime: "2023-09-28T06:00:00-04:00",
-    endTime: "2023-09-28T18:00:00-04:00",
-    isDaytime: true,
-    temperature: 69,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: 30,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 15.555555555555555,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 96,
-    },
-    windSpeed: "7 to 10 mph",
-    windDirection: "NE",
-    icon: "https://api.weather.gov/icons/land/day/rain_showers,20/rain_showers,30?size=medium",
-    shortForecast: "Chance Rain Showers",
-    detailedForecast:
-      "A chance of rain showers after 8am. Mostly cloudy, with a high near 69. Northeast wind 7 to 10 mph. Chance of precipitation is 30%. New rainfall amounts less than a tenth of an inch possible.",
+      "number": 2,
+      "name": "Tuesday",
+      "detailedForecast": "Mostly cloudy. Light rain showers early, then areas of drizzle in the afternoon. Areas of fog early, then patchy fog in the afternoon. Highs in the upper 40s. Southeast winds 5 to 15 mph."
   },
   {
-    number: 3,
-    name: "Thursday Night",
-    startTime: "2023-09-28T18:00:00-04:00",
-    endTime: "2023-09-29T06:00:00-04:00",
-    isDaytime: false,
-    temperature: 60,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: 50,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 16.666666666666668,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 97,
-    },
-    windSpeed: "10 mph",
-    windDirection: "NE",
-    icon: "https://api.weather.gov/icons/land/night/rain_showers,40/rain_showers,50?size=medium",
-    shortForecast: "Chance Rain Showers",
-    detailedForecast:
-      "A chance of rain showers. Mostly cloudy, with a low around 60. Northeast wind around 10 mph. Chance of precipitation is 50%. New rainfall amounts between a quarter and half of an inch possible.",
+      "number": 3,
+      "name": "Tuesday Night",
+      "detailedForecast": "Mostly cloudy. Patchy drizzle. Lows in the upper 30s. Southwest winds 5 to 10 mph shifting to the northwest after midnight."
   },
   {
-    number: 4,
-    name: "Friday",
-    startTime: "2023-09-29T06:00:00-04:00",
-    endTime: "2023-09-29T18:00:00-04:00",
-    isDaytime: true,
-    temperature: 69,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: 50,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 17.777777777777779,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 100,
-    },
-    windSpeed: "8 to 12 mph",
-    windDirection: "NE",
-    icon: "https://api.weather.gov/icons/land/day/rain_showers,50/rain_showers,40?size=medium",
-    shortForecast: "Chance Rain Showers",
-    detailedForecast:
-      "A chance of rain showers. Mostly cloudy, with a high near 69. Northeast wind 8 to 12 mph. Chance of precipitation is 50%. New rainfall amounts between a quarter and half of an inch possible.",
+      "number": 4,
+      "name": "Wednesday",
+      "detailedForecast": "Partly sunny. Highs in the lower 40s. Northwest winds 5 to 10 mph."
   },
   {
-    number: 5,
-    name: "Friday Night",
-    startTime: "2023-09-29T18:00:00-04:00",
-    endTime: "2023-09-30T06:00:00-04:00",
-    isDaytime: false,
-    temperature: 60,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: 30,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 17.777777777777779,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 100,
-    },
-    windSpeed: "12 mph",
-    windDirection: "N",
-    icon: "https://api.weather.gov/icons/land/night/rain_showers,30/rain_showers,20?size=medium",
-    shortForecast: "Chance Rain Showers",
-    detailedForecast:
-      "A chance of rain showers. Mostly cloudy, with a low around 60. North wind around 12 mph. Chance of precipitation is 30%.",
+      "number": 5,
+      "name": "Wednesday Night",
+      "detailedForecast": "Mostly cloudy. Lows in the lower 30s. North winds 5 to 15 mph. Gusts up to 25 mph after midnight."
   },
   {
-    number: 6,
-    name: "Saturday",
-    startTime: "2023-09-30T06:00:00-04:00",
-    endTime: "2023-09-30T18:00:00-04:00",
-    isDaytime: true,
-    temperature: 74,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: 20,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 17.222222222222221,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 100,
-    },
-    windSpeed: "12 mph",
-    windDirection: "N",
-    icon: "https://api.weather.gov/icons/land/day/rain_showers,20?size=medium",
-    shortForecast: "Slight Chance Rain Showers",
-    detailedForecast:
-      "A slight chance of rain showers. Partly sunny, with a high near 74. Chance of precipitation is 20%.",
+      "number": 6,
+      "name": "Thursday",
+      "detailedForecast": "Partly sunny. Highs in the upper 30s."
   },
   {
-    number: 7,
-    name: "Saturday Night",
-    startTime: "2023-09-30T18:00:00-04:00",
-    endTime: "2023-10-01T06:00:00-04:00",
-    isDaytime: false,
-    temperature: 59,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: null,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 17.222222222222221,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 97,
-    },
-    windSpeed: "7 to 10 mph",
-    windDirection: "N",
-    icon: "https://api.weather.gov/icons/land/night/rain_showers/sct?size=medium",
-    shortForecast: "Slight Chance Rain Showers then Partly Cloudy",
-    detailedForecast:
-      "A slight chance of rain showers before 8pm. Partly cloudy, with a low around 59.",
+      "number": 7,
+      "name": "Thursday Night",
+      "detailedForecast": "Partly cloudy. Lows in the mid 20s."
   },
   {
-    number: 8,
-    name: "Sunday",
-    startTime: "2023-10-01T06:00:00-04:00",
-    endTime: "2023-10-01T18:00:00-04:00",
-    isDaytime: true,
-    temperature: 79,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: null,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 16.111111111111111,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 96,
-    },
-    windSpeed: "9 mph",
-    windDirection: "N",
-    icon: "https://api.weather.gov/icons/land/day/sct?size=medium",
-    shortForecast: "Mostly Sunny",
-    detailedForecast: "Mostly sunny, with a high near 79.",
+      "number": 8,
+      "name": "Friday",
+      "detailedForecast": "Partly sunny. Highs in the mid 30s."
   },
   {
-    number: 9,
-    name: "Sunday Night",
-    startTime: "2023-10-01T18:00:00-04:00",
-    endTime: "2023-10-02T06:00:00-04:00",
-    isDaytime: false,
-    temperature: 60,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: null,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 16.111111111111111,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 93,
-    },
-    windSpeed: "8 mph",
-    windDirection: "N",
-    icon: "https://api.weather.gov/icons/land/night/few?size=medium",
-    shortForecast: "Mostly Clear",
-    detailedForecast: "Mostly clear, with a low around 60.",
+      "number": 9,
+      "name": "Friday Night",
+      "detailedForecast": "Partly cloudy. Lows in the lower 20s."
   },
   {
-    number: 10,
-    name: "Monday",
-    startTime: "2023-10-02T06:00:00-04:00",
-    endTime: "2023-10-02T18:00:00-04:00",
-    isDaytime: true,
-    temperature: 80,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: null,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 16.111111111111111,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 93,
-    },
-    windSpeed: "8 mph",
-    windDirection: "NE",
-    icon: "https://api.weather.gov/icons/land/day/few?size=medium",
-    shortForecast: "Sunny",
-    detailedForecast: "Sunny, with a high near 80.",
+      "number": 10,
+      "name": "Saturday",
+      "detailedForecast": "Partly sunny. Highs in the lower 30s."
   },
   {
-    number: 11,
-    name: "Monday Night",
-    startTime: "2023-10-02T18:00:00-04:00",
-    endTime: "2023-10-03T06:00:00-04:00",
-    isDaytime: false,
-    temperature: 60,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: null,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 16.111111111111111,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 93,
-    },
-    windSpeed: "6 mph",
-    windDirection: "N",
-    icon: "https://api.weather.gov/icons/land/night/few?size=medium",
-    shortForecast: "Mostly Clear",
-    detailedForecast: "Mostly clear, with a low around 60.",
+      "number": 11,
+      "name": "Saturday Night",
+      "detailedForecast": "Mostly cloudy. Lows in the lower 20s."
   },
   {
-    number: 12,
-    name: "Tuesday",
-    startTime: "2023-10-03T06:00:00-04:00",
-    endTime: "2023-10-03T18:00:00-04:00",
-    isDaytime: true,
-    temperature: 81,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: null,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 16.666666666666668,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 97,
-    },
-    windSpeed: "5 to 8 mph",
-    windDirection: "N",
-    icon: "https://api.weather.gov/icons/land/day/few?size=medium",
-    shortForecast: "Sunny",
-    detailedForecast: "Sunny, with a high near 81.",
+      "number": 12,
+      "name": "Sunday",
+      "detailedForecast": "Mostly cloudy. Highs in the lower 30s."
   },
   {
-    number: 13,
-    name: "Tuesday Night",
-    startTime: "2023-10-03T18:00:00-04:00",
-    endTime: "2023-10-04T06:00:00-04:00",
-    isDaytime: false,
-    temperature: 61,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: null,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 17.222222222222221,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 93,
-    },
-    windSpeed: "3 to 8 mph",
-    windDirection: "E",
-    icon: "https://api.weather.gov/icons/land/night/few?size=medium",
-    shortForecast: "Mostly Clear",
-    detailedForecast: "Mostly clear, with a low around 61.",
+      "number": 13,
+      "name": "Sunday Night",
+      "detailedForecast": "Mostly cloudy. Lows in the lower 20s."
   },
   {
-    number: 14,
-    name: "Wednesday",
-    startTime: "2023-10-04T06:00:00-04:00",
-    endTime: "2023-10-04T18:00:00-04:00",
-    isDaytime: true,
-    temperature: 80,
-    temperatureUnit: "F",
-    temperatureTrend: null,
-    probabilityOfPrecipitation: {
-      unitCode: "wmoUnit:percent",
-      value: null,
-    },
-    dewpoint: {
-      unitCode: "wmoUnit:degC",
-      value: 16.666666666666668,
-    },
-    relativeHumidity: {
-      unitCode: "wmoUnit:percent",
-      value: 97,
-    },
-    windSpeed: "8 mph",
-    windDirection: "NE",
-    icon: "https://api.weather.gov/icons/land/day/few?size=medium",
-    shortForecast: "Sunny",
-    detailedForecast: "Sunny, with a high near 80.",
-  },
+      "number": 14,
+      "name": "New Years Day",
+      "detailedForecast": "Mostly cloudy. Highs in the lower 30s."
+  }
 ];
 
 const customActions: CustomAction[] = [
@@ -723,7 +408,7 @@ describe("Set the Conditions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -756,7 +441,7 @@ describe("Set the Conditions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0].number",
           1,
           "===",
@@ -790,7 +475,7 @@ describe("Set the Conditions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods[0]",
           arrayObject[0],
           "===",
@@ -824,7 +509,7 @@ describe("Set the Conditions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "properties.periods",
           arrayObject,
           "===",
