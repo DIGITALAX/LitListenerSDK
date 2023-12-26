@@ -40,7 +40,7 @@ describe("Mint Grant Burn PKP", () => {
     newCircuit.setConditions([
       new WebhookCondition(
         "https://api.weather.gov",
-        "/gridpoints/LWX/97,71/forecast",
+        "/zones/forecast/MIZ018/forecast",
         "geometry.type",
         "Polygon",
         "===",
@@ -125,7 +125,7 @@ describe("Mint Grant Burn PKP", () => {
     rejectCircuit.setConditions([
       new WebhookCondition(
         "https://api.weather.gov",
-        "/gridpoints/LWX/97,71/forecast",
+        "/zones/forecast/MIZ018/forecast",
         "geometry.type",
         "Polygon",
         "===",

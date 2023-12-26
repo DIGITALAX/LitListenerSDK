@@ -48,7 +48,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -150,7 +150,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -179,7 +179,7 @@ describe("Set the Actions of the Circuit", () => {
           priority: 0,
           apiKey: undefined,
           baseUrl: "https://api.weather.gov",
-          endpoint: "/gridpoints/LWX/97,71/forecast",
+          endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Polygon" }],
           toSign: new Uint8Array(
@@ -204,7 +204,7 @@ describe("Set the Actions of the Circuit", () => {
         ),
       );
       expect(LitActionCode.replace(/\s/g, "")).to.include(
-        `const response = await fetch('https://api.weather.gov/gridpoints/LWX/97,71/forecast', { headers });`.replace(
+        `const response = await fetch('https://api.weather.gov/zones/forecast/MIZ018/forecast', { headers });`.replace(
           /\s/g,
           "",
         ),
@@ -280,7 +280,7 @@ describe("Set the Actions of the Circuit", () => {
           priority: 0,
           apiKey: undefined,
           baseUrl: "https://api.weather.gov",
-          endpoint: "/gridpoints/LWX/97,71/forecast",
+          endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
           toSign: new Uint8Array(
@@ -294,7 +294,7 @@ describe("Set the Actions of the Circuit", () => {
       noSignCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -394,7 +394,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -419,7 +419,7 @@ describe("Set the Actions of the Circuit", () => {
           priority: 0,
           apiKey: undefined,
           baseUrl: "https://api.weather.gov",
-          endpoint: "/gridpoints/LWX/97,71/forecast",
+          endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Polygon" }],
         },
@@ -473,7 +473,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -670,7 +670,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -708,7 +708,7 @@ describe("Set the Actions of the Circuit", () => {
           priority: 3,
           apiKey: undefined,
           baseUrl: "https://api.weather.gov",
-          endpoint: "/gridpoints/LWX/97,71/forecast",
+          endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Polygon" }],
           toSign: new Uint8Array(
@@ -783,7 +783,7 @@ describe("Set the Actions of the Circuit", () => {
           priority: 0,
           apiKey: undefined,
           baseUrl: "https://api.weather.gov",
-          endpoint: "/gridpoints/LWX/97,71/forecast",
+          endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
           toSign: new Uint8Array(
@@ -797,7 +797,7 @@ describe("Set the Actions of the Circuit", () => {
           priority: 0,
           apiKey: undefined,
           baseUrl: "https://api.weather.gov",
-          endpoint: "/gridpoints/LWX/97,71/forecast",
+          endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
           toSign: new Uint8Array(
@@ -811,7 +811,7 @@ describe("Set the Actions of the Circuit", () => {
       noSignCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -994,7 +994,7 @@ describe("Set the Actions of the Circuit", () => {
       newCircuit.setConditions([
         new WebhookCondition(
           "https://api.weather.gov",
-          "/gridpoints/LWX/97,71/forecast",
+          "/zones/forecast/MIZ018/forecast",
           "geometry.type",
           "Polygon",
           "===",
@@ -1141,7 +1141,7 @@ describe("Set the Actions of the Circuit", () => {
           priority: 0,
           apiKey: undefined,
           baseUrl: "https://api.weather.gov",
-          endpoint: "/gridpoints/LWX/97,71/forecast",
+          endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Polygon" }],
         },

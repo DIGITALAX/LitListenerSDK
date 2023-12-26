@@ -1,0 +1,11 @@
+demo/
+contracts/
+artifacts/
+node_modules/
+cache/
+test/
+typechain-types/
+scripts/
+hardhat.config.ts
+package-lock.json
+.env

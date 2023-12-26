@@ -7,7 +7,6 @@ import {
   LitChainIds,
   WebhookCondition,
 } from "./@types/lit-listener-sdk";
-import lodash from "lodash";
 
 /**
  * @class ConditionMonitor

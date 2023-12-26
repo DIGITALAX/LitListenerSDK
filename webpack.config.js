@@ -1,10 +1,12 @@
 const path = require("path");
+const webpack = require("webpack");
 const DeclarationBundlerPlugin = require("typescript-declaration-webpack-plugin");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.ts",
   output: {
-    filename: "main.js",
+    filename: "index.js",
     path: path.resolve(__dirname, "dist"),
     libraryTarget: "umd",
     globalObject: "this",
@@ -46,12 +48,21 @@ module.exports = {
       os: require.resolve("os-browserify/browser"),
       pnpapi: false,
       worker_threads: false,
+      buffer: require.resolve("buffer/"),
     },
   },
   plugins: [
     new DeclarationBundlerPlugin({
       moduleName: "lit-listener-sdk",
       out: "./index.d.ts",
+    }),
+    new NodePolyfillPlugin(),
+    new webpack.ProvidePlugin({
+      Buffer: ["buffer", "Buffer"],
+      process: "process/browser",
+    }),
+    new webpack.NormalModuleReplacementPlugin(/node:/, (resource) => {
+      resource.request = resource.request.replace(/^node:/, "");
     }),
   ],
   mode: "production",
