@@ -1120,17 +1120,26 @@ export class Circuit extends EventEmitter {
 
       const response = (await Promise.all(actionPromises)).flat();
       let combinedResponse = { signatures: {}, response: {}, logs: "" };
-
+      let counter = 0;
       response.forEach((res) => {
         combinedResponse.signatures = {
           ...combinedResponse.signatures,
           ...res.signatures,
         };
-        combinedResponse.response = {
-          ...combinedResponse.response,
-          ...res.response,
-        };
+        if (typeof res.response === "object") {
+          combinedResponse.response = {
+            ...combinedResponse.response,
+            ...res.response,
+          };
+        } else {
+          combinedResponse.response = {
+            ...combinedResponse.response,
+          };
+          combinedResponse.response[counter] = res.response;
+        }
+
         combinedResponse.logs += "\n" + res.logs;
+        counter += 1;
       });
 
       // broadcast actions
