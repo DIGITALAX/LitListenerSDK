@@ -9,7 +9,7 @@
   "scripts": {
     "start:node": "npx hardhat node",
     "test:prepare": "npx hardhat clean && npx hardhat compile && npx typechain --target ethers-v5 --out-dir typechain-types/contracts './src/abis/*.json'",
-    "test:run": "npx hardhat test --network localhost",
+    "test:run": "npx hardhat test --network localhost --grep MintGrantBurnPKP",
     "pretest": "npm run test:prepare",
     "test": "start-server-and-test start:node http://127.0.0.1:8545 test:run",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
@@ -32,9 +32,11 @@
   "homepage": "https://github.com/DIGITALAX/LitListenerSDK#readme",
   "dependencies": {
     "@ethersproject/bytes": "^5.7.0",
-    "@ethersproject/transactions": "^5.7.0",
-    "@lit-protocol/lit-node-client": "2.2.24",
-    "@lit-protocol/pkp-ethers": "2.2.41",
+    "@ethersproject/transactions": "5.7.0",
+    "@lit-protocol/lit-node-client": "6.0.0-beta.2",
+    "@lit-protocol/pkp-ethers": "6.0.0-beta.2",
+    "@lit-protocol/auth-helpers": "6.0.0-beta.2",
+    "@lit-protocol/types": "6.0.0-beta.2",
     "@typechain/ethers-v5": "^10.1.1",
     "@typechain/hardhat": "^6.1.4",
     "axios": "^1.4.0",
