@@ -2,18 +2,348 @@
   {
     "inputs": [
       {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotAddFunctionToDiamondThatAlreadyExists",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "_selectors",
+        "type": "bytes4[]"
+      }
+    ],
+    "name": "CannotAddSelectorsToZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotRemoveFunctionThatDoesNotExist",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotRemoveImmutableFunction",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotReplaceFunctionThatDoesNotExists",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "_selectors",
+        "type": "bytes4[]"
+      }
+    ],
+    "name": "CannotReplaceFunctionsFromFacetWithZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotReplaceImmutableFunction",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "_action",
+        "type": "uint8"
+      }
+    ],
+    "name": "IncorrectFacetCutAction",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
-        "name": "_pkpNft",
+        "name": "_initializationContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "InitializationFunctionReverted",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_contractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_message",
+        "type": "string"
+      }
+    ],
+    "name": "NoBytecodeAtAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_facetAddress",
+        "type": "address"
+      }
+    ],
+    "name": "NoSelectorsProvidedForFacetForCut",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_router",
+        "name": "_contractOwner",
         "type": "address"
       }
     ],
+    "name": "NotContractOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_facetAddress",
+        "type": "address"
+      }
+    ],
+    "name": "RemoveFacetAddressMustBeZeroAddress",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamond.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct IDiamond.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "DiamondCut",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamond.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamond.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "diamondCut",
+    "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "constructor"
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_functionSelector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "facetAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "facetAddress_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "facetAddresses",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "facetAddresses_",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_facet",
+        "type": "address"
+      }
+    ],
+    "name": "facetFunctionSelectors",
+    "outputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "_facetFunctionSelectors",
+        "type": "bytes4[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "facets",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondLoupe.Facet[]",
+        "name": "facets_",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "anonymous": false,
@@ -32,6 +362,50 @@
       }
     ],
     "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "owner_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "CallerNotOwner",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newResolverAddress",
+        "type": "address"
+      }
+    ],
+    "name": "ContractResolverAddressSet",
     "type": "event"
   },
   {
@@ -85,12 +459,6 @@
         "internalType": "bytes",
         "name": "id",
         "type": "bytes"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
       }
     ],
     "name": "PermittedAuthMethodRemoved",
@@ -115,12 +483,6 @@
         "indexed": false,
         "internalType": "bytes",
         "name": "id",
-        "type": "bytes"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes",
-        "name": "userPubkey",
         "type": "bytes"
       },
       {
@@ -156,18 +518,37 @@
       },
       {
         "indexed": false,
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "scopeId",
         "type": "uint256"
       }
     ],
     "name": "PermittedAuthMethodScopeRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "group",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "root",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RootHashUpdated",
     "type": "event"
   },
   {
@@ -224,19 +605,26 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "authMethodType",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "id",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "authMethodType",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "id",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userPubkey",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct LibPKPPermissionsStorage.AuthMethod",
+        "name": "authMethod",
+        "type": "tuple"
       },
       {
         "internalType": "uint256[]",
@@ -267,11 +655,6 @@
         "type": "bytes"
       },
       {
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
-      },
-      {
         "internalType": "uint256",
         "name": "scopeId",
         "type": "uint256"
@@ -286,29 +669,43 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "authMethods",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "authMethodType",
+        "name": "tokenId",
         "type": "uint256"
       },
       {
-        "internalType": "bytes",
-        "name": "id",
-        "type": "bytes"
+        "internalType": "uint256[]",
+        "name": "permittedAuthMethodTypesToAdd",
+        "type": "uint256[]"
       },
       {
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
+        "internalType": "bytes[]",
+        "name": "permittedAuthMethodIdsToAdd",
+        "type": "bytes[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "permittedAuthMethodPubkeysToAdd",
+        "type": "bytes[]"
+      },
+      {
+        "internalType": "uint256[][]",
+        "name": "permittedAuthMethodScopesToAdd",
+        "type": "uint256[][]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "permittedAuthMethodTypesToRemove",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "permittedAuthMethodIdsToRemove",
+        "type": "bytes[]"
       }
     ],
-    "stateMutability": "view",
+    "name": "batchAddRemoveAuthMethods",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -321,11 +718,6 @@
       {
         "internalType": "bytes",
         "name": "id",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "userPubkey",
         "type": "bytes"
       }
     ],
@@ -415,11 +807,6 @@
         "type": "bytes"
       },
       {
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
-      },
-      {
         "internalType": "uint256",
         "name": "maxScopeId",
         "type": "uint256"
@@ -464,9 +851,22 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct PKPPermissions.AuthMethod[]",
+        "internalType": "struct LibPKPPermissionsStorage.AuthMethod[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPkpNftAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -492,6 +892,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getRouterAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -501,11 +914,6 @@
       {
         "internalType": "bytes",
         "name": "id",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "userPubkey",
         "type": "bytes"
       }
     ],
@@ -539,25 +947,6 @@
         "internalType": "bytes",
         "name": "",
         "type": "bytes"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "idToUserPubkeyLookup",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -627,11 +1016,6 @@
         "internalType": "bytes",
         "name": "id",
         "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
       }
     ],
     "name": "isPermittedAuthMethod",
@@ -663,11 +1047,6 @@
         "type": "bytes"
       },
       {
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
-      },
-      {
         "internalType": "uint256",
         "name": "scopeId",
         "type": "uint256"
@@ -679,32 +1058,6 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "pkpNFT",
-    "outputs": [
-      {
-        "internalType": "contract PKPNFT",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -762,11 +1115,6 @@
         "internalType": "bytes",
         "name": "id",
         "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
       }
     ],
     "name": "removePermittedAuthMethod",
@@ -792,11 +1140,6 @@
         "type": "bytes"
       },
       {
-        "internalType": "bytes",
-        "name": "userPubkey",
-        "type": "bytes"
-      },
-      {
         "internalType": "uint256",
         "name": "scopeId",
         "type": "uint256"
@@ -808,20 +1151,70 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "renounceOwnership",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newResolverAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setContractResolver",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "router",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "group",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "root",
+        "type": "bytes32"
+      }
+    ],
+    "name": "setRootHash",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "group",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "proof",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "leaf",
+        "type": "bytes32"
+      }
+    ],
+    "name": "verifyState",
     "outputs": [
       {
-        "internalType": "contract PubkeyRouter",
+        "internalType": "bool",
         "name": "",
-        "type": "address"
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -830,40 +1223,40 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "newPkpNftAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setPkpNftAddress",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
       {
-        "internalType": "address",
-        "name": "newRouterAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setRouterAddress",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+        "internalType": "uint256",
+        "name": "group",
+        "type": "uint256"
+      },
       {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
+        "internalType": "bytes32[]",
+        "name": "proof",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bool[]",
+        "name": "proofFlags",
+        "type": "bool[]"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "leaves",
+        "type": "bytes32[]"
       }
     ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "verifyStates",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

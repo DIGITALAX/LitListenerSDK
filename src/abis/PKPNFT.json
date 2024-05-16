@@ -1,657 +1,1190 @@
 [
-  { "type": "constructor", "stateMutability": "nonpayable", "inputs": [] },
   {
-    "type": "event",
-    "name": "Approval",
     "inputs": [
       {
-        "type": "address",
-        "name": "owner",
-        "internalType": "address",
-        "indexed": true
-      },
-      {
-        "type": "address",
-        "name": "approved",
-        "internalType": "address",
-        "indexed": true
-      },
-      {
-        "type": "uint256",
-        "name": "tokenId",
-        "internalType": "uint256",
-        "indexed": true
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
       }
     ],
-    "anonymous": false
+    "name": "CannotAddFunctionToDiamondThatAlreadyExists",
+    "type": "error"
   },
   {
-    "type": "event",
-    "name": "ApprovalForAll",
     "inputs": [
       {
-        "type": "address",
-        "name": "owner",
-        "internalType": "address",
-        "indexed": true
-      },
-      {
-        "type": "address",
-        "name": "operator",
-        "internalType": "address",
-        "indexed": true
-      },
-      {
-        "type": "bool",
-        "name": "approved",
-        "internalType": "bool",
-        "indexed": false
+        "internalType": "bytes4[]",
+        "name": "_selectors",
+        "type": "bytes4[]"
       }
     ],
-    "anonymous": false
+    "name": "CannotAddSelectorsToZeroAddress",
+    "type": "error"
   },
   {
-    "type": "event",
-    "name": "FreeMintSignerSet",
     "inputs": [
       {
-        "type": "address",
-        "name": "newFreeMintSigner",
-        "internalType": "address",
-        "indexed": true
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
       }
     ],
-    "anonymous": false
+    "name": "CannotRemoveFunctionThatDoesNotExist",
+    "type": "error"
   },
   {
-    "type": "event",
-    "name": "MintCostSet",
     "inputs": [
       {
-        "type": "uint256",
-        "name": "newMintCost",
-        "internalType": "uint256",
-        "indexed": false
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
       }
     ],
-    "anonymous": false
+    "name": "CannotRemoveImmutableFunction",
+    "type": "error"
   },
   {
-    "type": "event",
-    "name": "OwnershipTransferred",
     "inputs": [
       {
-        "type": "address",
-        "name": "previousOwner",
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotReplaceFunctionThatDoesNotExists",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "_selectors",
+        "type": "bytes4[]"
+      }
+    ],
+    "name": "CannotReplaceFunctionsFromFacetWithZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotReplaceImmutableFunction",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "_action",
+        "type": "uint8"
+      }
+    ],
+    "name": "IncorrectFacetCutAction",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
-        "indexed": true
+        "name": "_initializationContractAddress",
+        "type": "address"
       },
       {
-        "type": "address",
-        "name": "newOwner",
-        "internalType": "address",
-        "indexed": true
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "PKPMinted",
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "tokenId",
-        "internalType": "uint256",
-        "indexed": true
-      },
-      {
-        "type": "bytes",
-        "name": "pubkey",
         "internalType": "bytes",
-        "indexed": false
+        "name": "_calldata",
+        "type": "bytes"
       }
     ],
-    "anonymous": false
+    "name": "InitializationFunctionReverted",
+    "type": "error"
   },
   {
-    "type": "event",
-    "name": "PkpNftMetadataAddressSet",
     "inputs": [
       {
-        "type": "address",
-        "name": "pkpNftMetadataAddress",
         "internalType": "address",
-        "indexed": true
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "PkpPermissionsAddressSet",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "pkpPermissionsAddress",
-        "internalType": "address",
-        "indexed": true
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "PkpRouted",
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "tokenId",
-        "internalType": "uint256",
-        "indexed": true
+        "name": "_contractAddress",
+        "type": "address"
       },
       {
-        "type": "uint256",
-        "name": "keyType",
-        "internalType": "uint256",
-        "indexed": true
+        "internalType": "string",
+        "name": "_message",
+        "type": "string"
       }
     ],
-    "anonymous": false
+    "name": "NoBytecodeAtAddress",
+    "type": "error"
   },
   {
-    "type": "event",
-    "name": "RouterAddressSet",
     "inputs": [
       {
-        "type": "address",
-        "name": "routerAddress",
         "internalType": "address",
-        "indexed": true
+        "name": "_facetAddress",
+        "type": "address"
       }
     ],
-    "anonymous": false
+    "name": "NoSelectorsProvidedForFacetForCut",
+    "type": "error"
   },
   {
-    "type": "event",
-    "name": "Transfer",
     "inputs": [
       {
-        "type": "address",
-        "name": "from",
         "internalType": "address",
-        "indexed": true
+        "name": "_user",
+        "type": "address"
       },
       {
-        "type": "address",
-        "name": "to",
         "internalType": "address",
-        "indexed": true
+        "name": "_contractOwner",
+        "type": "address"
+      }
+    ],
+    "name": "NotContractOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_facetAddress",
+        "type": "address"
+      }
+    ],
+    "name": "RemoveFacetAddressMustBeZeroAddress",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamond.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct IDiamond.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
       },
       {
-        "type": "uint256",
-        "name": "tokenId",
-        "internalType": "uint256",
-        "indexed": true
+        "indexed": false,
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
       }
     ],
-    "anonymous": false
+    "name": "DiamondCut",
+    "type": "event"
   },
   {
-    "type": "event",
-    "name": "Withdrew",
     "inputs": [
       {
-        "type": "uint256",
-        "name": "amount",
-        "internalType": "uint256",
-        "indexed": false
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamond.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamond.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
       }
     ],
-    "anonymous": false
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
+    "name": "diamondCut",
     "outputs": [],
-    "name": "approve",
-    "inputs": [
-      { "type": "address", "name": "to", "internalType": "address" },
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "balanceOf",
-    "inputs": [
-      { "type": "address", "name": "owner", "internalType": "address" }
-    ]
-  },
-  {
-    "type": "function",
     "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "burn",
-    "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_functionSelector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "facetAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "facetAddress_",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
-    "outputs": [{ "type": "bool", "name": "", "internalType": "bool" }],
-    "name": "exists",
-    "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
+    "type": "function"
   },
   {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "freeMintGrantAndBurnNext",
-    "inputs": [
-      { "type": "uint256", "name": "keyType", "internalType": "uint256" },
-      { "type": "uint256", "name": "freeMintId", "internalType": "uint256" },
-      { "type": "bytes", "name": "ipfsCID", "internalType": "bytes" },
-      { "type": "bytes32", "name": "msgHash", "internalType": "bytes32" },
-      { "type": "uint8", "name": "v", "internalType": "uint8" },
-      { "type": "bytes32", "name": "r", "internalType": "bytes32" },
-      { "type": "bytes32", "name": "s", "internalType": "bytes32" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "freeMintNext",
-    "inputs": [
-      { "type": "uint256", "name": "keyType", "internalType": "uint256" },
-      { "type": "uint256", "name": "freeMintId", "internalType": "uint256" },
-      { "type": "bytes32", "name": "msgHash", "internalType": "bytes32" },
-      { "type": "uint8", "name": "v", "internalType": "uint8" },
-      { "type": "bytes32", "name": "r", "internalType": "bytes32" },
-      { "type": "bytes32", "name": "s", "internalType": "bytes32" }
-    ]
-  },
-  {
-    "type": "function",
+    "inputs": [],
+    "name": "facetAddresses",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "facetAddresses_",
+        "type": "address[]"
+      }
+    ],
     "stateMutability": "view",
-    "outputs": [],
-    "name": "freeMintSigTest",
-    "inputs": [
-      { "type": "uint256", "name": "freeMintId", "internalType": "uint256" },
-      { "type": "bytes32", "name": "msgHash", "internalType": "bytes32" },
-      { "type": "uint8", "name": "v", "internalType": "uint8" },
-      { "type": "bytes32", "name": "r", "internalType": "bytes32" },
-      { "type": "bytes32", "name": "s", "internalType": "bytes32" }
-    ]
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_facet",
+        "type": "address"
+      }
+    ],
+    "name": "facetFunctionSelectors",
+    "outputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "_facetFunctionSelectors",
+        "type": "bytes4[]"
+      }
+    ],
     "stateMutability": "view",
-    "outputs": [{ "type": "address", "name": "", "internalType": "address" }],
-    "name": "freeMintSigner",
-    "inputs": []
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [],
+    "name": "facets",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondLoupe.Facet[]",
+        "name": "facets_",
+        "type": "tuple[]"
+      }
+    ],
     "stateMutability": "view",
-    "outputs": [{ "type": "address", "name": "", "internalType": "address" }],
-    "name": "getApproved",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
     "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
   },
   {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "address", "name": "", "internalType": "address" }],
-    "name": "getEthAddress",
-    "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "bytes", "name": "", "internalType": "bytes" }],
-    "name": "getPubkey",
-    "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "getUnmintedRoutedTokenIdCount",
-    "inputs": [
-      { "type": "uint256", "name": "keyType", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "bool", "name": "", "internalType": "bool" }],
-    "name": "isApprovedForAll",
-    "inputs": [
-      { "type": "address", "name": "owner", "internalType": "address" },
-      { "type": "address", "name": "operator", "internalType": "address" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "mintCost",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "stateMutability": "payable",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "mintGrantAndBurnNext",
-    "inputs": [
-      { "type": "uint256", "name": "keyType", "internalType": "uint256" },
-      { "type": "bytes", "name": "ipfsCID", "internalType": "bytes" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "mintGrantAndBurnSpecific",
-    "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" },
-      { "type": "bytes", "name": "ipfsCID", "internalType": "bytes" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "payable",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "mintNext",
-    "inputs": [
-      { "type": "uint256", "name": "keyType", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "mintSpecific",
-    "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "string", "name": "", "internalType": "string" }],
-    "name": "name",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "address", "name": "", "internalType": "address" }],
+    "inputs": [],
     "name": "owner",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "address", "name": "", "internalType": "address" }],
-    "name": "ownerOf",
-    "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
     "outputs": [
       {
-        "type": "address",
-        "name": "",
-        "internalType": "contract PKPNFTMetadata"
+        "internalType": "address",
+        "name": "owner_",
+        "type": "address"
       }
     ],
-    "name": "pkpNftMetadata",
-    "inputs": []
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [
+    "inputs": [
       {
-        "type": "address",
-        "name": "",
-        "internalType": "contract PKPPermissions"
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
       }
     ],
-    "name": "pkpPermissions",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "pkpRouted",
-    "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" },
-      { "type": "uint256", "name": "keyType", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "pure",
-    "outputs": [{ "type": "bytes32", "name": "", "internalType": "bytes32" }],
-    "name": "prefixed",
-    "inputs": [{ "type": "bytes32", "name": "hash", "internalType": "bytes32" }]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "bool", "name": "", "internalType": "bool" }],
-    "name": "redeemedFreeMintIds",
-    "inputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "renounceOwnership",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [
-      { "type": "address", "name": "", "internalType": "contract PubkeyRouter" }
-    ],
-    "name": "router",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "safeTransferFrom",
-    "inputs": [
-      { "type": "address", "name": "from", "internalType": "address" },
-      { "type": "address", "name": "to", "internalType": "address" },
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "safeTransferFrom",
-    "inputs": [
-      { "type": "address", "name": "from", "internalType": "address" },
-      { "type": "address", "name": "to", "internalType": "address" },
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" },
-      { "type": "bytes", "name": "data", "internalType": "bytes" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "setApprovalForAll",
-    "inputs": [
-      { "type": "address", "name": "operator", "internalType": "address" },
-      { "type": "bool", "name": "approved", "internalType": "bool" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "setFreeMintSigner",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "newFreeMintSigner",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "setMintCost",
-    "inputs": [
-      { "type": "uint256", "name": "newMintCost", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "setPkpNftMetadataAddress",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "pkpNftMetadataAddress",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "setPkpPermissionsAddress",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "pkpPermissionsAddress",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "setRouterAddress",
-    "inputs": [
-      { "type": "address", "name": "routerAddress", "internalType": "address" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "bool", "name": "", "internalType": "bool" }],
-    "name": "supportsInterface",
-    "inputs": [
-      { "type": "bytes4", "name": "interfaceId", "internalType": "bytes4" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "string", "name": "", "internalType": "string" }],
-    "name": "symbol",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "tokenByIndex",
-    "inputs": [
-      { "type": "uint256", "name": "index", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "tokenOfOwnerByIndex",
-    "inputs": [
-      { "type": "address", "name": "owner", "internalType": "address" },
-      { "type": "uint256", "name": "index", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "string", "name": "", "internalType": "string" }],
-    "name": "tokenURI",
-    "inputs": [
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "totalSupply",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "name": "transferFrom",
-    "inputs": [
-      { "type": "address", "name": "from", "internalType": "address" },
-      { "type": "address", "name": "to", "internalType": "address" },
-      { "type": "uint256", "name": "tokenId", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
-    "outputs": [],
     "name": "transferOwnership",
-    "inputs": [
-      { "type": "address", "name": "newOwner", "internalType": "address" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "view",
-    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
-    "name": "unmintedRoutedTokenIds",
-    "inputs": [
-      { "type": "uint256", "name": "", "internalType": "uint256" },
-      { "type": "uint256", "name": "", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "function",
-    "stateMutability": "nonpayable",
     "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "CallerNotOwner",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "approved",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "Approval",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "approved",
+        "type": "bool"
+      }
+    ],
+    "name": "ApprovalForAll",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newResolverAddress",
+        "type": "address"
+      }
+    ],
+    "name": "ContractResolverAddressSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newFreeMintSigner",
+        "type": "address"
+      }
+    ],
+    "name": "FreeMintSignerSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newMintCost",
+        "type": "uint256"
+      }
+    ],
+    "name": "MintCostSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "pubkey",
+        "type": "bytes"
+      }
+    ],
+    "name": "PKPMinted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "Transfer",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Withdrew",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "approve",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "burn",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "keyType",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "derivedKeyId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "r",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "s",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint8",
+            "name": "v",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct IPubkeyRouter.Signature[]",
+        "name": "signatures",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "claimAndMint",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "exists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "freeMintSigner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getApproved",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getEthAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNextDerivedKeyId",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPkpNftMetadataAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPkpPermissionsAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPubkey",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getRouterAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStakingAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      }
+    ],
+    "name": "isApprovedForAll",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "mintCost",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "keyType",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "ipfsCID",
+        "type": "bytes"
+      }
+    ],
+    "name": "mintGrantAndBurnNext",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "keyType",
+        "type": "uint256"
+      }
+    ],
+    "name": "mintNext",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ownerOf",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "hash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "prefixed",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "redeemedFreeMintIds",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "safeTransferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "safeTransferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "approved",
+        "type": "bool"
+      }
+    ],
+    "name": "setApprovalForAll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newResolverAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setContractResolver",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newFreeMintSigner",
+        "type": "address"
+      }
+    ],
+    "name": "setFreeMintSigner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newMintCost",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMintCost",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenByIndex",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenOfOwnerByIndex",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "withdraw",
-    "inputs": []
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ]
