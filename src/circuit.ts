@@ -1,24 +1,27 @@
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
 import { serialize } from "@ethersproject/transactions";
 import { EventEmitter } from "events";
-import { ethers } from "ethers";
+import { BigNumber, Contract, ethers } from "ethers";
 import Hash from "ipfs-only-hash";
 import {
   bundleCodeManual,
-  generateAuthSig,
+  generateSessionSig,
   generateSecureRandomKey,
   getBytesFromMultihash,
   hashHex,
 } from "./utils/litProtocol";
-import { AuthSig } from "@lit-protocol/types";
+import { AuthSig, SessionSigsMap } from "@lit-protocol/types";
 import { joinSignature } from "@ethersproject/bytes";
-import { PKP_CONTRACT_ADDRESS } from "./constants";
+import { PKP_CONTRACT_ADDRESS, PKP_HELPER_CONTRACT_ADDRESS, PKP_PERMISSIONS_CONTRACT_ADDRESS } from "./constants";
 import pkpNftAbi from "./abis/PKPNFT.json";
+import pkpHelperAbi from './abis/PKPHelper.json';
+import pkpPermissionsAbi from './abis/PKPPermissions.json';
 import { PKPNFT } from "../typechain-types/contracts/PKPNFT";
 import {
   Action,
   Condition,
   ContractAction,
+  CustomAction,
   IConditionalLogic,
   IExecutionConstraints,
   ILogEntry,
@@ -30,6 +33,7 @@ import {
 } from "./@types/lit-listener-sdk";
 import { ConditionMonitor } from "./conditions";
 import { Fragment } from "ethers/lib/utils";
+import { LitResourceAbilityRequest } from "@lit-protocol/auth-helpers";
 
 export class Circuit extends EventEmitter {
   /**
@@ -132,6 +136,13 @@ export class Circuit extends EventEmitter {
    * @private
    */
   private pkpContract: PKPNFT;
+
+  /**
+   * The PKPHelper contract instance.
+   * @private
+   */
+  private pkpHelperContract: any;
+
   /**
    * The code for the Lit Action.
    * @private
@@ -197,6 +208,8 @@ export class Circuit extends EventEmitter {
    * @private
    */
   private lastSuccessfulNonce: Map<number, number> = new Map();
+  
+  private sessionSig: SessionSigsMap;
 
   /**
    * Creates an instance of Circuit.
@@ -207,13 +220,14 @@ export class Circuit extends EventEmitter {
   constructor(
     signer?: ethers.Signer,
     pkpContractAddress = PKP_CONTRACT_ADDRESS,
+    pkpHelperContractAddress = PKP_HELPER_CONTRACT_ADDRESS,
     errorHandlingModeStrict: boolean = false,
   ) {
     super();
     this.errorHandlingModeStrict = errorHandlingModeStrict;
     this.signer = signer ? signer : ethers.Wallet.createRandom();
     this.litClient = new LitJsSdk.LitNodeClient({
-      litNetwork: "serrano",
+      litNetwork: "cayenne",
       debug: false,
     });
     this.monitor = new ConditionMonitor();
@@ -276,6 +290,13 @@ export class Circuit extends EventEmitter {
       pkpNftAbi,
       this.signer,
     ) as any;
+
+    this.pkpHelperContract = new ethers.Contract(
+      pkpHelperContractAddress,
+      pkpHelperAbi,
+      this.signer
+    );
+
     this.emitter.on("stop", () => {
       this.continueRun = false;
     });
@@ -529,7 +550,7 @@ export class Circuit extends EventEmitter {
                } catch (err) {
                   console.log('Error thrown on contract at priority ${action.priority}: ', err)
                }
-            }\n`;
+            }\n`
           }
 
           break;
@@ -703,10 +724,28 @@ export class Circuit extends EventEmitter {
   }> => {
     try {
       const mintGrantBurnLogs = await this.mintNextPKP(cidIPFS);
-      const pkpTokenId = BigInt(mintGrantBurnLogs[0].topics[3]).toString();
+      const pkpTokenId = BigInt(mintGrantBurnLogs[0].topics[1]).toString();
       const publicKey = await this.getPubKeyByPKPTokenId(pkpTokenId);
       this.publicKey = publicKey;
       this.pkpAddress = ethers.utils.computeAddress(publicKey);
+
+      const permissionContract = new Contract(PKP_PERMISSIONS_CONTRACT_ADDRESS, pkpPermissionsAbi, this.signer);
+      
+      let address = await this.signer.getAddress();
+      address = ethers.utils.getAddress(address);
+      let tx = await permissionContract.addPermittedAddress(pkpTokenId, address, [1]);
+      tx = await tx.wait();
+
+      for (const action of this.actions) {
+        let code = (action as CustomAction).code;
+        if (!code) {
+          continue;
+        }
+        let cid = await this.getIPFSHash(code);
+        tx = await permissionContract.addPermittedAction(pkpTokenId, getBytesFromMultihash(cid), [1]);
+        await tx.wait();
+      }
+
       return {
         tokenId: pkpTokenId,
         publicKey: publicKey,
@@ -721,7 +760,7 @@ export class Circuit extends EventEmitter {
    * Starts the circuit with the specified parameters.
    * @param publicKey The public key of the PKP contract.
    * @param ipfsCID The IPFS CID of the Lit Action code.
-   * @param authSig Optional. The authentication signature for executing Lit Actions.
+   * @param sessionSig Optional. The authentication signature for executing Lit Actions.
    * @param secureKey Optional. The secureKey required to run the LitAction if set during setActions.
    * @param broadcast Optional. Boolean to broadcast signed contract actions on-chain.
    * @throws {Error} If an error occurs while running the circuit.
@@ -729,13 +768,13 @@ export class Circuit extends EventEmitter {
   start = async ({
     publicKey,
     ipfsCID,
-    authSig,
+    sessionSig,
     secureKey,
     broadcast,
   }: {
     publicKey: `0x04${string}` | string;
     ipfsCID?: string;
-    authSig?: AuthSig;
+    sessionSig?: SessionSigsMap;
     secureKey?: string;
     broadcast?: boolean;
   }): Promise<void> => {
@@ -761,8 +800,8 @@ export class Circuit extends EventEmitter {
         if (ipfsCID) {
           this.ipfsCID = ipfsCID;
         }
-        if (authSig) {
-          this.authSig = authSig;
+        if (sessionSig) {
+          this.sessionSig = sessionSig;
         }
         if (secureKey) {
           this.secureKey = secureKey;
@@ -924,13 +963,16 @@ export class Circuit extends EventEmitter {
    * @returns The authentication signature.
    * @throws {Error} If an error occurs while generating the authentication signature.
    */
-  generateAuthSignature = async (
+  generateSessionSignature = async (
+    pkpPublicKey: string,
+    resources: LitResourceAbilityRequest[] = [],
     chainId = 1,
     uri = "https://localhost/login",
     version = "1",
-  ): Promise<AuthSig> => {
+  ): Promise<SessionSigsMap> => {
     try {
-      return generateAuthSig(this.signer, chainId, uri, version);
+
+      return generateSessionSig(this.litClient, this.signer, pkpPublicKey, resources, chainId, uri, version);
     } catch (err: any) {
       throw new Error(`Error generating Auth Signature: ${err.message}`);
     }
@@ -963,11 +1005,14 @@ export class Circuit extends EventEmitter {
       throw new Error("No provider attached to ethers signer");
     }
     try {
+      let address = await this.signer.getAddress();
+      address = ethers.utils.getAddress(address);
       // const feeData = await this.signer.provider.getFeeData();
-      const tx = await this.pkpContract.mintGrantAndBurnNext(
-        2,
-        getBytesFromMultihash(ipfsCID),
-        { value: "1" },
+      const tx = await this.pkpContract.mintNext(
+        2, // key type
+        {
+          value: "1",
+        }
       );
       const receipt = await tx.wait();
       const logs = receipt.logs;
@@ -1031,15 +1076,15 @@ export class Circuit extends EventEmitter {
           ].nonce = currentNonce;
           currentNonce++;
           this.lastSuccessfulNonce.set(chainId, currentNonce);
-
+          
+          const pkpPublicKey = ethers.utils.computeAddress(this.publicKey);
+          const session = this.generateSessionSignature(pkpPublicKey);
           promise = this.litClient.executeJs({
             ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
             code: this.ipfsCID ? undefined : this.code,
-            authSig: this.authSig
-              ? this.authSig
-              : await this.generateAuthSignature(),
+            sessionSigs: session,
             jsParams: {
-              pkpAddress: ethers.utils.computeAddress(this.publicKey),
+              pkpAddress: pkpPublicKey,
               publicKey: this.publicKey,
               ...this.jsParameters,
               currentAction: i,
@@ -1053,14 +1098,15 @@ export class Circuit extends EventEmitter {
             this.lastSuccessfulNonce.set(chainId, currentNonce);
           });
         } else {
+          const pkpPublicKey = ethers.utils.computeAddress(this.publicKey);
+          const session = await this.generateSessionSignature(this.publicKey);
+
           promise = this.litClient.executeJs({
             ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
             code: this.ipfsCID ? undefined : this.code,
-            authSig: this.authSig
-              ? this.authSig
-              : await this.generateAuthSignature(),
+            sessionSigs: session,
             jsParams: {
-              pkpAddress: ethers.utils.computeAddress(this.publicKey),
+              pkpAddress: pkpPublicKey,
               publicKey: this.publicKey,
               ...this.jsParameters,
               currentAction: i,
