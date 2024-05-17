@@ -1078,7 +1078,7 @@ export class Circuit extends EventEmitter {
           this.lastSuccessfulNonce.set(chainId, currentNonce);
           
           const pkpPublicKey = ethers.utils.computeAddress(this.publicKey);
-          const session = this.generateSessionSignature(pkpPublicKey);
+          const session = await this.generateSessionSignature(pkpPublicKey);
           promise = this.litClient.executeJs({
             ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
             code: this.ipfsCID ? undefined : this.code,
@@ -1135,11 +1135,11 @@ export class Circuit extends EventEmitter {
           combinedResponse.response = {
             ...combinedResponse.response,
           };
-          combinedResponse.response[counter] = res.response;
+          combinedResponse.response[counter] = res.response;    
         }
 
         combinedResponse.logs += "\n" + res.logs;
-        counter += 1;
+        counter += 1; 
       });
 
       // broadcast actions
