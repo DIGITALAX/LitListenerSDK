@@ -358,13 +358,9 @@ export class Circuit extends EventEmitter {
     if (!this.hasSetActionHelperFunction) {
       this.code += `const CONDITIONAL_HASH = "${hashHex(this.secureKey)}";
   
-      const hashHex = (input) => {
-        if (!CryptoJS) {
-          console.log("CryptoJS is not initialized.");
-          return;
-        }
-        const hash = CryptoJS.SHA256(input);
-        return "0x" + hash.toString(CryptoJS.enc.Hex);
+      const hashHex = async (input) => {
+        const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+        return new Uint8Array(hash);
       }; 
 
       const concatenatedResponse = {};
@@ -514,9 +510,9 @@ export class Circuit extends EventEmitter {
                     if (checkSignCondition(value, signConditionFetch${
                       action.priority
                     })) {
-
+                        const toSignHash = await hashHex(toSignFetch${action.priority});
                         await Lit.Actions.signEcdsa({
-                            toSign: toSignFetch${action.priority},
+                            toSign: toSignHash,
                             publicKey,
                             sigName: "fetch${action.priority}",
                           });
@@ -1078,7 +1074,7 @@ export class Circuit extends EventEmitter {
           this.lastSuccessfulNonce.set(chainId, currentNonce);
           
           const pkpPublicKey = ethers.utils.computeAddress(this.publicKey);
-          const session = await this.generateSessionSignature(pkpPublicKey);
+          const session = await this.generateSessionSignature(this.publicKey);
           promise = this.litClient.executeJs({
             ipfsId: this.ipfsCID ? this.ipfsCID : undefined,
             code: this.ipfsCID ? undefined : this.code,
@@ -1246,7 +1242,7 @@ export class Circuit extends EventEmitter {
       logs: string;
     },
   ): Promise<void> => {
-    const transactionPromises = priorities.map(async (priority) => {
+    for (const priority of priorities) {
       const action = this.actions.find(
         (action) => action.priority === priority,
       );
@@ -1308,13 +1304,7 @@ export class Circuit extends EventEmitter {
           new Date().toISOString(),
         );
       }
-    });
-
-    this.pendingBroadcasts.push(
-      Promise.resolve(Promise.allSettled(transactionPromises)),
-    );
-
-    await Promise.all(transactionPromises);
+    }
   };
 
   /**
