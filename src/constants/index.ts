@@ -9,4 +9,5 @@ export const PKP_HELPER_CONTRACT_ADDRESS =
   
 export const CHRONICLE_PROVIDER = "https://chain-rpc.litprotocol.com/http";
 
+// removed due to disabling of WebAssembly loading in Lit Action runtime.
 export const DENO_BUNDLED = ``;
