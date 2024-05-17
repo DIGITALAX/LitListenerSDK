@@ -19,5 +19,5 @@
   },
   "include": ["src/**/*", "test"],
   "exclude": ["node_modules", "lib", "**/*spec.ts"],
-  "files": ["./hardhat.config.ts", "src/index.ts"],
+  "files": ["./hardhat.config.ts", "src/index.ts"]
 }

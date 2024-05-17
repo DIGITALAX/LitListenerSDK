@@ -1,14 +1,18 @@
 import { ethers } from "ethers";
 import bs58 from "bs58";
-import { SessionSigsMap, AuthSig, AuthCallbackParams } from '@lit-protocol/types';
+import {
+  SessionSigsMap,
+  AuthSig,
+  AuthCallbackParams,
+} from "@lit-protocol/types";
 import { DENO_BUNDLED } from "./../../src/constants";
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
-import { 
+import {
   LitAbility,
   LitActionResource,
   LitPKPResource,
   LitResourceAbilityRequest,
-  createSiweMessageWithRecaps
+  createSiweMessageWithRecaps,
 } from "@lit-protocol/auth-helpers";
 
 let crypto: any, CryptoJS: any;
@@ -33,33 +37,36 @@ export const generateSessionSig = async (
   version = "1",
 ): Promise<SessionSigsMap> => {
   try {
-    resources = resources.length > 0 ? resources: [
-      {
-        resource: new LitPKPResource('*'),
-        ability: LitAbility.PKPSigning,
-      },
-      {
-        resource: new LitActionResource('*'),
-        ability: LitAbility.LitActionExecution,
-      }, 
-    ];
+    resources =
+      resources.length > 0
+        ? resources
+        : [
+            {
+              resource: new LitPKPResource("*"),
+              ability: LitAbility.PKPSigning,
+            },
+            {
+              resource: new LitActionResource("*"),
+              ability: LitAbility.LitActionExecution,
+            },
+          ];
 
     const sessionSigs = await client.getSessionSigs({
-      chain: 'ethereum',
+      chain: "ethereum",
       resourceAbilityRequests: resources,
       authNeededCallback: async (params: AuthCallbackParams) => {
-        console.log('resourceAbilityRequests:', params.resources);
-  
+        console.log("resourceAbilityRequests:", params.resources);
+
         if (!params.expiration) {
-          throw new Error('expiration is required');
+          throw new Error("expiration is required");
         }
-  
+
         if (!params.resources) {
-          throw new Error('resourceAbilityRequests is required');
+          throw new Error("resourceAbilityRequests is required");
         }
-  
+
         if (!params.uri) {
-          throw new Error('uri is required');
+          throw new Error("uri is required");
         }
         const blockHash = await client.getLatestBlockhash();
         const authSig = await generateAuthSig(
@@ -71,7 +78,7 @@ export const generateSessionSig = async (
           1,
           params.uri,
         );
-  
+
         return authSig;
       },
     });
@@ -88,8 +95,8 @@ const generateAuthSig = async (
   blockHash: string,
   resources: LitResourceAbilityRequest[],
   chainId = 1,
-  uri= "https://localhost/login",
-  version = "1"
+  uri = "https://localhost/login",
+  version = "1",
 ): Promise<AuthSig> => {
   let address = await signer.getAddress();
   address = ethers.utils.getAddress(address);
@@ -100,7 +107,7 @@ const generateAuthSig = async (
     litNodeClient: client,
     expiration: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     resources,
-    uri
+    uri,
   });
 
   const sig = await signer.signMessage(message);
@@ -111,7 +118,6 @@ const generateAuthSig = async (
     address: address,
   };
 };
-
 
 export const getBytesFromMultihash = (multihash: string): string => {
   const decoded = bs58.decode(multihash);

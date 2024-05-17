@@ -12,10 +12,14 @@ import {
 } from "./utils/litProtocol";
 import { AuthSig, SessionSigsMap } from "@lit-protocol/types";
 import { joinSignature } from "@ethersproject/bytes";
-import { PKP_CONTRACT_ADDRESS, PKP_HELPER_CONTRACT_ADDRESS, PKP_PERMISSIONS_CONTRACT_ADDRESS } from "./constants";
+import {
+  PKP_CONTRACT_ADDRESS,
+  PKP_HELPER_CONTRACT_ADDRESS,
+  PKP_PERMISSIONS_CONTRACT_ADDRESS,
+} from "./constants";
 import pkpNftAbi from "./abis/PKPNFT.json";
-import pkpHelperAbi from './abis/PKPHelper.json';
-import pkpPermissionsAbi from './abis/PKPPermissions.json';
+import pkpHelperAbi from "./abis/PKPHelper.json";
+import pkpPermissionsAbi from "./abis/PKPPermissions.json";
 import { PKPNFT } from "../typechain-types/contracts/PKPNFT";
 import {
   Action,
@@ -208,7 +212,7 @@ export class Circuit extends EventEmitter {
    * @private
    */
   private lastSuccessfulNonce: Map<number, number> = new Map();
-  
+
   private sessionSig: SessionSigsMap;
 
   /**
@@ -294,7 +298,7 @@ export class Circuit extends EventEmitter {
     this.pkpHelperContract = new ethers.Contract(
       pkpHelperContractAddress,
       pkpHelperAbi,
-      this.signer
+      this.signer,
     );
 
     this.emitter.on("stop", () => {
@@ -510,7 +514,9 @@ export class Circuit extends EventEmitter {
                     if (checkSignCondition(value, signConditionFetch${
                       action.priority
                     })) {
-                        const toSignHash = await hashHex(toSignFetch${action.priority});
+                        const toSignHash = await hashHex(toSignFetch${
+                          action.priority
+                        });
                         await Lit.Actions.signEcdsa({
                             toSign: toSignHash,
                             publicKey,
@@ -546,7 +552,7 @@ export class Circuit extends EventEmitter {
                } catch (err) {
                   console.log('Error thrown on contract at priority ${action.priority}: ', err)
                }
-            }\n`
+            }\n`;
           }
 
           break;
@@ -725,11 +731,19 @@ export class Circuit extends EventEmitter {
       this.publicKey = publicKey;
       this.pkpAddress = ethers.utils.computeAddress(publicKey);
 
-      const permissionContract = new Contract(PKP_PERMISSIONS_CONTRACT_ADDRESS, pkpPermissionsAbi, this.signer);
-      
+      const permissionContract = new Contract(
+        PKP_PERMISSIONS_CONTRACT_ADDRESS,
+        pkpPermissionsAbi,
+        this.signer,
+      );
+
       let address = await this.signer.getAddress();
       address = ethers.utils.getAddress(address);
-      let tx = await permissionContract.addPermittedAddress(pkpTokenId, address, [1]);
+      let tx = await permissionContract.addPermittedAddress(
+        pkpTokenId,
+        address,
+        [1],
+      );
       tx = await tx.wait();
 
       for (const action of this.actions) {
@@ -738,7 +752,11 @@ export class Circuit extends EventEmitter {
           continue;
         }
         let cid = await this.getIPFSHash(code);
-        tx = await permissionContract.addPermittedAction(pkpTokenId, getBytesFromMultihash(cid), [1]);
+        tx = await permissionContract.addPermittedAction(
+          pkpTokenId,
+          getBytesFromMultihash(cid),
+          [1],
+        );
         await tx.wait();
       }
 
@@ -967,8 +985,15 @@ export class Circuit extends EventEmitter {
     version = "1",
   ): Promise<SessionSigsMap> => {
     try {
-
-      return generateSessionSig(this.litClient, this.signer, pkpPublicKey, resources, chainId, uri, version);
+      return generateSessionSig(
+        this.litClient,
+        this.signer,
+        pkpPublicKey,
+        resources,
+        chainId,
+        uri,
+        version,
+      );
     } catch (err: any) {
       throw new Error(`Error generating Auth Signature: ${err.message}`);
     }
@@ -1008,7 +1033,7 @@ export class Circuit extends EventEmitter {
         2, // key type
         {
           value: "1",
-        }
+        },
       );
       const receipt = await tx.wait();
       const logs = receipt.logs;
@@ -1072,7 +1097,7 @@ export class Circuit extends EventEmitter {
           ].nonce = currentNonce;
           currentNonce++;
           this.lastSuccessfulNonce.set(chainId, currentNonce);
-          
+
           const pkpPublicKey = ethers.utils.computeAddress(this.publicKey);
           const session = await this.generateSessionSignature(this.publicKey);
           promise = this.litClient.executeJs({
@@ -1131,11 +1156,11 @@ export class Circuit extends EventEmitter {
           combinedResponse.response = {
             ...combinedResponse.response,
           };
-          combinedResponse.response[counter] = res.response;    
+          combinedResponse.response[counter] = res.response;
         }
 
         combinedResponse.logs += "\n" + res.logs;
-        counter += 1; 
+        counter += 1;
       });
 
       // broadcast actions

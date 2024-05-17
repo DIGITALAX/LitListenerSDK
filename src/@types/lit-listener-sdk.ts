@@ -25,7 +25,7 @@ export enum LitChainIds {
   evmos = 9001,
   evmosTestnet = 9000,
   hardhat = 31337,
-};
+}
 
 /**
  * @enum CHAIN_NAME
@@ -557,5 +557,5 @@ export interface ILogEntry {
   category: LogCategory;
   message: string;
   responseObject: string;
-  isoDate: string
+  isoDate: string;
 }

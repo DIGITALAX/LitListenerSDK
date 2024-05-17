@@ -37,7 +37,7 @@ describe("MintGrantBurnPKP", () => {
   const init = async () => {
     newCircuit = new Circuit(
       new ethers.Wallet(
-        '0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6',
+        "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6",
         chronicleProvider,
       ),
     );
@@ -127,7 +127,7 @@ describe("MintGrantBurnPKP", () => {
 
   //TODO: Add testcase back for mintgrantburn not allowing other actions from executing.
 
-it("PKP should successfully execute the Lit Action that was Granted upon Mint and Burn", async () => {
+  it("PKP should successfully execute the Lit Action that was Granted upon Mint and Burn", async () => {
     await newCircuit.start({
       publicKey: pkpNftPublicKey,
     });
@@ -139,7 +139,7 @@ it("PKP should successfully execute the Lit Action that was Granted upon Mint an
       `Circuit executed successfully. Lit Action Response.`.trim(),
     );
     expect(responseLog[0].responseObject).to.include(
-      "{\"signatures\":{},\"response\":{\"0\":\"{\\\"custom0\\\":\\\"Transaction Signed Successfully.\\\"}\"},\"logs\":\"\\nValid secure key, code running.\\n\"}",
+      '{"signatures":{},"response":{"0":"{\\"custom0\\":\\"Transaction Signed Successfully.\\"}"},"logs":"\\nValid secure key, code running.\\n"}',
     );
   });
 });

@@ -168,7 +168,7 @@ describe("Verify the Conditional Logic", () => {
       ]);
       newCircuit.setConditionalLogic({
         type: "EVERY",
-        interval: 10000
+        interval: 10000,
       });
       newCircuit.executionConstraints({
         conditionMonitorExecutions: 1,
@@ -219,7 +219,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "THRESHOLD",
         value: 2,
-        interval: 10000
+        interval: 10000,
       });
       await newCircuit.start({ publicKey });
 
@@ -266,7 +266,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "THRESHOLD",
         value: 2,
-        interval: 10000
+        interval: 10000,
       });
       await newCircuit.start({ publicKey });
 
@@ -323,7 +323,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "TARGET",
         targetCondition: "2",
-        interval: 10000
+        interval: 10000,
       });
       await newCircuit.start({ publicKey });
 
@@ -370,7 +370,7 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "TARGET",
         targetCondition: "2",
-        interval: 10000
+        interval: 10000,
       });
       await newCircuit.start({ publicKey });
 
@@ -423,7 +423,6 @@ describe("Verify the Conditional Logic", () => {
       newCircuit.setConditionalLogic({
         type: "EVERY",
         interval: 60000,
-  
       });
       await newCircuit.start({ publicKey });
 

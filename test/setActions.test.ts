@@ -127,8 +127,8 @@ describe("Set the Actions of the Circuit", () => {
       );
       const parsed = JSON.parse(responseLog[0].responseObject);
       expect(parsed.response).to.deep.equal({
-        0: "{\"custom0\":\"Custom Action 1\"}",
-        1: "{\"custom1\":\"Custom Action 2\"}",
+        0: '{"custom0":"Custom Action 1"}',
+        1: '{"custom1":"Custom Action 2"}',
       });
     });
   });
@@ -596,7 +596,7 @@ describe("Set the Actions of the Circuit", () => {
       }).to.deep.include({
         contract0: {
           ...generateUnsignedTransactionData,
-          value: { hex: "0x00", type: 'BigNumber' },
+          value: { hex: "0x00", type: "BigNumber" },
           gasLimit: BigNumber.from("100000"),
           maxFeePerGas: BigNumber.from("2003791642"),
           maxPriorityFeePerGas: BigNumber.from("500947910"),
@@ -776,11 +776,10 @@ describe("Set the Actions of the Circuit", () => {
         interval: 10000,
       });
       const buffer = Buffer.from("polygon");
-      const hash = await crypto.subtle.digest('SHA-256', new Uint8Array(
-        buffer.buffer,
-        buffer.byteOffset,
-        buffer.byteLength,
-      ));
+      const hash = await crypto.subtle.digest(
+        "SHA-256",
+        new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
+      );
       const fetchActions: FetchAction[] = [
         {
           type: "fetch",
@@ -866,7 +865,6 @@ describe("Set the Actions of the Circuit", () => {
         ethers.utils.parseUnits("40", 18),
       );
 
-
       await newCircuit.start({
         publicKey,
         broadcast: true,
@@ -891,7 +889,7 @@ describe("Set the Actions of the Circuit", () => {
         1: '{"custom1":"Custom Action 2"}',
         contract2: {
           ...generateUnsignedTransactionData,
-          value: { type: 'BigNumber', hex: '0x00' },
+          value: { type: "BigNumber", hex: "0x00" },
           gasLimit: BigNumber.from("100000"),
           maxFeePerGas: BigNumber.from("2000000014"),
           maxPriorityFeePerGas: BigNumber.from("500000003"),
@@ -1172,7 +1170,6 @@ describe("Set the Actions of the Circuit", () => {
       const pkpTokenId = pkpTokenData.tokenId;
       publicKey = await pkpContract.getPubkey(pkpTokenId);
 
-
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
         ipfsCID: ipfsBundledCID,
@@ -1312,7 +1309,6 @@ describe("Set the Actions of the Circuit", () => {
 
       const added = await ipfsClient.add(JSON.stringify(res.litActionCode));
       const ipfsBundledCID = added.path;
-
 
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
