@@ -19,17 +19,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DIGITALAX/LitListenerSDK.git"
+    "url": "https://github.com/LIT-Protocol/LitListenerSDK"
   },
   "author": "Emma-Jane MacKinnon-Lee",
   "license": "UNLICENSE",
   "bugs": {
-    "url": "https://github.com/DIGITALAX/LitListenerSDK/issues"
+    "url": "https://github.com/LIT-Protocol/LitListenerSDK"
   },
   "directories": {
     "test": "test"
   },
-  "homepage": "https://github.com/DIGITALAX/LitListenerSDK#readme",
+  "homepage": "https://github.com/LIT-Protocol/LitListenerSDK",
   "dependencies": {
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/transactions": "5.7.0",
