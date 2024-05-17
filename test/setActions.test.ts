@@ -37,11 +37,12 @@ describe("Set the Actions of the Circuit", () => {
     175177,
   );
 
-  describe("Set Custom Actions", () => {
+  describe("SetCustomActions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
         undefined,
         true,
       );
@@ -115,10 +116,8 @@ describe("Set the Actions of the Circuit", () => {
       const pkpTokenId = pkpTokenData.tokenId;
       publicKey = await pkpContract.getPubkey(pkpTokenId);
 
-      const authSig = await newCircuit.generateAuthSignature(31337);
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
-        authSig,
       });
 
       const responseLog = newCircuit.getLogs(LogCategory.RESPONSE);
@@ -128,8 +127,8 @@ describe("Set the Actions of the Circuit", () => {
       );
       const parsed = JSON.parse(responseLog[0].responseObject);
       expect(parsed.response).to.deep.equal({
-        custom0: "Custom Action 1",
-        custom1: "Custom Action 2",
+        0: "{\"custom0\":\"Custom Action 1\"}",
+        1: "{\"custom1\":\"Custom Action 2\"}",
       });
     });
   });
@@ -139,6 +138,7 @@ describe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
         undefined,
         true,
       );
@@ -170,7 +170,7 @@ describe("Set the Actions of the Circuit", () => {
       });
     });
 
-    it("Define the Actions Correctly", async () => {
+    it("DefineTheActionsCorrectly", async () => {
       // Define the fetch actions
       const buffer = Buffer.from("polygon");
       const fetchActions: FetchAction[] = [
@@ -267,6 +267,7 @@ describe("Set the Actions of the Circuit", () => {
       const noSignCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
+        undefined,
         true,
       );
       noSignCircuit.setConditionalLogic({
@@ -327,10 +328,9 @@ describe("Set the Actions of the Circuit", () => {
       );
       const pkpTokenId = pkpTokenData.tokenId;
       publicKey = await pkpContract.getPubkey(pkpTokenId);
-      const authSig = await noSignCircuit.generateAuthSignature(80001);
+
       await noSignCircuit.start({
         publicKey: pkpTokenData.publicKey,
-        authSig,
       });
 
       const responseLog = noSignCircuit.getLogs(LogCategory.RESPONSE);
@@ -357,10 +357,8 @@ describe("Set the Actions of the Circuit", () => {
       );
       const pkpTokenId = pkpTokenData.tokenId;
       publicKey = await pkpContract.getPubkey(pkpTokenId);
-      const authSig = await newCircuit.generateAuthSignature(31337);
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
-        authSig,
       });
 
       const responseLog = newCircuit.getLogs(LogCategory.RESPONSE);
@@ -383,6 +381,7 @@ describe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
         undefined,
         true,
       );
@@ -439,10 +438,9 @@ describe("Set the Actions of the Circuit", () => {
       );
       const pkpTokenId = pkpTokenData.tokenId;
       publicKey = await pkpContract.getPubkey(pkpTokenId);
-      const authSig = await newCircuit.generateAuthSignature(31337);
+
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
-        authSig,
       });
 
       const responseLog = newCircuit.getLogs(LogCategory.RESPONSE);
@@ -461,11 +459,12 @@ describe("Set the Actions of the Circuit", () => {
   });
 
   let generateUnsignedTransactionData: LitUnsignedTransaction;
-  describe("Set Contract Actions", () => {
+  describe("SetContractActions", () => {
     before(async () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
         undefined,
         true,
       );
@@ -576,10 +575,8 @@ describe("Set the Actions of the Circuit", () => {
       const pkpTokenId = pkpTokenData.tokenId;
       publicKey = await pkpContract.getPubkey(pkpTokenId);
 
-      const authSig = await newCircuit.generateAuthSignature(31337);
       await newCircuit.start({
         publicKey,
-        authSig,
       });
 
       const responseLog = newCircuit.getLogs(LogCategory.RESPONSE);
@@ -599,7 +596,7 @@ describe("Set the Actions of the Circuit", () => {
       }).to.deep.include({
         contract0: {
           ...generateUnsignedTransactionData,
-          value: { _hex: "0x00", _isBigNumber: true },
+          value: { hex: "0x00", type: 'BigNumber' },
           gasLimit: BigNumber.from("100000"),
           maxFeePerGas: BigNumber.from("2003791642"),
           maxPriorityFeePerGas: BigNumber.from("500947910"),
@@ -608,7 +605,7 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Sets the Combined Actions", () => {
+  describe("SetsTheCombinedActions", () => {
     let generateUnsignedTransactionData: LitUnsignedTransaction,
       fromSigner: any,
       from: any,
@@ -628,6 +625,7 @@ describe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
         undefined,
         true,
       );
@@ -770,6 +768,7 @@ describe("Set the Actions of the Circuit", () => {
       const noSignCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
         undefined,
+        undefined,
         true,
       );
       noSignCircuit.setConditionalLogic({
@@ -777,6 +776,11 @@ describe("Set the Actions of the Circuit", () => {
         interval: 10000,
       });
       const buffer = Buffer.from("polygon");
+      const hash = await crypto.subtle.digest('SHA-256', new Uint8Array(
+        buffer.buffer,
+        buffer.byteOffset,
+        buffer.byteLength,
+      ));
       const fetchActions: FetchAction[] = [
         {
           type: "fetch",
@@ -786,11 +790,7 @@ describe("Set the Actions of the Circuit", () => {
           endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
-          toSign: new Uint8Array(
-            buffer.buffer,
-            buffer.byteOffset,
-            buffer.byteLength,
-          ),
+          toSign: new Uint8Array(hash),
         },
         {
           type: "fetch",
@@ -800,11 +800,7 @@ describe("Set the Actions of the Circuit", () => {
           endpoint: "/zones/forecast/MIZ018/forecast",
           responsePath: "geometry.type",
           signCondition: [{ type: "&&", operator: "==", value: "Hello" }],
-          toSign: new Uint8Array(
-            buffer.buffer,
-            buffer.byteOffset,
-            buffer.byteLength,
-          ),
+          toSign: new Uint8Array(hash),
         },
       ];
 
@@ -870,10 +866,9 @@ describe("Set the Actions of the Circuit", () => {
         ethers.utils.parseUnits("40", 18),
       );
 
-      const authSig = await newCircuit.generateAuthSignature(31337);
+
       await newCircuit.start({
         publicKey,
-        authSig,
         broadcast: true,
       });
 
@@ -892,11 +887,11 @@ describe("Set the Actions of the Circuit", () => {
           maxPriorityFeePerGas: BigNumber.from("500000003"),
         },
       }).to.deep.equal({
-        custom0: "Custom Action 1",
-        custom1: "Custom Action 2",
+        0: '{"custom0":"Custom Action 1"}',
+        1: '{"custom1":"Custom Action 2"}',
         contract2: {
           ...generateUnsignedTransactionData,
-          value: { _hex: "0x00", _isBigNumber: true },
+          value: { type: 'BigNumber', hex: '0x00' },
           gasLimit: BigNumber.from("100000"),
           maxFeePerGas: BigNumber.from("2000000014"),
           maxPriorityFeePerGas: BigNumber.from("500000003"),
@@ -937,7 +932,7 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("Evaluate Contract Action Nonce data", () => {
+  describe("EvaluateContractActionNonceData", () => {
     let from: any, fromAddress: any, to: any, contract: any;
     beforeEach(async () => {
       const provider = new ethers.providers.JsonRpcProvider(
@@ -967,6 +962,7 @@ describe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
         undefined,
         true,
       );
@@ -1080,10 +1076,8 @@ describe("Set the Actions of the Circuit", () => {
         value: ethers.utils.parseEther("20.0"),
       });
 
-      const authSig = await newCircuit.generateAuthSignature(31337);
       await newCircuit.start({
         publicKey,
-        authSig,
         broadcast: true,
       });
 
@@ -1111,7 +1105,7 @@ describe("Set the Actions of the Circuit", () => {
     });
   });
 
-  describe("functions with secure key", () => {
+  describe("FunctionsWithSecureKey", () => {
     let litActionCodeReturned: string,
       secureKeyReturned: string,
       from: any,
@@ -1122,6 +1116,7 @@ describe("Set the Actions of the Circuit", () => {
       // Create a test instance of the circuit
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
         undefined,
         true,
       );
@@ -1177,11 +1172,10 @@ describe("Set the Actions of the Circuit", () => {
       const pkpTokenId = pkpTokenData.tokenId;
       publicKey = await pkpContract.getPubkey(pkpTokenId);
 
-      const authSig = await newCircuit.generateAuthSignature(31337);
+
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
         ipfsCID: ipfsBundledCID,
-        authSig,
         secureKey,
         broadcast: true,
       });
@@ -1228,6 +1222,7 @@ describe("Set the Actions of the Circuit", () => {
 
       newCircuit = new Circuit(
         new ethers.Wallet(process.env.PRIVATE_KEY, chronicleProvider),
+        undefined,
         undefined,
         true,
       );
@@ -1318,11 +1313,10 @@ describe("Set the Actions of the Circuit", () => {
       const added = await ipfsClient.add(JSON.stringify(res.litActionCode));
       const ipfsBundledCID = added.path;
 
-      const authSig = await newCircuit.generateAuthSignature(31337);
+
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
         ipfsCID: ipfsBundledCID,
-        authSig,
         secureKey: res.secureKey,
         broadcast: true,
       });

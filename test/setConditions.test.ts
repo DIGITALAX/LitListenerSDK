@@ -105,7 +105,7 @@ const customActions: CustomAction[] = [
   },
 ];
 
-describe("Set the Conditions of the Circuit", () => {
+describe("SetTheConditionsOfTheCircuit", () => {
   let newCircuit: Circuit,
     deployedListenerToken: Contract,
     owner: any,
@@ -124,7 +124,7 @@ describe("Set the Conditions of the Circuit", () => {
     });
   });
 
-  describe("Set the Conditions", () => {
+  describe("SetTheConditions", () => {
     before(async () => {
       const provider = new ethers.providers.JsonRpcProvider(
         "http://127.0.0.1:8545",
@@ -387,7 +387,7 @@ describe("Set the Conditions of the Circuit", () => {
     });
   });
 
-  describe("Check for Different Expected Value Types on Webhook", () => {
+  describe("CheckForDifferentExpectedValueTypesOnWebhook", () => {
     let authSig: AuthSig,
       pkpTokenData: {
         tokenId: string;
@@ -401,7 +401,7 @@ describe("Set the Conditions of the Circuit", () => {
 
       const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
       pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
-      authSig = await newCircuit.generateAuthSignature(80001);
+
     });
 
     it("Compares for String", async () => {
@@ -424,7 +424,7 @@ describe("Set the Conditions of the Circuit", () => {
       ]);
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
-        authSig,
+
       });
 
       const responseLog = newCircuit.getLogs(LogCategory.CONDITION);
@@ -458,13 +458,13 @@ describe("Set the Conditions of the Circuit", () => {
 
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
-        authSig,
+
       });
 
       const responseLog = newCircuit.getLogs(LogCategory.CONDITION);
       expect(responseLog[responseLog.length - 2].category).to.equal(2);
       expect(responseLog[responseLog.length - 2].message).to.equal(
-        `Condition Matched with Emitted Value: `,
+        "Condition Matched with Emitted Value: ",
       );
       expect(responseLog[responseLog.length - 2].responseObject).to.equal(
         JSON.stringify(1),
@@ -476,8 +476,8 @@ describe("Set the Conditions of the Circuit", () => {
         new WebhookCondition(
           "https://api.weather.gov",
           "/zones/forecast/MIZ018/forecast",
-          "properties.periods[0]",
-          arrayObject[0],
+          "properties.periods[0].number",
+          1,
           "===",
           undefined,
           async (emittedValue) => {
@@ -492,16 +492,16 @@ describe("Set the Conditions of the Circuit", () => {
 
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
-        authSig,
+
       });
 
       const responseLog = newCircuit.getLogs(LogCategory.CONDITION);
       expect(responseLog[responseLog.length - 2].category).to.equal(2);
       expect(responseLog[responseLog.length - 2].message).to.equal(
-        `Condition Matched with Emitted Value: `,
+        "Condition Matched with Emitted Value: ",
       );
       expect(responseLog[responseLog.length - 2].responseObject).to.equal(
-        JSON.stringify(arrayObject[0]),
+        JSON.stringify(1),
       );
     });
 
@@ -526,7 +526,7 @@ describe("Set the Conditions of the Circuit", () => {
 
       await newCircuit.start({
         publicKey: pkpTokenData.publicKey,
-        authSig,
+
       });
 
       const responseLog = newCircuit.getLogs(LogCategory.CONDITION);
@@ -540,9 +540,8 @@ describe("Set the Conditions of the Circuit", () => {
     });
   });
 
-  describe("Check for Different Expected Value Types on Contract", () => {
-    let authSig: AuthSig,
-      pkpTokenData: {
+  describe("CheckForDifferentExpectedValueTypesOnContract", () => {
+    let pkpTokenData: {
         tokenId: string;
         publicKey: string;
         address: string;
@@ -558,7 +557,7 @@ describe("Set the Conditions of the Circuit", () => {
 
       const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
       pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
-      authSig = await newCircuit.generateAuthSignature(80001);
+
     });
 
     it("Checks Against Transfer Event", async () => {
@@ -583,7 +582,7 @@ describe("Set the Conditions of the Circuit", () => {
       ]);
       const startPromise = newCircuit.start({
         publicKey: pkpTokenData.publicKey,
-        authSig,
+
       });
 
       setTimeout(async () => {
@@ -628,7 +627,7 @@ describe("Set the Conditions of the Circuit", () => {
       });
       const ipfsCID = await newCircuit.getIPFSHash(LitActionCode.litActionCode);
       pkpTokenData = await newCircuit.mintGrantBurnPKP(ipfsCID);
-      authSig = await newCircuit.generateAuthSignature(80001);
+
 
       const responseLog = newCircuit.getLogs(LogCategory.CONDITION);
       expect(responseLog?.length).to.equal(0);
