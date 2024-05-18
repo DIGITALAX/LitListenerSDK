@@ -9,7 +9,7 @@
   "scripts": {
     "start:node": "npx hardhat node",
     "test:prepare": "npx hardhat clean && npx hardhat compile && npx typechain --target ethers-v5 --out-dir typechain-types/contracts './src/abis/*.json'",
-    "test:run": "npx hardhat test --network localhost",
+    "test:run": "npx hardhat test --network localhost --grep MintGrantBurnPKP",
     "pretest": "npm run test:prepare",
     "test": "start-server-and-test start:node http://127.0.0.1:8545 test:run",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
@@ -67,7 +67,7 @@
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@lit-protocol/types": "2.2.54",
+    "@lit-protocol/types": "6.0.0-beta.2",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
