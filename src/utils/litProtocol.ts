@@ -53,6 +53,7 @@ export const generateSessionSig = async (
 
     const sessionSigs = await client.getSessionSigs({
       chain: "ethereum",
+      pkpPublicKey: pkpPublicKey,
       resourceAbilityRequests: resources,
       authNeededCallback: async (params: AuthCallbackParams) => {
         console.log("resourceAbilityRequests:", params.resources);
@@ -73,7 +74,7 @@ export const generateSessionSig = async (
           client,
           signer,
           blockHash,
-          //@ts-ignore type interface mismatch
+
           params.resourceAbilityRequests,
           1,
           params.uri,

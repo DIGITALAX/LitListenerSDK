@@ -16,6 +16,8 @@ npm i lit-listener-sdk
 
 ## Quick Start
 
+**Note: Currentlly only supports Lit testnetworks `cayenne` and `habanero`**
+
 ```typescript
 import { ethers, BigNumber } from "ethers";
 import { Circuit } from "lit-listener-sdk";
@@ -23,7 +25,7 @@ import { Circuit } from "lit-listener-sdk";
 const chronicleProvider = new ethers.providers.JsonRpcProvider("https://chain-rpc.litprotocol.com/http", 175177);
 const chronicleSigner = new ethers.Wallet(YOUR_PRIVATE_KEY, chronicleProvider);
 
-const quickStartCircuit = new Circuit(chronicleSigner);
+const quickStartCircuit = new Circuit(chronicleSigner, 'cayenne');
 
 quickStartCircuit.setConditions([
  new ContractCondition(

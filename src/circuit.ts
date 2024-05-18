@@ -10,7 +10,7 @@ import {
   getBytesFromMultihash,
   hashHex,
 } from "./utils/litProtocol";
-import { AuthSig, SessionSigsMap } from "@lit-protocol/types";
+import { AuthSig, LIT_NETWORKS_KEYS, SessionSigsMap } from "@lit-protocol/types";
 import { joinSignature } from "@ethersproject/bytes";
 import {
   PKP_CONTRACT_ADDRESS,
@@ -223,6 +223,7 @@ export class Circuit extends EventEmitter {
    */
   constructor(
     signer?: ethers.Signer,
+    litNetwork?: LIT_NETWORKS_KEYS,
     pkpContractAddress = PKP_CONTRACT_ADDRESS,
     pkpHelperContractAddress = PKP_HELPER_CONTRACT_ADDRESS,
     errorHandlingModeStrict: boolean = false,
@@ -231,7 +232,7 @@ export class Circuit extends EventEmitter {
     this.errorHandlingModeStrict = errorHandlingModeStrict;
     this.signer = signer ? signer : ethers.Wallet.createRandom();
     this.litClient = new LitJsSdk.LitNodeClient({
-      litNetwork: "cayenne",
+      litNetwork: litNetwork ?? 'cayenne',
       debug: false,
     });
     this.monitor = new ConditionMonitor();
