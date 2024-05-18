@@ -9,7 +9,7 @@
   "scripts": {
     "start:node": "npx hardhat node",
     "test:prepare": "npx hardhat clean && npx hardhat compile && npx typechain --target ethers-v5 --out-dir typechain-types/contracts './src/abis/*.json'",
-    "test:run": "npx hardhat test --network localhost --grep MintGrantBurnPKP",
+    "test:run": "npx hardhat test --network localhost",
     "pretest": "npm run test:prepare",
     "test": "start-server-and-test start:node http://127.0.0.1:8545 test:run",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
